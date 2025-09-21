@@ -1,17 +1,19 @@
 import React from 'react';
 import { CheckCircle, Award, Users, Palette } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const About = () => {
+  const { t } = useLanguage();
   const features = [
     {
       icon: CheckCircle,
-      title: "Qualité Garantie",
-      description: "Matériaux premium et techniques éprouvées pour un résultat durable"
+      title: t('qualityMaterials'),
+      description: t('qualityDesc')
     },
     {
       icon: Award,
-      title: "Expertise Certifiée",
-      description: "15 ans d'expérience et formations continues aux dernières innovations"
+      title: t('experiencedTeam'),
+      description: t('teamDesc')
     },
     {
       icon: Users,
@@ -20,8 +22,8 @@ const About = () => {
     },
     {
       icon: Palette,
-      title: "Conseils Personnalisés",
-      description: "Accompagnement dans le choix des couleurs et finitions"
+      title: t('guarantee'),
+      description: t('guaranteeDesc')
     }
   ];
 
@@ -32,16 +34,13 @@ const About = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-6">
               <Award className="h-5 w-5 text-accent" />
-              <span className="text-accent font-medium">Notre Expertise</span>
+              <span className="text-accent font-medium">{t('whyChooseUs')}</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-              Votre Vision, Notre
-              <span className="block text-accent">Savoir-Faire</span>
+              {t('aboutTitle')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Depuis 15 ans, PeinturePro transforme les espaces avec passion et précision. 
-              Notre équipe d'artisans expérimentés apporte créativité et excellence technique 
-              à chaque projet, qu'il s'agisse de rénovation ou de création.
+              {t('aboutDescription')}
             </p>
           </div>
 

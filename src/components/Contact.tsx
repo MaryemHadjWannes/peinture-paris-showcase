@@ -15,9 +15,11 @@ import {
   Linkedin
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Contact = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,12 +87,10 @@ const Contact = () => {
               <span className="text-accent font-medium">Contactez-Nous</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-              Démarrons Votre
-              <span className="block text-accent">Projet Ensemble</span>
+              {t('contactTitle')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Prêt à transformer votre espace ? Contactez-nous pour un devis gratuit 
-              et personnalisé. Notre équipe est à votre écoute.
+              {t('contactDescription')}
             </p>
           </div>
 
@@ -113,7 +113,7 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        placeholder="Votre nom"
+                        placeholder={t('yourName')}
                       />
                     </div>
                     <div className="space-y-2">
@@ -125,7 +125,7 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        placeholder="votre@email.com"
+                        placeholder={t('yourEmail')}
                       />
                     </div>
                   </div>
@@ -139,7 +139,7 @@ const Contact = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="+33 1 23 45 67 89"
+                        placeholder={t('yourPhone')}
                       />
                     </div>
                     <div className="space-y-2">
@@ -162,13 +162,13 @@ const Contact = () => {
                       value={formData.message}
                       onChange={handleChange}
                       required
-                      placeholder="Décrivez votre projet en détail..."
+                      placeholder={t('projectDetails')}
                       rows={4}
                     />
                   </div>
                   
                   <Button type="submit" size="lg" className="w-full hover-lift">
-                    Envoyer la Demande
+                    {t('sendMessage')}
                     <Send className="ml-2 h-5 w-5" />
                   </Button>
                 </form>

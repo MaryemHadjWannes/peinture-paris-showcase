@@ -12,12 +12,15 @@ import {
   ArrowRight,
   CheckCircle
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Services = () => {
+  const { t } = useLanguage();
+  
   const services = [
     {
       icon: Home,
-      title: "Peinture Intérieure",
+      title: t('interiorPainting'),
       description: "Transformation complète de vos espaces intérieurs avec des finitions impeccables",
       features: ["Préparation des surfaces", "Peintures écologiques", "Finitions décoratives"],
       price: "À partir de 25€/m²",
@@ -25,7 +28,7 @@ const Services = () => {
     },
     {
       icon: Building,
-      title: "Peinture Extérieure",
+      title: t('exteriorPainting'),
       description: "Protection et embellissement de vos façades avec des produits résistants",
       features: ["Nettoyage haute pression", "Traitement anti-mousse", "Garantie 10 ans"],
       price: "À partir de 35€/m²",
@@ -33,7 +36,7 @@ const Services = () => {
     },
     {
       icon: Palette,
-      title: "Peinture Décorative",
+      title: t('decorativePainting'),
       description: "Créations artistiques personnalisées pour des espaces uniques",
       features: ["Trompe-l'œil", "Fresques murales", "Effets de matière"],
       price: "Sur devis",
@@ -65,12 +68,10 @@ const Services = () => {
               <span className="text-accent font-medium">Nos Services</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-              Services
-              <span className="block text-accent">Professionnels</span>
+              {t('servicesTitle')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Une gamme complète de services de peinture adaptés à tous vos besoins, 
-              du résidentiel au commercial.
+              {t('servicesDescription')}
             </p>
           </div>
 
