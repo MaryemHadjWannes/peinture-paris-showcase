@@ -4,6 +4,7 @@ import path from "path";
 import cors from "cors";
 import nodemailer from "nodemailer";
 import fs from "fs";
+import googleReviewsRouter from "./googleReviewsApi";
 
 const app = express();
 const PORT = 5000;
@@ -18,6 +19,9 @@ app.use(cors({
 // Parse URL-encoded and JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Google Reviews API route
+app.use("/api/reviews", googleReviewsRouter);
 
 // Set upload folder
 const uploadDir = path.join(process.cwd(), "public/uploads");

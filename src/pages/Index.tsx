@@ -4,6 +4,7 @@ import About from "@/components/About";
 import Portfolio from "@/components/Portfolio";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
+import GoogleReviews from "@/components/GoogleReviews";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -22,6 +23,7 @@ const Index = () => {
         <About />
         <Portfolio />
         <Services />
+        <GoogleReviews />
         <Contact />
 
         {/* Google Map */}
