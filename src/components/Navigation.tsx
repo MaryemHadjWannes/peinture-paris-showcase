@@ -53,7 +53,7 @@ const Navigation = () => {
           <div className="hidden lg:flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-sm">
               <Phone className="h-4 w-4 text-accent" />
-              <span>+33 1 23 45 67 89</span>
+              <span>+33 06 02 22 80 01</span>
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <Mail className="h-4 w-4 text-accent" />

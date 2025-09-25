@@ -23,17 +23,30 @@ const Contact = () => {
     email: '',
     phone: '',
     project: '',
-    message: ''
+    message: '',
+    photos: [] as File[]
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Message envoyé !",
-      description: "Nous vous recontacterons dans les plus brefs délais.",
-    });
-    setFormData({ name: '', email: '', phone: '', project: '', message: '' });
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newPhotos = Array.from(e.target.files).filter(file =>
+        file.type.startsWith('image/')
+      );
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newPhotos]
+      }));
+    }
   };
+
+  const handleRemovePhoto = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
+  };
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -42,31 +55,83 @@ const Contact = () => {
     }));
   };
 
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: "Téléphone",
-      content: "+33 1 23 45 67 89",
-      subtitle: "Lun-Ven 8h-18h"
-    },
-    {
-      icon: Mail,
-      title: "Email",
-      content: "contact@peinturepro.fr",
-      subtitle: "Réponse sous 24h"
-    },
-    {
-      icon: MapPin,
-      title: "Adresse",
-      content: "123 Rue de la Peinture",
-      subtitle: "75001 Paris, France"
-    },
-    {
-      icon: Clock,
-      title: "Horaires",
-      content: "Lundi - Vendredi",
-      subtitle: "8h00 - 18h00"
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFormData(prev => ({
+        ...prev,
+        files: Array.from(e.target.files)
+      }));
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  console.log("=== Submitting form ===");
+  console.log("Form data before sending:", formData);
+
+  const data = new FormData();
+  data.append("name", formData.name);
+  data.append("email", formData.email);
+  data.append("phone", formData.phone);
+  data.append("project", formData.project);
+  data.append("message", formData.message);
+
+  formData.photos.forEach((photo, idx) => {
+    console.log(`Attaching photo[${idx}]:`, photo.name, photo.size, photo.type);
+    data.append("photos", photo);
+  });
+
+  try {
+    const res = await fetch("http://localhost:5000/upload", {
+      method: "POST",
+      body: data,
+    });
+
+    console.log("Response status:", res.status);
+
+    if (res.ok) {
+      const json = await res.json();
+      console.log("Server response:", json);
+
+      toast({
+        title: "Message envoyé !",
+        description: "Nous vous recontacterons dans les plus brefs délais.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        project: "",
+        message: "",
+        photos: [],
+      });
+    } else {
+      const errorText = await res.text();
+      console.error("Server error response:", errorText);
+
+      toast({
+        title: "Erreur",
+        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+      });
+    }
+  } catch (err) {
+    console.error("Fetch failed:", err);
+
+    toast({
+      title: "Erreur",
+      description: "Impossible d'envoyer le message. Veuillez réessayer.",
+    });
+  }
+};
+
+
+  const contactInfo = [
+    { icon: Phone, title: "Téléphone", content: "+33 06 02 22 80 01", subtitle: "Lun-Ven 8h-18h" },
+    { icon: Mail, title: "Email", content: "contact@peinturepro.fr", subtitle: "Réponse sous 24h" },
+    { icon: MapPin, title: "Adresse", content: "103 rue saint ladre", subtitle: "59400 cambrai, France" },
+    { icon: Clock, title: "Horaires", content: "Lundi - Vendredi", subtitle: "8h00 - 18h00" }
   ];
 
   const socialLinks = [
@@ -129,7 +194,7 @@ const Contact = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Téléphone</Label>
@@ -139,7 +204,7 @@ const Contact = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="+33 1 23 45 67 89"
+                        placeholder="+33 06 02 22 80 01"
                       />
                     </div>
                     <div className="space-y-2">
@@ -153,7 +218,7 @@ const Contact = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="message">Description du projet *</Label>
                     <Textarea
@@ -166,7 +231,41 @@ const Contact = () => {
                       rows={4}
                     />
                   </div>
-                  
+
+                  <div className="space-y-2">
+                    <Label htmlFor="photos">Photos de votre maison / projet</Label>
+                    <Input
+                      id="photos"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                    />
+                    
+                    {formData.photos.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {formData.photos.map((photo, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={URL.createObjectURL(photo)}
+                              alt={`preview ${index}`}
+                              className="w-24 h-24 object-cover rounded border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhoto(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+
+
                   <Button type="submit" size="lg" className="w-full hover-lift">
                     Envoyer la Demande
                     <Send className="ml-2 h-5 w-5" />

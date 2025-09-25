@@ -22,11 +22,11 @@ const Footer = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4 text-accent" />
-                  <span className="text-sm">123 Rue de la Peinture, 75001 Paris</span>
+                  <span className="text-sm">103 rue saint ladre, 59400 cambrai</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4 text-accent" />
-                  <span className="text-sm">+33 1 23 45 67 89</span>
+                  <span className="text-sm">+33 06 02 22 80 01</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-accent" />
@@ -39,10 +39,10 @@ const Footer = () => {
             <div>
               <h4 className="font-heading font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
+                <li>Enduit Professionnel</li>
                 <li>Peinture Intérieure</li>
                 <li>Peinture Extérieure</li>
-                <li>Peinture Décorative</li>
-                <li>Rénovation Complète</li>
+                <li>Plâtrerie et Finition</li>
                 <li>Devis Gratuit</li>
               </ul>
             </div>
