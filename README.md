@@ -4,6 +4,50 @@
 
 **URL**: https://lovable.dev/projects/54da7c37-5d8b-4ede-a8f1-41a279ebbf04
 
+## Setup Instructions
+
+### Environment Configuration
+
+1. **Google Reviews API Setup**:
+   - Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Get a Google Places API key:
+     - Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+     - Create a new project or select an existing one
+     - Enable the "Places API (New)" 
+     - Create credentials (API key)
+     - Add your API key to `.env`:
+       ```
+       GOOGLE_API_KEY=your_actual_api_key_here
+       ```
+   - **Important**: The API key is used server-side only and is never exposed to frontend code
+
+2. **Development Setup**:
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Start the backend server (runs on port 5000)
+   npm run start
+   
+   # In a new terminal, start the frontend (runs on port 8080)
+   npm run dev
+   ```
+
+### Google Reviews Integration
+
+The application includes a Google Reviews section that displays 5-star reviews for the business:
+
+- **API Endpoint**: `GET /api/reviews`
+- **Place ID**: `ChIJiQ7z-Zu8wkcRlBqQVpTgJpE` (configured for this business)
+- **Language**: French reviews are prioritized
+- **Rating Filter**: Only 5-star reviews are displayed
+- **Component**: `GoogleReviews.tsx` fetches and displays the reviews
+
+The reviews are automatically displayed on the main page between the Services and Contact sections.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -59,6 +103,8 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Express.js (backend)
+- Google Places API
 
 ## How can I deploy this project?
 
