@@ -25,9 +25,9 @@ function useCountUp(to: number, duration = 1.2) {
 }
 
 const Hero = () => {
-  const projects = useCountUp(50, 1.5); // Reduced for a new company
-  const clients = useCountUp(30, 1.8); // Replaced years with client count
-  const satisfaction = useCountUp(95, 2); // Slightly lower but still high
+  const projects = useCountUp(50, 1.5);
+  const clients = useCountUp(30, 1.8);
+  const satisfaction = useCountUp(95, 2);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -35,10 +35,13 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden select-none pt-20 md:pt-24">
+    <section
+      id="home"
+      className="relative min-h-[95vh] sm:min-h-[110vh] flex items-center justify-center overflow-hidden select-none px-4 sm:px-6"
+    >
       {/* Parallax Background */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 min-h-[95vh] sm:min-h-[110vh]"
         initial={{ scale: 1.08, opacity: 0.7 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 2, ease: 'easeOut' }}
@@ -46,16 +49,17 @@ const Hero = () => {
         <img
           src={heroImage}
           alt="Travaux de peinture professionnels"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
         />
         {/* Glassy gradient overlay */}
-        <div className="absolute inset-0 bg-blue-500/20 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30 min-h-[95vh] sm:min-h-[110vh]" />
       </motion.div>
+
       {/* Main Content */}
-      <div className="relative z-10 px-4 max-w-4xl mx-auto text-center text-white">
+      <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
         {/* Heading */}
         <motion.h1
-          className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight drop-shadow-2xl"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold mb-6 leading-tight drop-shadow-2xl"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.7, type: 'spring' }}
@@ -65,9 +69,10 @@ const Hero = () => {
             Espaces
           </span>
         </motion.h1>
+
         {/* Subtitle */}
         <motion.p
-          className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed"
+          className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 max-w-xl mx-auto leading-relaxed"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
@@ -75,13 +80,23 @@ const Hero = () => {
           Peinture intérieure, extérieure, enduit et plâtrerie en France.<br />
           Qualité exceptionnelle et service dédié pour vos projets.
         </motion.p>
+
+
+        {/* Assurance Décennale */}
+        <div className="flex justify-center items-center mb-6">
+          <span className="text-accent font-semibold text-base sm:text-lg bg-white/90 px-4 py-1 rounded shadow-sm">
+            Protégé par l'assurance décennale
+          </span>
+        </div>
+
+
         {/* Animated Stats */}
         <motion.div
-          className="grid grid-cols-3 gap-8 mb-12 max-w-md mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto"
           initial="hidden"
           animate="visible"
           variants={{
-            visible: { transition: { staggerChildren: 0.23 } }
+            visible: { transition: { staggerChildren: 0.23 } },
           }}
         >
           <motion.div
@@ -91,8 +106,10 @@ const Hero = () => {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            <div className="text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">{projects}+</div>
-            <div className="text-sm text-white/80">Projets Réalisés</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {projects}+
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Projets Réalisés</div>
           </motion.div>
           <motion.div
             className="text-center"
@@ -101,8 +118,10 @@ const Hero = () => {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            <div className="text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">{clients}+</div>
-            <div className="text-sm text-white/80">Clients Satisfaits</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {clients}+
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Clients Satisfaits</div>
           </motion.div>
           <motion.div
             className="text-center"
@@ -111,10 +130,13 @@ const Hero = () => {
               visible: { opacity: 1, y: 0 },
             }}
           >
-            <div className="text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">{satisfaction}%</div>
-            <div className="text-sm text-white/80">Satisfaction</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {satisfaction}%
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Satisfaction</div>
           </motion.div>
         </motion.div>
+
         {/* CTA Buttons */}
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
@@ -124,7 +146,7 @@ const Hero = () => {
         >
           <Button
             size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-3 shadow-xl hover:scale-105 transition-transform duration-200"
+            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 shadow-xl hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
             onClick={() => scrollToSection('portfolio')}
           >
             Voir Nos Réalisations
@@ -133,7 +155,7 @@ const Hero = () => {
           <Button
             variant="outline"
             size="lg"
-            className="border-white/40 text-black/90 hover:bg-white/10 font-semibold px-8 py-3 shadow hover:scale-105 transition-transform duration-200"
+            className="border-white/40 text-black hover:bg-white/10 font-semibold px-6 sm:px-8 py-3 shadow hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
             onClick={() => scrollToSection('contact')}
           >
             Devis Gratuit

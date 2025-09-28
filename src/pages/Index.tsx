@@ -5,6 +5,7 @@ import Portfolio from "@/components/Portfolio";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import GoogleReviews from "@/components/GoogleReviews";
 
 const Index = () => {
   // Latitude and longitude of your position
@@ -18,8 +19,12 @@ const Index = () => {
     <div className="min-h-screen">
       <Navigation />
       <main>
+        <br></br>
+        <br></br>
+        <br></br>
         <Hero />
         <About />
+        {/*<GoogleReviews />*/}
         <Portfolio />
         <Services />
         <Contact />

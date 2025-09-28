@@ -4,6 +4,10 @@ import path from "path";
 import cors from "cors";
 import nodemailer from "nodemailer";
 import fs from "fs";
+import googleReviewsApi from "./googleReviewsApi"; // adjust the path if needed
+import dotenv from "dotenv";
+dotenv.config();
+console.log("DEBUG KEY:", process.env.GOOGLE_API_KEY);
 
 const app = express();
 const PORT = 5000;
@@ -18,6 +22,8 @@ app.use(cors({
 // Parse URL-encoded and JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use("/api", googleReviewsApi);
 
 // Set upload folder
 const uploadDir = path.join(process.cwd(), "public/uploads");

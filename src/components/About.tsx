@@ -62,7 +62,7 @@ const About = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            PeinturePro transforme vos espaces avec passion et précision.
+            NH Rénovation transforme vos espaces avec passion et précision.
             Nous apportons innovation et excellence à chaque projet.
           </motion.p>
         </div>

@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "Alice Dupont",
+    "text": "Super peinture, travail impeccable !",
+    "rating": 5
+  },
+  {
+    "author_name": "Jean Martin",
+    "text": "Très satisfait du rendu final.",
+    "rating": 5
+  },
+  {
+    "author_name": "Claire Petit",
+    "text": "Service correct, mais un peu lent.",
+    "rating": 4
+  }
+]
