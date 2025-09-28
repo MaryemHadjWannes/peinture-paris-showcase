@@ -1,17 +1,19 @@
-# render.yaml - Deploy Vite + Node/Express project
-
 services:
   - type: web
-    name: hn-renovation      # Your service name
+    name: hn-renovation
     env: node
-    plan: free               # Free instance
-    region: oregon           # Change if you want a different region
-    branch: main             # Branch to deploy
+    plan: free
+    region: oregon
+    branch: main
     buildCommand: npm install && npm run build
     startCommand: npm run start
-    autoDeploy: true         # Auto-deploy on push
+    autoDeploy: true
     envVars:
       - key: PORT
-        value: "5000"
+        value: "10000"   # Render ignores this; it overrides with dynamic port
       - key: GOOGLE_API_KEY
-        from: env             # Use Render dashboard env variable for secret
+        from: env
+      - key: EMAIL_USER
+        from: env
+      - key: EMAIL_PASS
+        from: env
