@@ -114,6 +114,19 @@ app.post("/upload", upload.array("photos"), async (req, res) => {
   }
 });
 
+
+
+// Serve the React frontend build
+const frontendPath = path.join(process.cwd(), "dist");
+app.use(express.static(frontendPath));
+
+// Fallback to index.html for React Router
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
