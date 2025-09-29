@@ -38,8 +38,8 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER || "maryem.hadjwannes@gmail.com",
-    pass: process.env.EMAIL_PASS || "yqcdaakzgnrsekzi"// Store securely in Render secrets
+    user: process.env.EMAIL_USER || "hn.renovation.fr@gmail.com",
+    pass: process.env.EMAIL_PASS || "kodfvmlgojsfkvmq"// Store securely in Render secrets
   }
 });
 
@@ -53,7 +53,7 @@ app.post("/upload", upload.array("photos"), async (req, res) => {
 
     const mailOptions = {
       from: `"${fields.name}" <${fields.email}>`,
-      to: process.env.EMAIL_USER || "maryem.hadjwannes@gmail.com",
+      to: process.env.EMAIL_USER || "hn.renovation.fr@gmail.com",
       subject: `Nouvelle demande de devis: ${fields.project}`,
       text: `
         Nom: ${fields.name}

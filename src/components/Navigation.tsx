@@ -51,7 +51,7 @@ const Navigation = () => {
             </div>
             <div className="flex items-center space-x-2 text-sm">
               <Mail className="h-4 w-4 text-accent" />
-              <span>contact@nh-renovation.fr</span>
+              <span>hn.renovation.fr@gmail.com</span>
             </div>
           </div>
 
@@ -97,8 +97,8 @@ const Navigation = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Mail className="h-4 w-4 text-accent" />
-                    <a href="mailto:contact@nh-renovation.fr" className="hover:text-primary">
-                      contact@nh-renovation.fr
+                    <a href="mailto:hn.renovation.fr@gmail.com" className="hover:text-primary">
+                      hn.renovation.fr@gmail.com
                     </a>
                   </div>
                 </div>

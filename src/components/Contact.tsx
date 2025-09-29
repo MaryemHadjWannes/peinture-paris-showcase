@@ -67,8 +67,12 @@ const Contact = () => {
       data.append('photos', photo);
     });
 
+    // Récupère l'URL de l'API depuis les variables d'environnement
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+
     try {
-      const res = await fetch('http://localhost:5000/upload', {
+      const res = await fetch(`${apiUrl}/upload`, {
         method: 'POST',
         body: data,
       });
@@ -115,7 +119,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email',
-      content: 'contact@nh-renovation.fr',
+      content: 'hn.renovation.fr@gmail.com',
       subtitle: 'Réponse sous 24h',
     },
     {
