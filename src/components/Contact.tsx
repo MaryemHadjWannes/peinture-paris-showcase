@@ -68,9 +68,9 @@ const Contact = () => {
     });
 
     // Récupère l'URL de l'API depuis les variables d'environnement
-    const apiUrl = import.meta.env.VITE_API_URL;
+    const apiUrl = import.meta.env.VITE_API_URL ;
 
-
+ 
     try {
       const res = await fetch(`${apiUrl}/upload`, {
         method: 'POST',

@@ -1,3 +1,10 @@
+html {
+  scroll-padding-top: 4.5rem; /* Adjust to nav height for smooth scroll on anchor */
+}
+
+section[id] {
+  scroll-margin-top: 4.5rem; /* Prevents nav bar from covering section on scroll */
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

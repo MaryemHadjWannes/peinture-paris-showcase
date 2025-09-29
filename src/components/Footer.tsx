@@ -7,7 +7,11 @@ const Footer = () => {
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
-    element?.scrollIntoView({ behavior: 'smooth' });
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.hash = `#${id}`;
+    }
   };
 
   return (
@@ -114,6 +118,22 @@ const Footer = () => {
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
                   <button
+                    onClick={() => scrollToSection('home')}
+                    className="hover:text-accent underline w-full text-left"
+                  >
+                    Accueil
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('services')}
+                    className="hover:text-accent underline w-full text-left"
+                  >
+                    Services
+                  </button>
+                </li>
+                <li>
+                  <button
                     onClick={() => scrollToSection('about')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -126,14 +146,6 @@ const Footer = () => {
                     className="hover:text-accent underline w-full text-left"
                   >
                     Portfolio
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection('testimonials')}
-                    className="hover:text-accent underline w-full text-left"
-                  >
-                    Témoignages
                   </button>
                 </li>
                 <li>
