@@ -2,7 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Paintbrush } from 'lucide-react';
 import { motion } from 'framer-motion';
-import heroImage from '@/assets/hero-painting.jpg';
+import heroImageJpg from '@/assets/hero-painting.jpg';
+import heroImageWebp from '@/assets/hero-painting.webp';
 
 // Animated Counter Hook for Stats
 function useCountUp(to: number, duration = 1.2) {
@@ -46,11 +47,19 @@ const Hero = () => {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 2, ease: 'easeOut' }}
       >
-        <img
-          src={heroImage}
-          alt="Travaux de peinture professionnels"
-          className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
-        />
+        <picture>
+          <source srcSet={heroImageWebp} type="image/webp" />
+          <source srcSet={heroImageJpg} type="image/jpeg" />
+          <img
+            src={heroImageJpg}
+            srcSet={`${heroImageWebp} 1x, ${heroImageJpg} 2x`}
+            alt="Peintre professionnel à Paris réalisant des travaux de peinture intérieure et extérieure, illustration de qualité et savoir-faire."
+            className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
+            loading="lazy"
+            width="1920"
+            height="1080"
+          />
+        </picture>
         {/* Glassy gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30 min-h-[95vh] sm:min-h-[110vh]" />
       </motion.div>

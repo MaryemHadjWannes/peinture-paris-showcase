@@ -18,11 +18,11 @@ const Footer = () => {
             {/* Company Info */}
             <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
-                <img src={nhLogo} alt="NH Logo" className="h-12 sm:h-14 w-auto" />
+                <img src={nhLogo} alt="HN Logo" className="h-12 sm:h-14 w-auto" />
               </div>
               <p className="text-primary-foreground/80 text-sm sm:text-base mb-4 leading-relaxed">
-                Votre partenaire de confiance pour tous vos projets de peinture.
-                Excellence, créativité et satisfaction garantie depuis 15 ans.
+                Votre partenaire de confiance pour tous vos projets de peinture.  
+                Excellence, créativité et satisfaction, protégées par l'assurance décennale.
               </p>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center space-x-2">
@@ -48,10 +48,10 @@ const Footer = () => {
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                   <a
-                    href="mailto:contact@nh-renovation.fr"
+                    href="mailto:contact@hn-renovation.fr"
                     className="text-xs sm:text-sm underline hover:text-accent"
                   >
-                    contact@nh-renovation.fr
+                    contact@hn-renovation.fr
                   </a>
                 </div>
               </div>
@@ -152,7 +152,7 @@ const Footer = () => {
           <div className="pt-6 sm:pt-8 border-t border-primary-foreground/20">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 text-xs sm:text-sm">
               <div className="flex items-center space-x-2">
-                <span>© {currentYear} NH Renovation. Tous droits réservés.</span>
+                <span>© {currentYear} HN Renovation. Tous droits réservés.</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span>Fait avec</span>
