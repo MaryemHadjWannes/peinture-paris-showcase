@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 // Use Render assigned PORT or fallback
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000 ;
 
 // Allow CORS (optional if frontend is served by same server)
 app.use(cors({
