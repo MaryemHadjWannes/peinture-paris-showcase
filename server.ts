@@ -76,6 +76,8 @@ app.post("/upload", upload.array("photos"), async (req, res) => {
 // Serve frontend build
 const frontendPath = path.join(process.cwd(), "dist");
 app.use(express.static(frontendPath));
-app.get("/*", (_, res) => res.sendFile(path.join(frontendPath, "index.html")));
+app.get(/^(?!\/(api|upload)).*$/, (_, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
