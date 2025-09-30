@@ -35,25 +35,43 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // Nodemailer setup
+// *** FIX: Use explicit host/port for better reliability on cloud servers (Render) ***
+// *** FIX: Remove hardcoded password for security and to ensure App Password is used ***
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: 'smtp.gmail.com', // Explicitly set host
+  port: 465,             // Use Port 465 for SMTPS
+  secure: true,          // Must be true for port 465 (SMTPS)
   auth: {
+    // The fallback email address is fine, but the password MUST be loaded from env
     user: process.env.EMAIL_USER || "hn.renovation.fr@gmail.com",
-    pass: process.env.EMAIL_PASS || "kodfvmlgojsfkvmq"// Store securely in Render secrets
-  }
+    pass: process.env.EMAIL_PASS // REMOVED: || "kodfvmlgojsfkvmq" (This must be the 16-character App Password set in Render secrets)
+  },
+  // Adding a connection timeout to help diagnose connection issues, though Nodemailer has a default
+  connectionTimeout: 30000, // 30 seconds
+  socketTimeout: 30000,     // 30 seconds
 });
 
 // API routes
 app.use("/api", googleReviewsApi);
 
 app.post("/upload", upload.array("photos"), async (req, res) => {
+  // Define default recipient in case EMAIL_USER is not set
+  const recipientEmail = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";
+
   try {
     const fields = req.body;
-    const files = req.files as Express.Multer.File[];
+    // Type assertion for files (good practice in TS)
+    const files = req.files as Express.Multer.File[] | undefined; 
+
+    // Check if files exist and map them for attachments
+    const attachments = files?.map(f => ({ 
+      filename: f.originalname, 
+      path: f.path 
+    }));
 
     const mailOptions = {
       from: `"${fields.name}" <${fields.email}>`,
-      to: process.env.EMAIL_USER || "hn.renovation.fr@gmail.com",
+      to: recipientEmail, // Use the defined recipient
       subject: `Nouvelle demande de devis: ${fields.project}`,
       text: `
         Nom: ${fields.name}
@@ -62,14 +80,17 @@ app.post("/upload", upload.array("photos"), async (req, res) => {
         Projet: ${fields.project}
         Message: ${fields.message}
       `,
-      attachments: files?.map(f => ({ filename: f.originalname, path: f.path }))
+      attachments: attachments
     };
 
     await transporter.sendMail(mailOptions);
     res.json({ message: "Formulaire envoyé avec succès !" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
+    // Log the full error to the console (Render logs)
+    console.error("Nodemailer Error during sendMail:", err); 
+    
+    // Provide a more informative error response
+    res.status(500).json({ error: "Erreur lors de l'envoi de l'email. Veuillez vérifier les logs du serveur (Render) pour plus de détails." });
   }
 });
 
