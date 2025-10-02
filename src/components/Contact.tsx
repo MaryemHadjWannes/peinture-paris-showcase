@@ -52,34 +52,28 @@ const Contact = () => {
     }));
   };
 
+  // Replace with your Formspree endpoint after signup (see below)
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdkwzzlz';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('=== Submitting form ===');
-    console.log('Form data before sending:', formData);
     const data = new FormData();
     data.append('name', formData.name);
     data.append('email', formData.email);
     data.append('phone', formData.phone);
     data.append('project', formData.project);
     data.append('message', formData.message);
-    formData.photos.forEach((photo, idx) => {
-      console.log(`Attaching photo[${idx}]:`, photo.name, photo.size, photo.type);
-      data.append('photos', photo);
-    });
+    // Formspree supports file uploads on paid plans, but for free plan, just send text fields
 
-    // Récupère l'URL de l'API depuis les variables d'environnement
-    const apiUrl = import.meta.env.VITE_API_URL ;
-
- 
     try {
-      const res = await fetch(`${apiUrl}/upload`, {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
         method: 'POST',
         body: data,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
-      console.log('Response status:', res.status);
       if (res.ok) {
-        const json = await res.json();
-        console.log('Server response:', json);
         toast({
           title: 'Message envoyé !',
           description: 'Nous vous recontacterons dans les plus brefs délais.',
@@ -93,15 +87,12 @@ const Contact = () => {
           photos: [],
         });
       } else {
-        const errorText = await res.text();
-        console.error('Server error response:', errorText);
         toast({
           title: 'Erreur',
           description: 'Impossible d’envoyer le message. Veuillez réessayer.',
         });
       }
     } catch (err) {
-      console.error('Fetch failed:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible d’envoyer le message. Veuillez réessayer.',
@@ -172,6 +163,7 @@ const Contact = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Replace the Formspree endpoint in handleSubmit with your real endpoint after signup! */}
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -238,7 +230,8 @@ const Contact = () => {
                       className="text-sm sm:text-base"
                     />
                   </div>
-                  <div className="space-y-2">
+                  {/* File upload is not supported on Formspree free plan. Remove for now. */}
+                  {/* <div className="space-y-2">
                     <Label htmlFor="photos">Photos de votre maison / projet</Label>
                     <Input
                       id="photos"
@@ -269,7 +262,7 @@ const Contact = () => {
                         ))}
                       </div>
                     )}
-                  </div>
+                  </div> */}
                   <Button
                     type="submit"
                     size="lg"
