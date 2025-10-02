@@ -8,10 +8,15 @@
     <meta name="keywords" content="peinture, peintre, rénovation, intérieur, extérieur, France, professionnel, devis gratuit" />
     <meta name="author" content="HN Rénovation" />
     
-    <!-- Google Fonts -->
+
+    <!-- Google Fonts: Preload and non-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    </noscript>
 
     <meta property="og:title" content="HN Rénovation - Peinture Professionnelle en France" />
     <meta property="og:description" content="Expert en peinture intérieure et extérieure en France. Qualité professionnelle, devis gratuit, 15 ans d'expérience." />
