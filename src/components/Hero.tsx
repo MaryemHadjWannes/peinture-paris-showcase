@@ -5,30 +5,14 @@ import { motion } from 'framer-motion';
 import heroImageJpg from '@/assets/hero-painting.jpg';
 import heroImageWebp from '@/assets/hero-painting.webp';
 
-// Animated Counter Hook for Stats
-function useCountUp(to: number, duration = 1.2) {
-  const [count, setCount] = React.useState(0);
-  React.useEffect(() => {
-    let start = 0;
-    const step = Math.ceil(to / (duration * 60));
-    const id = setInterval(() => {
-      start += step;
-      if (start >= to) {
-        setCount(to);
-        clearInterval(id);
-      } else {
-        setCount(start);
-      }
-    }, 1000 / 60);
-    return () => clearInterval(id);
-  }, [to, duration]);
-  return count;
-}
+
 
 const Hero = () => {
-  const projects = useCountUp(50, 1.5);
-  const clients = useCountUp(30, 1.8);
-  const satisfaction = useCountUp(95, 2);
+
+  // Static values for stats
+  const projects = 50;
+  const clients = 30;
+  const satisfaction = 95;
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -99,52 +83,27 @@ const Hero = () => {
         </div>
 
 
-        {/* Animated Stats */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            visible: { transition: { staggerChildren: 0.23 } },
-          }}
-        >
-          <motion.div
-            className="text-center"
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
+        {/* Static Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto">
+          <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
               {projects}+
             </div>
             <div className="text-xs sm:text-sm text-white/80">Projets Réalisés</div>
-          </motion.div>
-          <motion.div
-            className="text-center"
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
+          </div>
+          <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
               {clients}+
             </div>
             <div className="text-xs sm:text-sm text-white/80">Clients Satisfaits</div>
-          </motion.div>
-          <motion.div
-            className="text-center"
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
+          </div>
+          <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
               {satisfaction}%
             </div>
             <div className="text-xs sm:text-sm text-white/80">Satisfaction</div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* CTA Buttons */}
         <motion.div

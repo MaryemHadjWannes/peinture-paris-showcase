@@ -302,39 +302,42 @@ const Contact = () => {
                   );
                 })}
               </div>
-
-              {/* Social Links */}
-              <Card className="bg-primary/5 border-primary/20">
-                <CardContent className="p-4 sm:p-6 text-center">
-                  <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-3 sm:mb-4">
-                    Suivez-Nous
-                  </h3>
-                  <p className="text-muted-foreground text-sm sm:text-base mb-4 sm:mb-6">
-                    Découvrez nos dernières réalisations sur nos réseaux sociaux
-                  </p>
-                  <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                    {socialLinks.map((social, index) => {
-                      const IconComponent = social.icon;
-                      return (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          className="hover-lift w-full sm:w-auto px-4 sm:px-6"
-                          asChild
-                        >
-                          <a href={social.href} target="_blank" rel="noopener noreferrer">
-                            <IconComponent className="h-4 w-4 mr-2" />
-                            {social.label}
-                          </a>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
+
+          {/* Social Links: always below both columns */}
+          <div className="mt-10">
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-3 sm:mb-4">
+                  Suivez-Nous
+                </h3>
+                <p className="text-muted-foreground text-sm sm:text-base mb-4 sm:mb-6">
+                  Découvrez nos dernières réalisations sur nos réseaux sociaux
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                  {socialLinks.map((social, index) => {
+                    const IconComponent = social.icon;
+                    return (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        className="hover-lift w-full sm:w-auto px-4 sm:px-6"
+                        asChild
+                      >
+                        <a href={social.href} target="_blank" rel="noopener noreferrer">
+                          <IconComponent className="h-4 w-4 mr-2" />
+                          {social.label}
+                        </a>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
       </div>
     </section>
