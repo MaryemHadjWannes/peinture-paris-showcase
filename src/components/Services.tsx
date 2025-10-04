@@ -35,7 +35,7 @@ const services = [
     icon: Brush,
     title: "Enduit Professionnel",
     description: "Préparation parfaite des surfaces avec des enduits de haute qualité",
-    features: ["Pose de bandes à joint larges", "Trois passes d'enduit pour une finition lisse", "Ratissage et rattrapage de surfaces"],
+    features: ["Application de bandes calicot et bandes armées", "Ratissage précis pour une surface uniforme", "Rattrapage des irrégularités et finitions parfaites"],
     splash: "#10b981",
     popular: true
   },
@@ -51,7 +51,7 @@ const services = [
     icon: Building,
     title: "Peinture Extérieure",
     description: "Protégez et embellissez vos façades avec des revêtements résistants aux intempéries",
-    features: ["Nettoyage haute pression", "Traitement anti-mousse longue durée", "Revêtements haute performance"],
+    features: ["Nettoyage haute pression", "Traitement anti-mousse longue durée", "Réparation des fissures et remise en état des façades"],
     splash: "#3b82f6",
     popular: false
   },

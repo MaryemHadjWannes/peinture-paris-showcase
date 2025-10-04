@@ -55,7 +55,7 @@ const Footer = () => {
                     href="mailto:contact@hn-renovation.fr"
                     className="text-xs sm:text-sm underline hover:text-accent"
                   >
-                    contact@hn-renovation.fr
+                    hn.renovation.fr@gmail.com
                   </a>
                 </div>
               </div>

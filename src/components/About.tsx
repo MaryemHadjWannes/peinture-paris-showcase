@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, Award, Palette } from "lucide-react";
+import { CheckCircle, Award, Palette, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 const About = () => {
@@ -18,6 +18,11 @@ const About = () => {
       icon: Palette,
       title: "Conseils Personnalisés",
       description: "Accompagnement sur mesure pour choisir couleurs et finitions parfaites",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Assurance Décennale",
+      description: "Tous nos travaux sont couverts par une assurance décennale pour votre tranquillité d'esprit",
     },
   ];
 
@@ -66,12 +71,13 @@ const About = () => {
             Nous apportons innovation et excellence à chaque projet.
           </motion.p>
         </div>
+
         <motion.div
           variants={container}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
-          className="grid md:grid-cols-3 gap-8 mb-16"
+          className="grid md:grid-cols-4 gap-8 mb-16"
         >
           {features.map((feature, i) => {
             const Icon = feature.icon;
@@ -97,6 +103,7 @@ const About = () => {
             );
           })}
         </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
