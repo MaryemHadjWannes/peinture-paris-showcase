@@ -11,8 +11,8 @@ const Hero = () => {
 
   // Static values for stats
   const projects = 50;
-  const clients = 30;
-  const satisfaction = 95;
+  const clients = 48;
+  const satisfaction = 96;
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
