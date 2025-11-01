@@ -1,119 +1,241 @@
-import express from "express";
+// server.ts
+import express, { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import cors from "cors";
-import { Resend } from "resend"; // Make sure 'resend' is installed in package.json
+import { Resend } from "resend";
 import fs from "fs";
 import googleReviewsApi from "./googleReviewsApi";
 import dotenv from "dotenv";
-dotenv.config();
+import jwt from "jsonwebtoken";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// ESM fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
+console.log('Loading .env from:', path.resolve(__dirname, ".env"));
+
+/* ---------- VALIDATE ENV ---------- */
+const required = ["JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "CORS_ORIGIN"]; // Added CORS_ORIGIN
+required.forEach(v => {
+  if (!process.env[v]) {
+    console.error(`Missing env var ${v}`);
+    process.exit(1);
+  }
+});
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Use Render assigned PORT or fallback
-const PORT = process.env.PORT || 5000 ;
+/* ---------------------------------- */
+/* CORRECTED CORS CONFIGURATION    */
+/* ---------------------------------- */
+const allowedOrigin = process.env.CORS_ORIGIN;
+const allowedOrigins = [
+  // Allow the origin defined in .env (e.g., local:8080 or deployed URL)
+  ...(allowedOrigin ? [allowedOrigin] : []),
+  // Optional: Allow the secure version of localhost
+  'http://127.0.0.1:8080', 
+];
 
-// Allow CORS (optional if frontend is served by same server)
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"]
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // 1. Allow requests with no origin (e.g., same-origin requests or tools like Postman)
+      // 2. Allow if the origin is explicitly in the allowed list.
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error(`CORS Blocked: Origin ${origin} not in allowed list.`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Uploads folder
-const uploadDir = path.join(process.cwd(), "public/uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+/* ---------- TEMP UPLOAD DIR ---------- */
+const tempDir = path.join(process.cwd(), "temp_uploads");
+if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-// Multer setup
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, uploadDir),
-  filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname)
+const tempStorage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, tempDir),
+  filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const adminUpload = multer({
+  storage: tempStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_, file, cb) => {
+    if (!file.originalname.match(/\.(jpe?g|png|webp)$/i)) {
+      return cb(new Error("Only images"));
+    }
+    cb(null, true);
+  },
+});
 
-// Resend setup
-// Ensure RESEND_API_KEY is set in Render secrets
-const resend = new Resend(process.env.RESEND_API_KEY); 
+/* ---------- CONTACT FORM UPLOAD ---------- */
+const contactUploadDir = path.join(process.cwd(), "public/uploads");
+if (!fs.existsSync(contactUploadDir)) fs.mkdirSync(contactUploadDir, { recursive: true });
+const contactStorage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, contactUploadDir),
+  filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const contactUpload = multer({ storage: contactStorage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// API routes
+/* ---------- JWT MIDDLEWARE ---------- */
+const authenticate = (req: Request, res: Response, next: express.NextFunction) => {
+  const token = req.headers.authorization?.split("Bearer ")[1];
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    jwt.verify(token, process.env.JWT_SECRET!);
+    next();
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
+  }
+};
+
+/* ---------- CATEGORY → FOLDER MAP ---------- */
+const folderMap: Record<string, string> = {
+  enduit: "ENDUIT",
+  "peinture-interieure": "PEINTURE INTERIEUR",
+  "escalier-details": "ESCALIER",
+  "avant-apres": "AVANT-APRES",
+};
+
+/* ---------- ADMIN LOGIN ---------- */
+app.post("/api/admin/login", (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+    const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET!, { expiresIn: "24h" });
+    res.json({ token });
+  } else {
+    res.status(401).json({ error: "Invalid credentials" });
+  }
+});
+
+/* ---------- UPLOAD IMAGE ---------- */
+app.post("/api/admin/upload", authenticate, adminUpload.single("image"), (req: Request, res: Response) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file" });
+
+    const catId = (req.body.category as string).toLowerCase();
+    const targetFolder = folderMap[catId];
+    if (!targetFolder) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: "Invalid category" });
+    }
+
+    const finalPath = path.join(process.cwd(), "public", "photos", targetFolder, req.file.filename);
+    fs.mkdirSync(path.dirname(finalPath), { recursive: true });
+    fs.renameSync(req.file.path, finalPath);
+
+    const url = `/photos/${targetFolder}/${req.file.filename}`;
+    res.json({ url, filename: req.file.filename });
+  } catch (err) {
+    if (req.file?.path) fs.unlinkSync(req.file.path);
+    console.error(err);
+    res.status(500).json({ error: "Upload failed" });
+  }
+});
+
+/* ---------- DELETE IMAGE ---------- */
+app.delete("/api/admin/delete/:category/:filename", authenticate, (req: Request, res: Response) => {
+  try {
+    const { category, filename } = req.params;
+    const folder = folderMap[category.toLowerCase()];
+    if (!folder) return res.status(400).json({ error: "Invalid category" });
+
+    const filePath = path.join(process.cwd(), "public", "photos", folder, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      res.json({ message: "Deleted" });
+    } else {
+      res.status(404).json({ error: "File not found" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
+
+/* ---------- LIST IMAGES ---------- */
+app.get("/api/admin/images/:category", authenticate, (req: Request, res: Response) => {
+  try {
+    const cat = req.params.category.toLowerCase();
+    const folder = folderMap[cat];
+    if (!folder) return res.status(400).json({ error: "Invalid category" });
+
+    const dir = path.join(process.cwd(), "public", "photos", folder);
+    if (!fs.existsSync(dir)) return res.json({ files: [] });
+
+    const files = fs
+      .readdirSync(dir)
+      .filter(f => /\.(jpe?g|png|webp)$/i.test(f))
+      .map(f => ({
+        url: `/photos/${folder}/${f}`,
+        filename: f,
+        publicId: path.basename(f, path.extname(f)),
+      }));
+
+    res.json({ files });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "List failed" });
+  }
+});
+
+/* ---------- GOOGLE REVIEWS (unchanged) ---------- */
 app.use("/api", googleReviewsApi);
 
-app.post("/upload", upload.array("photos"), async (req, res) => {
-  const recipientEmail = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";
-  // Hold references to file paths for cleanup
-  let filePaths: string[] = []; 
+/* ---------- CONTACT FORM ---------- */
+const resend = new Resend(process.env.RESEND_API_KEY);
+app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Response) => {
+  const recipient = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";
+  const files = req.files as Express.Multer.File[] | undefined;
+  const fields = req.body;
+  const paths: string[] = [];
 
   try {
-    const fields = req.body;
-    const files = req.files as Express.Multer.File[] | undefined;
-
-    // 1. Prepare attachments and capture file paths for later deletion
     const attachments = files?.map(f => {
-      filePaths.push(f.path); // Add path to cleanup list
+      paths.push(f.path);
       return {
         filename: f.originalname,
         content: fs.readFileSync(f.path).toString("base64"),
         contentType: f.mimetype,
-        encoding: "base64"
+        encoding: "base64",
       };
     });
 
-    // 2. Send Email via Resend and capture the response for tracing
-    const sendResult = await resend.emails.send({
+    await resend.emails.send({
       from: `${fields.name} <${fields.email}>`,
-      to: [recipientEmail], // Resend expects an array for 'to'
-      subject: `Nouvelle demande de devis: ${fields.project}`,
-      html: `<p><strong>Nom:</strong> ${fields.name}<br/><strong>Email:</strong> ${fields.email}<br/><strong>Téléphone:</strong> ${fields.phone}<br/><strong>Projet:</strong> ${fields.project}<br/><strong>Message:</strong> ${fields.message}</p>`,
-      attachments
+      to: [recipient],
+      subject: `Devis: ${fields.project}`,
+      html: `<p><strong>Nom:</strong> ${fields.name}<br/><strong>Email:</strong> ${fields.email}<br/><strong>Tél:</strong> ${fields.phone}<br/><strong>Projet:</strong> ${fields.project}<br/><strong>Message:</strong> ${fields.message}</p>`,
+      attachments,
     });
 
-    // *** TRACING: Log the Resend response ***
-    console.log("Resend API Email Accepted. Tracing ID:", sendResult.data?.id);
-    console.log("Full Resend Response:", JSON.stringify(sendResult));
-
-    // 3. File Cleanup
-    filePaths.forEach(filePath => {
-        try {
-            fs.unlinkSync(filePath);
-            console.log(`Successfully deleted file: ${filePath}`);
-        } catch (cleanupErr) {
-            console.error(`Failed to delete file ${filePath}:`, cleanupErr);
-        }
-    });
-
-    if (sendResult.error) {
-         // Should not happen if await passes, but good for type safety/future proofing
-         throw new Error(sendResult.error.message);
-    }
-
-    res.json({ message: "Formulaire envoyé avec succès !" });
-
+    paths.forEach(p => fs.unlinkSync(p));
+    res.json({ message: "Envoyé !" });
   } catch (err) {
-    // 4. Enhanced Error Logging for Resend Failures
-    console.error("Resend API Error during sendMail:", err);
-    
-    // Attempt cleanup even on failure
-    filePaths.forEach(filePath => {
-        try {
-            fs.unlinkSync(filePath);
-        } catch (cleanupErr) {
-            // Log cleanup failure, but don't halt the error response
-            console.error(`Failed to delete file on error ${filePath}:`, cleanupErr);
-        }
-    });
-
-    res.status(500).json({ error: "Erreur lors de l'envoi de l'email. Vérifiez la clé API Resend ou le domaine de l'expéditeur." });
+    paths.forEach(p => fs.unlinkSync(p));
+    console.error(err);
+    res.status(500).json({ error: "Erreur envoi" });
   }
 });
 
-// Serve frontend build
-const frontendPath = path.join(process.cwd(), "dist");
-app.use(express.static(frontendPath));
-app.get(/^(?!\/(api|upload)).*$/, (_, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
+/* ---------- SERVE FRONTEND (PRODUCTION) ---------- */
+const frontend = path.join(process.cwd(), "dist");
+app.use(express.static(frontend));
+app.get(/.*/, (_: Request, res: Response) => res.sendFile(path.join(frontend, "index.html")));
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
