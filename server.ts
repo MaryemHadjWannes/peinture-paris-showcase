@@ -21,7 +21,7 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 console.log('Loading .env from:', path.resolve(__dirname, ".env"));
 
 /* ---------- VALIDATE ENV ---------- */
-const required = ["JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD"];
+const required = ["JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "CORS_ORIGIN"]; // Added CORS_ORIGIN
 required.forEach(v => {
   if (!process.env[v]) {
     console.error(`Missing env var ${v}`);
@@ -32,14 +32,26 @@ required.forEach(v => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* ---------- CORS – FIXED (NO app.options('*')) ---------- */
+/* ---------------------------------- */
+/* CORRECTED CORS CONFIGURATION    */
+/* ---------------------------------- */
+const allowedOrigin = process.env.CORS_ORIGIN;
+const allowedOrigins = [
+  // Allow the origin defined in .env (e.g., local:8080 or deployed URL)
+  ...(allowedOrigin ? [allowedOrigin] : []),
+  // Optional: Allow the secure version of localhost
+  'http://127.0.0.1:8080', 
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow Vite dev server (localhost:5173) and same-origin in prod
-      if (!origin || origin.includes('localhost:5173') || origin === undefined) {
+      // 1. Allow requests with no origin (e.g., same-origin requests or tools like Postman)
+      // 2. Allow if the origin is explicitly in the allowed list.
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error(`CORS Blocked: Origin ${origin} not in allowed list.`);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -48,8 +60,6 @@ app.use(
     credentials: true,
   })
 );
-
-// NO app.options('*', cors()) — IT BREAKS EXPRESS!
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
