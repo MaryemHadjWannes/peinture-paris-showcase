@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Palette, ChevronLeft, ChevronRight } from "lucide-react";
 
+// NOTE: Since the Admin component now saves the full Cloudinary URL to 
+// localStorage, this component automatically uses the CDN links, which is 
+// fast and efficient!
+
 const Portfolio = () => {
   const [portfolioData, setPortfolioData] = useState<any[]>([]);
   const [avantApresData, setAvantApresData] = useState<any[]>([]);
@@ -12,6 +16,8 @@ const Portfolio = () => {
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("portfolioImages") || "{}");
 
+    // The saved objects in localStorage now contain { url: '...', filename: '...', publicId: '...' }
+    // We map to get just the 'url' property as before.
     const map = {
       enduit: saved["enduit"]?.map((i: any) => i.url) || [],
       "peinture-interieure": saved["peinture-interieure"]?.map((i: any) => i.url) || [],
@@ -59,13 +65,15 @@ const Portfolio = () => {
 
     setPortfolioData(projects);
     setAvantApresData(pairs);
-    setActiveIndexes(projects.map(p => 0));
+    // Initialize activeIndexes based on the number of projects
+    setActiveIndexes(projects.map(() => 0)); 
   }, []);
 
   const handleSwitch = (projIdx: number, dir: "next" | "prev") => {
     setActiveIndexes(prev => {
       const copy = [...prev];
       const total = portfolioData[projIdx].images.length;
+      if (total === 0) return prev; // Avoid error if no images
       copy[projIdx] =
         dir === "next"
           ? (copy[projIdx] + 1) % total
@@ -96,22 +104,27 @@ const Portfolio = () => {
             <div key={idx} className="bg-card rounded-xl overflow-hidden shadow-md border border-border/50 relative">
               <div className="relative group">
                 <img
-                  src={item.images[activeIndexes[idx]] || "/placeholder.svg"}
+                  // Use the Cloudinary URL directly
+                  src={item.images[activeIndexes[idx]] || "/placeholder.svg"} 
                   alt={item.title}
                   className="w-full h-[400px] object-contain transition-transform duration-500 group-hover:scale-105"
                 />
-                <button
-                  onClick={() => handleSwitch(idx, "prev")}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 hover:bg-white shadow"
-                >
-                  <ChevronLeft className="h-5 w-5 text-gray-700" />
-                </button>
-                <button
-                  onClick={() => handleSwitch(idx, "next")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 hover:bg-white shadow"
-                >
-                  <ChevronRight className="h-5 w-5 text-gray-700" />
-                </button>
+                {item.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => handleSwitch(idx, "prev")}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 hover:bg-white shadow"
+                    >
+                      <ChevronLeft className="h-5 w-5 text-gray-700" />
+                    </button>
+                    <button
+                      onClick={() => handleSwitch(idx, "next")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 hover:bg-white shadow"
+                    >
+                      <ChevronRight className="h-5 w-5 text-gray-700" />
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="p-5">
@@ -139,7 +152,8 @@ const Portfolio = () => {
               <div key={i} className="flex flex-col md:flex-row gap-6 justify-center items-center">
                 <div className="relative">
                   <img
-                    src={pair.before}
+                    // Use the Cloudinary URL directly
+                    src={pair.before || "/placeholder.svg"} 
                     alt={`Avant - ${pair.title}`}
                     className="w-80 h-56 object-cover rounded-xl shadow-md"
                   />
@@ -150,6 +164,7 @@ const Portfolio = () => {
                 {pair.after && (
                   <div className="relative">
                     <img
+                      // Use the Cloudinary URL directly
                       src={pair.after}
                       alt={`Après - ${pair.title}`}
                       className="w-80 h-56 object-cover rounded-xl shadow-md"

@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { v2 as cloudinary } from 'cloudinary'; // Import Cloudinary
 
 // ESM fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -20,14 +21,31 @@ dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 console.log('Loading .env from:', path.resolve(__dirname, ".env"));
 
-/* ---------- VALIDATE ENV ---------- */
-const required = ["JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "CORS_ORIGIN"]; // Added CORS_ORIGIN
+/* ---------- VALIDATE ENV & CLOUDINARY CONFIG ---------- */
+const required = [
+  "JWT_SECRET", 
+  "ADMIN_EMAIL", 
+  "ADMIN_PASSWORD", 
+  "CORS_ORIGIN",
+  "CLOUDINARY_CLOUD_NAME", // Added to required list
+  "CLOUDINARY_API_KEY",    // Added to required list
+  "CLOUDINARY_API_SECRET", // Added to required list
+];
 required.forEach(v => {
   if (!process.env[v]) {
     console.error(`Missing env var ${v}`);
     process.exit(1);
   }
 });
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+// ----------------------------------------------------
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -124,72 +142,108 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
 });
 
 /* ---------- UPLOAD IMAGE ---------- */
-app.post("/api/admin/upload", authenticate, adminUpload.single("image"), (req: Request, res: Response) => {
+/* ---------- UPLOAD IMAGE (Cloudinary) ---------- */
+app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (req: Request, res: Response) => {
+  if (!req.file) return res.status(400).json({ error: "No file" });
+
+  const catId = (req.body.category as string).toLowerCase();
+  const targetFolder = folderMap[catId];
+  const tempFilePath = req.file.path; // Path to the temporary local file
+  
+  if (!targetFolder) {
+    fs.unlinkSync(tempFilePath); // Delete temp file
+    return res.status(400).json({ error: "Invalid category" });
+  }
+
   try {
-    if (!req.file) return res.status(400).json({ error: "No file" });
+    // 1. UPLOAD TO CLOUDINARY
+    const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
+      folder: `peinture-paris-showcase/${targetFolder}`, // Cloudinary folder structure
+      use_filename: true, // Use the original filename
+      unique_filename: false,
+      overwrite: false, // Ensure we don't accidentally overwrite
+    });
+    
+    // 2. DELETE TEMPORARY LOCAL FILE
+    fs.unlinkSync(tempFilePath); 
 
-    const catId = (req.body.category as string).toLowerCase();
-    const targetFolder = folderMap[catId];
-    if (!targetFolder) {
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ error: "Invalid category" });
-    }
+    // 3. RETURN CLOUDINARY DATA
+    // We use the full Cloudinary URL and the public_id for future deletes
+    res.json({ 
+      url: uploadResult.secure_url, 
+      publicId: uploadResult.public_id,
+      filename: req.file.filename, // Keep original filename for admin UI
+    });
 
-    const finalPath = path.join(process.cwd(), "public", "photos", targetFolder, req.file.filename);
-    fs.mkdirSync(path.dirname(finalPath), { recursive: true });
-    fs.renameSync(req.file.path, finalPath);
-
-    const url = `/photos/${targetFolder}/${req.file.filename}`;
-    res.json({ url, filename: req.file.filename });
   } catch (err) {
-    if (req.file?.path) fs.unlinkSync(req.file.path);
-    console.error(err);
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); // Clean up temp file on failure
+    console.error("Cloudinary Upload failed:", err);
     res.status(500).json({ error: "Upload failed" });
   }
 });
 
 /* ---------- DELETE IMAGE ---------- */
-app.delete("/api/admin/delete/:category/:filename", authenticate, (req: Request, res: Response) => {
+/* ---------- DELETE IMAGE (Cloudinary) ---------- */
+app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res: Response) => {
   try {
-    const { category, filename } = req.params;
-    const folder = folderMap[category.toLowerCase()];
-    if (!folder) return res.status(400).json({ error: "Invalid category" });
+    // We now use publicId, not category/filename
+    const { publicId } = req.params;
 
-    const filePath = path.join(process.cwd(), "public", "photos", folder, filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      res.json({ message: "Deleted" });
-    } else {
-      res.status(404).json({ error: "File not found" });
+    // 1. DELETE FROM CLOUDINARY
+    const deleteResult = await cloudinary.uploader.destroy(publicId);
+    
+    if (deleteResult.result === 'not found') {
+      return res.status(404).json({ error: "File not found on Cloudinary" });
     }
+
+    // 2. SUCCESS
+    res.json({ message: "Deleted", result: deleteResult });
+
   } catch (err) {
-    console.error(err);
+    console.error("Cloudinary Delete failed:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
 
 /* ---------- LIST IMAGES ---------- */
-app.get("/api/admin/images/:category", authenticate, (req: Request, res: Response) => {
+/* ---------- LIST IMAGES (UPDATED FOR CLOUDINARY) ---------- */
+app.get("/api/admin/images/:category", authenticate, async (req: Request, res: Response) => {
   try {
     const cat = req.params.category.toLowerCase();
     const folder = folderMap[cat];
     if (!folder) return res.status(400).json({ error: "Invalid category" });
 
-    const dir = path.join(process.cwd(), "public", "photos", folder);
-    if (!fs.existsSync(dir)) return res.json({ files: [] });
+    // 1. CONSTRUCT THE CLOUDINARY FOLDER PATH
+    const cloudinaryFolder = `peinture-paris-showcase/${folder}`;
 
-    const files = fs
-      .readdirSync(dir)
-      .filter(f => /\.(jpe?g|png|webp)$/i.test(f))
-      .map(f => ({
-        url: `/photos/${folder}/${f}`,
-        filename: f,
-        publicId: path.basename(f, path.extname(f)),
+    // 2. FETCH RESOURCES (IMAGES) FROM CLOUDINARY
+    // NOTE: This call requires a valid API Key and Secret
+    const result = await cloudinary.api.resources({
+      type: 'upload', // Only fetch uploaded resources
+      prefix: cloudinaryFolder, // Filter by the folder path
+      max_results: 500, // Increase if you expect more than 500 images per category
+      fields: ['secure_url', 'public_id', 'filename'], // Only request needed fields
+      context: true, // If you ever add context metadata
+    });
+
+    // 3. MAP THE RESULTS TO THE EXPECTED FRONTEND FORMAT
+    const files = result.resources
+      .map((resource: any) => ({
+        // secure_url provides the full HTTPS CDN link
+        url: resource.secure_url, 
+        // public_id is required for deletion and uniqueness
+        publicId: resource.public_id, 
+        // Use the base filename from Cloudinary data if available, otherwise fallback
+        filename: resource.filename || path.basename(resource.public_id), 
       }));
 
     res.json({ files });
   } catch (err) {
-    console.error(err);
+    console.error("Cloudinary List failed:", err);
+    // Cloudinary's API call can fail if the folder doesn't exist, treat it as an empty array
+    if (err instanceof Error && 'http_code' in err && err.http_code === 404) {
+      return res.json({ files: [] }); 
+    }
     res.status(500).json({ error: "List failed" });
   }
 });
