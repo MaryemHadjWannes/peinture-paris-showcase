@@ -169,7 +169,18 @@ const Admin: React.FC = () => {
     const files = e.target.files;
     if (!files?.length) return;
 
-    const cat = CATEGORIES.find(c => c.id === selectedCategory);
+    // 💡 NEW DEFENSIVE CHECK
+  if (!cat) {
+      return (
+          <div className="min-h-screen p-6 bg-gray-100 flex justify-center items-center">
+              <p className="text-xl text-red-600">Erreur: Catégorie non trouvée.</p>
+          </div>
+      );
+  }
+  
+  const count = images.length;
+  const max = cat.maxImages;
+  
     if (!cat) return;
 
     if (images.length + files.length > cat.maxImages) {
