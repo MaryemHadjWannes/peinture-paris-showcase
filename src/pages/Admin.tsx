@@ -40,10 +40,7 @@ const getInitialOrder = () => {
   const saved = localStorage.getItem('portfolioImageOrder');
   return saved ? JSON.parse(saved) : {};
 };
-const getInitialData = () => {
-    const saved = localStorage.getItem('portfolioImages');
-    return saved ? JSON.parse(saved) : {};
-  };
+// Removed getInitialData as it was unused and confusing
 
 const Admin: React.FC = () => {
   const { toast } = useToast();
@@ -64,7 +61,9 @@ const Admin: React.FC = () => {
   /* -------------------------------------------------------------- */
   /* FETCH IMAGES (FINAL R2 VERSION)                               */
   /* -------------------------------------------------------------- */
-  const fetchImages = useCallback(async (category: string, currentOrder: string[]) => {
+  // NOTE: This function now uses imageOrder as a stable state inside the function, 
+  // not as a dependency of itself.
+  const fetchImages = useCallback(async (category: string) => {
     if (!token) return;
     try {
       const res = await fetch(`${API_BASE}/api/admin/images/${category}`, {
@@ -77,6 +76,10 @@ const Admin: React.FC = () => {
 
       const { files }: { files: Image[] } = await res.json();
       
+      // Get the last known order for the selected category from the current state
+      // Access imageOrder directly here to get the value for the category being fetched
+      const currentOrder = imageOrder[category] || []; 
+
       // 1. Convert fetched files into a map for quick lookup
       const fileMap = new Map(files.map(f => [f.publicId, f]));
       
@@ -101,23 +104,27 @@ const Admin: React.FC = () => {
       console.error('Error fetching images:', err);
       toast({ title: 'Erreur', description: 'Impossible de charger les images', variant: 'destructive' });
     }
-  }, [token, toast]);
-
+  }, [token, toast, imageOrder]); // imageOrder must remain a dependency for fetchImages to access its latest value for "currentOrder"
+  
   /* -------------------------------------------------------------- */
-  /* EFFECT: INITIAL FETCH & CATEGORY SWITCH                       */
+  /* EFFECT: INITIAL FETCH & CATEGORY SWITCH (The FIX is HERE)     */
   /* -------------------------------------------------------------- */
   useEffect(() => {
     if (token) {
-      // Get the last known order for the selected category, or an empty array
-      const currentOrder = imageOrder[selectedCategory] || [];
-      fetchImages(selectedCategory, currentOrder);
+      // The old line was: const currentOrder = imageOrder[selectedCategory] || [];
+      // The issue was: fetchImages(selectedCategory, currentOrder); 
+      // The fix: Only call fetchImages with the category, and let fetchImages get the
+      // current order from the state internally.
+      fetchImages(selectedCategory);
     }
-  }, [selectedCategory, token, fetchImages, imageOrder]);
+  }, [selectedCategory, token]); // REMOVED fetchImages and imageOrder from the dependencies here!
   
   /* -------------------------------------------------------------- */
   /* EFFECT: SAVE ORDER TO localStorage                            */
   /* -------------------------------------------------------------- */
   useEffect(() => {
+    // This effect runs whenever imageOrder changes (including when you reorder images)
+    // and correctly saves the state to localStorage without causing a re-fetch.
     localStorage.setItem('portfolioImageOrder', JSON.stringify(imageOrder));
   }, [imageOrder]);
 
@@ -141,9 +148,8 @@ const Admin: React.FC = () => {
       setToken(token);
       toast({ title: 'Connexion réussie' });
       
-      // Fetch images immediately after successful login using the current selected category
-      const currentOrder = imageOrder[selectedCategory] || [];
-      fetchImages(selectedCategory, currentOrder); 
+      // Fetch images immediately after successful login
+      fetchImages(selectedCategory); 
     } catch {
       toast({ title: 'Erreur', description: 'Identifiants incorrects', variant: 'destructive' });
     }
@@ -236,6 +242,7 @@ const Admin: React.FC = () => {
   const updateOrder = (updatedImages: Image[]) => {
     const newOrder = updatedImages.map(img => img.publicId);
     setImages(updatedImages);
+    // Setting imageOrder here correctly triggers the localStorage effect.
     setImageOrder(prev => ({ ...prev, [selectedCategory]: newOrder }));
   };
 
