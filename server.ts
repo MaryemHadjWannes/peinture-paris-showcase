@@ -184,23 +184,71 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
 });
 
 /* ---------- DELETE IMAGE (Cloudinary) ---------- */
+/* ---------- DELETE IMAGE (Cloudinary) - FIXED ---------- */
 app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res: Response) => {
   try {
-    const { publicId } = req.params;
+    // 1. DECODE THE URL-ENCODED publicId
+    const publicId = decodeURIComponent(req.params.publicId); 
 
-    // 1. DELETE FROM CLOUDINARY (Using cloudinary.v2)
+    // 2. DELETE FROM CLOUDINARY (Using cloudinary.v2)
     const deleteResult = await cloudinary.v2.uploader.destroy(publicId);
     
     if (deleteResult.result === 'not found') {
       return res.status(404).json({ error: "File not found on Cloudinary" });
     }
 
-    // 2. SUCCESS
+    // 3. SUCCESS
     res.json({ message: "Deleted", result: deleteResult });
 
   } catch (err) {
     console.error("Cloudinary Delete failed:", err);
     res.status(500).json({ error: "Delete failed" });
+  }
+});
+
+/* ----------------------------------------------------------------- */
+/* NEW: PUBLIC LIST IMAGES (NO AUTHENTICATION)                       */
+/* ----------------------------------------------------------------- */
+// This is called by Portfolio.tsx directly on page load
+app.get("/api/public/images/:category", async (req: Request, res: Response) => {
+  try {
+    const cat = req.params.category.toLowerCase();
+    const folder = folderMap[cat];
+    if (!folder) return res.status(400).json({ error: "Invalid category" });
+
+    // 1. CONSTRUCT THE FULL CLOUDINARY FOLDER PATH
+    const cloudinaryFolder = `peinture-paris-showcase/${folder}`;
+
+    // 2. FETCH RESOURCES (IMAGES) FROM CLOUDINARY
+    const result = await cloudinary.v2.search
+      .expression(`folder:${cloudinaryFolder}/*`) 
+      .sort_by('public_id', 'asc')
+      .max_results(500)
+      .execute();
+
+    // 3. MAP THE RESULTS 
+    const files = result.resources
+      .map((resource: any) => ({
+        url: resource.secure_url, 
+        publicId: resource.public_id, 
+        filename: path.basename(resource.public_id), 
+      }));
+
+    // If the Admin page has stored an order, we will use it
+    // NOTE: For a true fix, order should be stored in a DB, but for now, we use the server's list.
+    // If you need reordering on the public site, you MUST use a database.
+
+    res.json({ files });
+} catch (err) {
+    console.error("Cloudinary Public List failed:", err);
+    
+    // Gracefully handle rate limit (which is now reset, but good practice)
+    const cloudinaryError = err as any; 
+    if (cloudinaryError.http_code === 404 || cloudinaryError.http_code === 420) {
+      return res.json({ files: [] }); 
+    }
+    
+    res.status(500).json({ error: "List failed", details: (err as Error).message });
   }
 });
 

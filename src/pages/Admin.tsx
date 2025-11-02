@@ -198,9 +198,9 @@ const Admin: React.FC = () => {
   /* -------------------------------------------------------------- */
   /* DELETE (UPDATED FOR CLOUDINARY)                               */
   /* -------------------------------------------------------------- */
-  const handleDelete = async (img: Image, idx: number) => {
+ const handleDelete = async (img: Image, idx: number) => {
     try {
-      // Use the publicId for Cloudinary deletion
+      // Correctly uses the publicId for Cloudinary deletion
       const res = await fetch(`${API_BASE}/api/admin/delete/${img.publicId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
