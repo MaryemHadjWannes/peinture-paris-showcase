@@ -1,4 +1,5 @@
 // server.ts
+
 import express, { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
@@ -10,8 +11,9 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-// FIXED: Import all as 'cloudinary' to resolve the 'Property v2 does not exist' error
-import * as cloudinary from 'cloudinary'; 
+
+// FIXED: Use AWS S3 Client for R2 integration
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 // ESM fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -20,17 +22,21 @@ const __dirname = dirname(__filename);
 // Load .env
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
-console.log('Loading .env from:', path.resolve(__dirname, ".env"));
+/* ---------------------------------------------------- */
 
-/* ---------- VALIDATE ENV & CLOUDINARY CONFIG ---------- */
+
+/* ---------- VALIDATE ENV & R2 CONFIG ---------- */
 const required = [
   "JWT_SECRET", 
   "ADMIN_EMAIL", 
   "ADMIN_PASSWORD", 
   "CORS_ORIGIN",
-  "CLOUDINARY_CLOUD_NAME",
-  "CLOUDINARY_API_KEY",
-  "CLOUDINARY_API_SECRET",
+  // R2 Credentials
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_ACCOUNT_ID",
+  "R2_BUCKET_NAME",
+  "R2_PUBLIC_DOMAIN", // Must be the R2 public endpoint
 ];
 required.forEach(v => {
   if (!process.env[v]) {
@@ -39,34 +45,54 @@ required.forEach(v => {
   }
 });
 
-// Configure Cloudinary (Now correctly using cloudinary.v2)
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
+/* ---------- CLOUDFLARE R2 CONFIGURATION ---------- */
+const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!;
+const R2_ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+
+const s3Client = new S3Client({
+    region: 'auto', // Cloudflare R2 uses 'auto'
+    endpoint: R2_ENDPOINT,
+    credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    },
 });
+
+const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME!;
+const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN!;
+
+/* ---------- CATEGORY → R2 FOLDER MAP (UPDATED FOR YOUR PATH) ---------- */
+// Your structure is: hn-renovation-db/PEINTURE INTERIEUR/photos/CATEGORY/
+const BASE_PREFIX = "PEINTURE INTERIEUR/photos"; 
+
+const folderMap: Record<string, string> = {
+  // R2 Key: PEINTURE INTERIEUR/photos/ENDUIT
+  enduit: `${BASE_PREFIX}/ENDUIT`, 
+  // R2 Key: PEINTURE INTERIEUR/photos/PEINTURE INTERIEUR
+  "peinture-interieure": `${BASE_PREFIX}/PEINTURE INTERIEUR`, 
+  // R2 Key: PEINTURE INTERIEUR/photos/ESCALIER
+  "escalier-details": `${BASE_PREFIX}/ESCALIER`, 
+  // R2 Key: PEINTURE INTERIEUR/photos/AVANT-APRES
+  "avant-apres": `${BASE_PREFIX}/AVANT-APRES`, 
+};
 // ----------------------------------------------------
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+/* ---------------------------------------------------- */
 /* ---------------------------------- */
-/* CORRECTED CORS CONFIGURATION    */
+/* CORS CONFIGURATION (UNCHANGED)     */
 /* ---------------------------------- */
 const allowedOrigin = process.env.CORS_ORIGIN;
 const allowedOrigins = [
-  // Allow the origin defined in .env (e.g., local:8080 or deployed URL)
   ...(allowedOrigin ? [allowedOrigin] : []),
-  // Optional: Allow the secure version of localhost
   'http://127.0.0.1:8080', 
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // 1. Allow requests with no origin (e.g., same-origin requests or tools like Postman)
-      // 2. Allow if the origin is explicitly in the allowed list.
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -83,7 +109,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ---------- TEMP UPLOAD DIR ---------- */
+/* ---------- TEMP UPLOAD DIR (UNCHANGED) ---------- */
 const tempDir = path.join(process.cwd(), "temp_uploads");
 if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
@@ -102,7 +128,7 @@ const adminUpload = multer({
   },
 });
 
-/* ---------- CONTACT FORM UPLOAD ---------- */
+/* ---------- CONTACT FORM UPLOAD (UNCHANGED) ---------- */
 const contactUploadDir = path.join(process.cwd(), "public/uploads");
 if (!fs.existsSync(contactUploadDir)) fs.mkdirSync(contactUploadDir, { recursive: true });
 const contactStorage = multer.diskStorage({
@@ -111,7 +137,7 @@ const contactStorage = multer.diskStorage({
 });
 const contactUpload = multer({ storage: contactStorage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-/* ---------- JWT MIDDLEWARE ---------- */
+/* ---------- JWT MIDDLEWARE (UNCHANGED) ---------- */
 const authenticate = (req: Request, res: Response, next: express.NextFunction) => {
   const token = req.headers.authorization?.split("Bearer ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -123,16 +149,10 @@ const authenticate = (req: Request, res: Response, next: express.NextFunction) =
   }
 };
 
-/* ---------- CATEGORY → FOLDER MAP ---------- */
-// IMPORTANT: Ensure these names EXACTLY match the folder names on Cloudinary
-const folderMap: Record<string, string> = {
-  enduit: "ENDUIT",
-  "peinture-interieure": "PEINTURE INTERIEUR",
-  "escalier-details": "ESCALIER",
-  "avant-apres": "AVANT-APRES",
-};
+/* ---------------------------------------------------- */
 
-/* ---------- ADMIN LOGIN ---------- */
+
+/* ---------- ADMIN LOGIN (UNCHANGED) ---------- */
 app.post("/api/admin/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
@@ -143,7 +163,7 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
   }
 });
 
-/* ---------- UPLOAD IMAGE (Cloudinary) ---------- */
+/* ---------- UPLOAD IMAGE (Cloudflare R2) ---------- */
 app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file" });
 
@@ -152,157 +172,141 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
   const tempFilePath = req.file.path;
   
   if (!targetFolder) {
-    fs.unlinkSync(tempFilePath); 
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
     return res.status(400).json({ error: "Invalid category" });
   }
 
+  // R2 Key (Path) combines the full folder prefix and the filename
+  const R2Key = `${targetFolder}/${req.file.filename}`;
+  const fileBody = fs.readFileSync(tempFilePath);
+
   try {
-    // 1. UPLOAD TO CLOUDINARY (Using cloudinary.v2)
-    const uploadResult = await cloudinary.v2.uploader.upload(tempFilePath, {
-      // Full folder path (e.g., peinture-paris-showcase/ENDUIT)
-      folder: `peinture-paris-showcase/${targetFolder}`, 
-      use_filename: true, 
-      unique_filename: false,
-      overwrite: false,
+    // 1. UPLOAD TO R2 using PutObjectCommand
+    const uploadCommand = new PutObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: R2Key, // The full path/filename in the bucket
+        Body: fileBody,
+        ContentType: req.file.mimetype,
+        ACL: 'public-read', // Essential for public display
     });
     
+    await s3Client.send(uploadCommand);
+    
     // 2. DELETE TEMPORARY LOCAL FILE
-    fs.unlinkSync(tempFilePath); 
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
 
-    // 3. RETURN CLOUDINARY DATA
+    // 3. RETURN R2 DATA (Public URL: R2_PUBLIC_DOMAIN/R2Key)
+    const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
+
     res.json({ 
-      url: uploadResult.secure_url, 
-      publicId: uploadResult.public_id,
+      url: publicUrl, 
+      publicId: R2Key, // The key is now the public ID for delete operations
       filename: req.file.filename,
     });
 
   } catch (err) {
     if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
-    console.error("Cloudinary Upload failed:", err);
+    console.error("R2 Upload failed:", err);
     res.status(500).json({ error: "Upload failed" });
   }
 });
 
-/* ---------- DELETE IMAGE (Cloudinary) ---------- */
-/* ---------- DELETE IMAGE (Cloudinary) - FIXED ---------- */
+/* ---------- DELETE IMAGE (Cloudflare R2) - FIXED ---------- */
 app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res: Response) => {
   try {
-    // 1. DECODE THE URL-ENCODED publicId
-    const publicId = decodeURIComponent(req.params.publicId); 
+    // 1. DECODE THE URL-ENCODED publicId (R2 Key)
+    const R2Key = decodeURIComponent(req.params.publicId); 
 
-    // 2. DELETE FROM CLOUDINARY (Using cloudinary.v2)
-    const deleteResult = await cloudinary.v2.uploader.destroy(publicId);
+    // 2. DELETE FROM R2 using DeleteObjectCommand
+    const deleteCommand = new DeleteObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: R2Key,
+    });
     
-    if (deleteResult.result === 'not found') {
-      return res.status(404).json({ error: "File not found on Cloudinary" });
-    }
+    await s3Client.send(deleteCommand);
 
     // 3. SUCCESS
-    res.json({ message: "Deleted", result: deleteResult });
+    res.json({ message: "Deleted" });
 
   } catch (err) {
-    console.error("Cloudinary Delete failed:", err);
+    console.error("R2 Delete failed:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
 
-/* ----------------------------------------------------------------- */
-/* NEW: PUBLIC LIST IMAGES (NO AUTHENTICATION)                       */
-/* ----------------------------------------------------------------- */
-// This is called by Portfolio.tsx directly on page load
+/* ---------- R2 LIST UTILITY FUNCTION ---------- */
+const listR2Images = async (folder: string) => {
+    // 1. CONSTRUCT THE R2 PREFIX (e.g., PEINTURE INTERIEUR/photos/ENDUIT/)
+    const R2Prefix = `${folder}/`;
+
+    // 2. FETCH RESOURCES (IMAGES) FROM R2
+    const listCommand = new ListObjectsV2Command({
+        Bucket: R2_BUCKET_NAME,
+        Prefix: R2Prefix,
+        MaxKeys: 500,
+    });
+
+    const result = await s3Client.send(listCommand);
+
+    // 3. MAP THE RESULTS 
+    const files = (result.Contents || [])
+      // Filter out files that are just directory placeholders (keys ending in /)
+      .filter(item => item.Key && !item.Key.endsWith('/')) 
+      .map((item: any) => {
+        const R2Key = item.Key;
+        // The public URL is R2_PUBLIC_DOMAIN/R2Key
+        const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
+
+        return {
+          url: publicUrl, 
+          publicId: R2Key, // The key is the public ID
+          filename: path.basename(R2Key), 
+        };
+      });
+      
+    return files;
+};
+
+/* ---------- NEW: PUBLIC LIST IMAGES (Cloudflare R2) ---------- */
+// This is the endpoint Portfolio.tsx calls
 app.get("/api/public/images/:category", async (req: Request, res: Response) => {
   try {
     const cat = req.params.category.toLowerCase();
     const folder = folderMap[cat];
     if (!folder) return res.status(400).json({ error: "Invalid category" });
 
-    // 1. CONSTRUCT THE FULL CLOUDINARY FOLDER PATH
-    const cloudinaryFolder = `peinture-paris-showcase/${folder}`;
-
-    // 2. FETCH RESOURCES (IMAGES) FROM CLOUDINARY
-    const result = await cloudinary.v2.search
-      .expression(`folder:${cloudinaryFolder}/*`) 
-      .sort_by('public_id', 'asc')
-      .max_results(500)
-      .execute();
-
-    // 3. MAP THE RESULTS 
-    const files = result.resources
-      .map((resource: any) => ({
-        url: resource.secure_url, 
-        publicId: resource.public_id, 
-        filename: path.basename(resource.public_id), 
-      }));
-
-    // If the Admin page has stored an order, we will use it
-    // NOTE: For a true fix, order should be stored in a DB, but for now, we use the server's list.
-    // If you need reordering on the public site, you MUST use a database.
-
+    const files = await listR2Images(folder);
     res.json({ files });
-} catch (err) {
-    console.error("Cloudinary Public List failed:", err);
-    
-    // Gracefully handle rate limit (which is now reset, but good practice)
-    const cloudinaryError = err as any; 
-    if (cloudinaryError.http_code === 404 || cloudinaryError.http_code === 420) {
-      return res.json({ files: [] }); 
-    }
-    
-    res.status(500).json({ error: "List failed", details: (err as Error).message });
+
+  } catch (err) {
+    console.error("R2 Public List failed:", err);
+    res.status(500).json({ error: "List failed" });
   }
 });
 
-/* ---------- LIST IMAGES (FIXED FOR CLOUDINARY SEARCH API) ---------- */
+/* ---------- ADMIN LIST IMAGES (Cloudflare R2) ---------- */
+// This is the endpoint Admin.tsx calls
 app.get("/api/admin/images/:category", authenticate, async (req: Request, res: Response) => {
   try {
     const cat = req.params.category.toLowerCase();
     const folder = folderMap[cat];
     if (!folder) return res.status(400).json({ error: "Invalid category" });
 
-    // 1. CONSTRUCT THE FULL CLOUDINARY FOLDER PATH (peinture-paris-showcase/CATEGORY)
-    const cloudinaryFolder = `peinture-paris-showcase/${folder}`;
-
-    // 2. FETCH RESOURCES (IMAGES) FROM CLOUDINARY USING THE ROBUST SEARCH API (Using cloudinary.v2)
-    const result = await cloudinary.v2.search
-      // Filter by the exact folder path, using '/*' to include all images in that folder
-      .expression(`folder:${cloudinaryFolder}/*`) 
-      .sort_by('public_id', 'asc') // Sort the results
-      .max_results(500) // Max images to retrieve
-      .execute(); // Execute the search query
-
-    // 3. MAP THE RESULTS TO THE EXPECTED FRONTEND FORMAT
-    const files = result.resources
-      .map((resource: any) => ({
-        url: resource.secure_url, 
-        publicId: resource.public_id, 
-        filename: path.basename(resource.public_id), 
-      }));
-
+    const files = await listR2Images(folder);
     res.json({ files });
-} catch (err) {
-    console.error("Cloudinary List failed:", err);
-
-    const cloudinaryError = err as any; 
     
-    // Check for Rate Limit (HTTP 420) or Not Found (HTTP 404) directly on the http_code,
-    // which is the safest way to handle this specific error structure.
-    if (
-        cloudinaryError.http_code === 404 || 
-        cloudinaryError.http_code === 420
-    ) {
-      // Return an empty array. This stops the server from crashing.
-      return res.json({ files: [] }); 
-    }
-    
-    // For all other errors, send a 500
-    res.status(500).json({ error: "List failed", details: (err as Error).message });
+  } catch (err) {
+    console.error("R2 Admin List failed:", err);
+    res.status(500).json({ error: "List failed" });
   }
 });
+
+/* ---------------------------------------------------- */
 
 /* ---------- GOOGLE REVIEWS (unchanged) ---------- */
 app.use("/api", googleReviewsApi);
 
-/* ---------- CONTACT FORM ---------- */
+/* ---------- CONTACT FORM (UNCHANGED) ---------- */
 const resend = new Resend(process.env.RESEND_API_KEY);
 app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Response) => {
   const recipient = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";

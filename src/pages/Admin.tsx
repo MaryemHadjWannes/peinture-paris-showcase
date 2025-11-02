@@ -9,7 +9,7 @@ import { Loader2, Trash, Upload, MoveUp, MoveDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // === API BASE – AUTO SWITCH DEV / PROD ===
-const API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
 // === CATEGORIES ===
 interface Category {
@@ -25,95 +25,101 @@ const CATEGORIES: Category[] = [
   { name: 'Avant / Après', id: 'avant-apres', maxImages: 20 },
 ];
 
-// === CLOUDINARY IMAGE INTERFACE ===
+// === R2 IMAGE INTERFACE ===
 interface Image {
   url: string;
   filename: string;
-  publicId: string; // <-- NEW: Required for deleting from Cloudinary
+  publicId: string; // <-- R2 Key: Used for deletion
 }
 
-// === LOCAL STORAGE HELPERS ===
-const getInitialData = () => {
-  const saved = localStorage.getItem('portfolioImages');
+// =================================================================================
+// 🚨 RETAINING LOCAL STORAGE FOR ORDER ONLY (Simplified)
+// We only use localStorage to store the ORDER (publicId list) once images are fetched.
+// =================================================================================
+const getInitialOrder = () => {
+  const saved = localStorage.getItem('portfolioImageOrder');
   return saved ? JSON.parse(saved) : {};
 };
+const getInitialData = () => {
+    const saved = localStorage.getItem('portfolioImages');
+    return saved ? JSON.parse(saved) : {};
+  };
 
 const Admin: React.FC = () => {
   const { toast } = useToast();
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [data, setData] = useState<Record<string, Image[]>>(getInitialData());
+  
+  // Stores the actual fetched image data (PublicID, URL, etc.)
+  const [images, setImages] = useState<Image[]>([]); 
+  
+  // Stores the desired order (list of publicIds) for each category
+  const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder()); 
+
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0].id);
   const [isUploading, setIsUploading] = useState(false);
-  const [images, setImages] = useState<Image[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
-
   /* -------------------------------------------------------------- */
-  /* FETCH IMAGES (UPDATED FOR CLOUDINARY)                         */
+  /* FETCH IMAGES (FINAL R2 VERSION)                               */
   /* -------------------------------------------------------------- */
-  const fetchImages = useCallback(async () => {
+  const fetchImages = useCallback(async (category: string, currentOrder: string[]) => {
     if (!token) return;
     try {
-      // NOTE: The server.ts LIST endpoint needs to be updated to fetch from Cloudinary
-      // For now, we rely on server.ts returning what was previously locally stored.
-      // We will update the server's GET /api/admin/images/:category in a moment.
-      const res = await fetch(`${API_BASE}/api/admin/images/${selectedCategory}`, {
+      const res = await fetch(`${API_BASE}/api/admin/images/${category}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
-        const txt = await res.text();
-        console.error('HTTP error', res.status, txt);
         throw new Error(`HTTP ${res.status}`);
       }
 
-      const contentType = res.headers.get('content-type');
-      if (!contentType?.includes('application/json')) {
-        const txt = await res.text();
-        console.error('Not JSON', txt);
-        throw new Error('Response is not JSON');
-      }
-
-      const { files } = await res.json();
+      const { files }: { files: Image[] } = await res.json();
       
-      // Filter out files without a publicId (e.g., if server didn't provide one)
-      const validFiles: Image[] = files.filter((f: Image) => f.publicId && f.url);
-
-      // Merge saved order with new files (ensure 'publicId' is present for all saved items)
-      const saved = (data[selectedCategory] || []).filter((i: Image) => i.publicId);
-      const savedPublicIds = new Set(saved.map((i: Image) => i.publicId));
+      // 1. Convert fetched files into a map for quick lookup
+      const fileMap = new Map(files.map(f => [f.publicId, f]));
       
-      const newFiles = validFiles.filter((f: Image) => !savedPublicIds.has(f.publicId));
+      // 2. Determine the order for the current category
+      // Filter out deleted items from the stored order list
+      const validOrder = currentOrder.filter(id => fileMap.has(id));
       
-      // Use the saved order, append new files to the end
-      const merged: Image[] = [...saved.filter((i: Image) => validFiles.some(vf => vf.publicId === i.publicId)), ...newFiles];
+      // Identify new files that were just uploaded and are not in the stored order list
+      const newFiles = files.filter(f => !validOrder.includes(f.publicId));
 
-      setImages(merged);
-      // Also update data state for saving to localStorage
-      setData(prev => ({ ...prev, [selectedCategory]: merged }));
+      // 3. Create the final ordered list
+      // First, include images based on the saved order
+      let finalImages: Image[] = validOrder.map(id => fileMap.get(id)!);
+      // Then, append any brand new files to the end
+      finalImages = [...finalImages, ...newFiles];
+      
+      // 4. Update both state variables
+      setImages(finalImages);
+      setImageOrder(prev => ({ ...prev, [category]: finalImages.map(img => img.publicId) }));
 
     } catch (err) {
       console.error('Error fetching images:', err);
       toast({ title: 'Erreur', description: 'Impossible de charger les images', variant: 'destructive' });
     }
-  }, [selectedCategory, token, data, toast]);
-
-  useEffect(() => {
-    if (token) fetchImages();
-  }, [fetchImages]);
+  }, [token, toast]);
 
   /* -------------------------------------------------------------- */
-  /* SAVE ORDER TO localStorage                                    */
+  /* EFFECT: INITIAL FETCH & CATEGORY SWITCH                       */
   /* -------------------------------------------------------------- */
   useEffect(() => {
-    // Save only valid images to localStorage
-    const dataToSave = Object.fromEntries(
-        Object.entries(data).map(([key, imgs]) => [key, imgs.filter(img => img.publicId)])
-    );
-    localStorage.setItem('portfolioImages', JSON.stringify(dataToSave));
-  }, [data]);
+    if (token) {
+      // Get the last known order for the selected category, or an empty array
+      const currentOrder = imageOrder[selectedCategory] || [];
+      fetchImages(selectedCategory, currentOrder);
+    }
+  }, [selectedCategory, token, fetchImages, imageOrder]);
+  
+  /* -------------------------------------------------------------- */
+  /* EFFECT: SAVE ORDER TO localStorage                            */
+  /* -------------------------------------------------------------- */
+  useEffect(() => {
+    localStorage.setItem('portfolioImageOrder', JSON.stringify(imageOrder));
+  }, [imageOrder]);
 
   /* -------------------------------------------------------------- */
   /* LOGIN (Unchanged)                                             */
@@ -134,15 +140,17 @@ const Admin: React.FC = () => {
       localStorage.setItem('token', token);
       setToken(token);
       toast({ title: 'Connexion réussie' });
-      // Fetch images immediately after successful login
-      fetchImages(); 
+      
+      // Fetch images immediately after successful login using the current selected category
+      const currentOrder = imageOrder[selectedCategory] || [];
+      fetchImages(selectedCategory, currentOrder); 
     } catch {
       toast({ title: 'Erreur', description: 'Identifiants incorrects', variant: 'destructive' });
     }
   };
 
   /* -------------------------------------------------------------- */
-  /* UPLOAD (UPDATED FOR CLOUDINARY)                               */
+  /* UPLOAD (R2 version)                                           */
   /* -------------------------------------------------------------- */
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -178,7 +186,6 @@ const Admin: React.FC = () => {
         if (!res.ok) throw new Error('Upload failed');
 
         const json = await res.json();
-        // Capture the publicId from the server response
         const img: Image = { url: json.url, filename: json.filename, publicId: json.publicId };
         uploaded.push(img);
         toast({ title: 'Succès', description: `${files[i].name} uploadé` });
@@ -189,19 +196,22 @@ const Admin: React.FC = () => {
     }
 
     const newImages = [...images, ...uploaded];
+    const newOrder = newImages.map(img => img.publicId);
+
     setImages(newImages);
-    setData(prev => ({ ...prev, [selectedCategory]: newImages }));
+    setImageOrder(prev => ({ ...prev, [selectedCategory]: newOrder }));
+    
     setIsUploading(false);
     e.target.value = '';
   };
 
   /* -------------------------------------------------------------- */
-  /* DELETE (UPDATED FOR CLOUDINARY)                               */
+  /* DELETE (R2 version)                                           */
   /* -------------------------------------------------------------- */
  const handleDelete = async (img: Image, idx: number) => {
     try {
-      // Correctly uses the publicId for Cloudinary deletion
-      const res = await fetch(`${API_BASE}/api/admin/delete/${img.publicId}`, {
+      // Uses the R2 Key (publicId) for deletion
+      const res = await fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(img.publicId)}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -209,8 +219,10 @@ const Admin: React.FC = () => {
       if (!res.ok) throw new Error('Delete failed');
 
       const newImgs = images.filter((_, i) => i !== idx);
+      const newOrder = newImgs.map(i => i.publicId);
+
       setImages(newImgs);
-      setData(prev => ({ ...prev, [selectedCategory]: newImgs }));
+      setImageOrder(prev => ({ ...prev, [selectedCategory]: newOrder }));
       toast({ title: 'Supprimé', description: img.filename });
     } catch (err) {
       console.error(err);
@@ -219,15 +231,20 @@ const Admin: React.FC = () => {
   };
 
   /* -------------------------------------------------------------- */
-  /* REORDER & DRAG-AND-DROP (Unchanged, use image state)          */
+  /* REORDER & DRAG-AND-DROP (FINAL)                               */
   /* -------------------------------------------------------------- */
+  const updateOrder = (updatedImages: Image[]) => {
+    const newOrder = updatedImages.map(img => img.publicId);
+    setImages(updatedImages);
+    setImageOrder(prev => ({ ...prev, [selectedCategory]: newOrder }));
+  };
+
   const move = (idx: number, dir: 'up' | 'down') => {
     if ((dir === 'up' && idx === 0) || (dir === 'down' && idx === images.length - 1)) return;
     const copy = [...images];
     const target = dir === 'up' ? idx - 1 : idx + 1;
     [copy[idx], copy[target]] = [copy[target], copy[idx]];
-    setImages(copy);
-    setData(prev => ({ ...prev, [selectedCategory]: copy }));
+    updateOrder(copy);
   };
 
   const onDragStart = (e: DragEvent<HTMLDivElement>, idx: number) => {
@@ -242,8 +259,7 @@ const Admin: React.FC = () => {
     const copy = [...images];
     const [moved] = copy.splice(dragIdx, 1);
     copy.splice(dropIdx, 0, moved);
-    setImages(copy);
-    setData(prev => ({ ...prev, [selectedCategory]: copy }));
+    updateOrder(copy);
     setIsDragging(false);
   };
   const onDragEnd = () => setIsDragging(false);
@@ -289,7 +305,7 @@ const Admin: React.FC = () => {
   }
 
   /* -------------------------------------------------------------- */
-  /* MAIN ADMIN UI (Unchanged, uses updated state)                 */
+  /* MAIN ADMIN UI (Unchanged)                                     */
   /* -------------------------------------------------------------- */
   const cat = CATEGORIES.find(c => c.id === selectedCategory)!;
   const count = images.length;
@@ -303,7 +319,9 @@ const Admin: React.FC = () => {
           variant="outline"
           onClick={() => {
             localStorage.removeItem('token');
+            localStorage.removeItem('portfolioImageOrder'); // Clear order on logout
             setToken('');
+            setImages([]);
             toast({ title: 'Déconnexion' });
           }}
         >
@@ -368,14 +386,13 @@ const Admin: React.FC = () => {
                   onDragOver={onDragOver}
                   onDrop={e => onDrop(e, idx)}
                   onDragEnd={onDragEnd}
-                  className={`flex items-center gap-3 p-3 border rounded-lg bg-card ${isDragging ? 'opacity-50' : ''}`}
+                  className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab ${isDragging ? 'opacity-50' : 'active:cursor-grabbing'}`}
                 >
-                  {/* Use a transformation for the small thumbnail for performance (optional) */}
-                  <img src={`${img.url.replace('/upload/', '/upload/w_100,h_100,c_fill/')}`} alt="" className="w-16 h-16 object-cover rounded" /> 
+                  {/* Since you are no longer using Cloudinary, the replace for transformation is removed */}
+                  <img src={img.url} alt="" className="w-16 h-16 object-cover rounded" /> 
                   <div className="flex-1">
                     <p className="font-medium text-sm">{img.filename}</p>
-                    {/* Display the publicId for debugging/clarity */}
-                    <p className="text-xs text-muted-foreground break-all">{img.publicId}</p> 
+                    <p className="text-xs text-muted-foreground break-all" title="R2 Key">{img.publicId.length > 50 ? img.publicId.substring(0, 47) + '...' : img.publicId}</p> 
                   </div>
                   <div className="flex gap-1">
                     <Button size="sm" variant="outline" onClick={() => move(idx, 'up')} disabled={idx === 0}>
