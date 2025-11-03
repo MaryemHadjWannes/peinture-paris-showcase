@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown } from 'lucide-react';
+import path from 'path';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
@@ -18,8 +19,7 @@ const CATEGORIES: Category[] = [
   { name: 'Enduit Professionnel', id: 'enduit', maxImages: 20 },
   { name: 'Peinture Intérieure', id: 'peinture-interieure', maxImages: 20 },
   { name: 'Escalier & Détails', id: 'escalier-details', maxImages: 20 },
-  { name: 'Avant', id: 'avant', maxImages: 20 },
-  { name: 'Après', id: 'apres', maxImages: 20 },
+  { name: 'Avant / Après', id: 'avant-apres', maxImages: 40 }, // 20 paires
 ];
 
 interface Image {
@@ -104,17 +104,28 @@ const Admin: React.FC = () => {
     if (current.length + files.length > cat.maxImages) {
       toast({
         title: 'Limite dépassée',
-        description: `Maximum ${cat.maxImages} images`,
+        description: `Maximum ${cat.maxImages} images (20 paires)`,
         variant: 'destructive',
       });
       return;
     }
+
     setIsUploading(prev => ({ ...prev, [category]: true }));
     const uploaded: Image[] = [];
+
     for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const ext = path.extname(file.name).toLowerCase();
+      const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      const isAvant = /avant/i.test(file.name);
+      const prefix = isAvant ? 'avant' : 'apres';
+      const newFilename = `${prefix}-${pairId}${ext}`;
+
       const fd = new FormData();
-      fd.append('image', files[i]);
+      fd.append('image', file);
       fd.append('category', category);
+      fd.append('filename', newFilename);
+
       try {
         const res = await fetch(`${API_BASE}/api/admin/upload`, {
           method: 'POST',
@@ -128,11 +139,12 @@ const Admin: React.FC = () => {
           filename: json.filename,
           publicId: json.publicId,
         });
-        toast({ title: 'Succès', description: `${files[i].name} → ${json.filename}` });
+        toast({ title: 'Succès', description: `${file.name} → ${json.filename}` });
       } catch (err) {
-        toast({ title: 'Erreur', description: `Échec upload ${files[i].name}`, variant: 'destructive' });
+        toast({ title: 'Erreur', description: `Échec upload ${file.name}`, variant: 'destructive' });
       }
     }
+
     const newImages = [...current, ...uploaded];
     setImagesByCat(prev => ({ ...prev, [category]: newImages }));
     setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
@@ -261,9 +273,9 @@ const Admin: React.FC = () => {
                   />
                   {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                   {count >= max && <p className="text-sm text-destructive mt-2">Limite atteinte</p>}
-                  {(cat.id === 'avant' || cat.id === 'apres') && (
+                  {cat.id === 'avant-apres' && (
                     <p className="text-xs text-muted-foreground mt-2">
-                      ID généré automatiquement : <code className="bg-gray-200 px-1 rounded">{cat.id}-xyz123.jpg</code>
+                      Nommez vos fichiers : <code className="bg-gray-200 px-1 rounded">avant-...</code> ou <code className="bg-gray-200 px-1 rounded">apres-...</code>
                     </p>
                   )}
                 </div>
@@ -288,7 +300,7 @@ const Admin: React.FC = () => {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{img.filename}</p>
                           <p className="text-xs text-muted-foreground truncate">
-                            {img.publicId.split('/').pop()}
+                            {img.filename.startsWith('avant-') ? 'Avant' : 'Après'}
                           </p>
                         </div>
                         <div className="flex gap-1">
