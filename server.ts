@@ -1,5 +1,3 @@
-// server.ts
-
 import express, { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
@@ -11,32 +9,15 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
-// FIXED: Use AWS S3 Client for R2 integration
 import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
-// ESM fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-// Load .env
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
-/* ---------------------------------------------------- */
-
-
-/* ---------- VALIDATE ENV & R2 CONFIG ---------- */
 const required = [
-  "JWT_SECRET", 
-  "ADMIN_EMAIL", 
-  "ADMIN_PASSWORD", 
-  "CORS_ORIGIN",
-  // R2 Credentials
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
-  "R2_ACCOUNT_ID",
-  "R2_BUCKET_NAME",
-  "R2_PUBLIC_DOMAIN", // Must be the R2 public endpoint
+  "JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "CORS_ORIGIN",
+  "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_ACCOUNT_ID", "R2_BUCKET_NAME", "R2_PUBLIC_DOMAIN"
 ];
 required.forEach(v => {
   if (!process.env[v]) {
@@ -45,74 +26,54 @@ required.forEach(v => {
   }
 });
 
-/* ---------- CLOUDFLARE R2 CONFIGURATION ---------- */
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID!;
 const R2_ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-
 const s3Client = new S3Client({
-    region: 'auto', // Cloudflare R2 uses 'auto'
-    endpoint: R2_ENDPOINT,
-    credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-    },
+  region: 'auto',
+  endpoint: R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
 });
-
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN!;
 
-/* ---------- CATEGORY → R2 FOLDER MAP (UPDATED FOR YOUR PATH) ---------- */
-// Your structure is: hn-renovation-db/PEINTURE INTERIEUR/photos/CATEGORY/
-const BASE_PREFIX = "PEINTURE INTERIEUR/photos"; 
-
+const BASE_PREFIX = "PEINTURE INTERIEUR/photos";
 const folderMap: Record<string, string> = {
-  // R2 Key: PEINTURE INTERIEUR/photos/ENDUIT
-  enduit: `${BASE_PREFIX}/ENDUIT`, 
-  // R2 Key: PEINTURE INTERIEUR/photos/PEINTURE INTERIEUR
-  "peinture-interieure": `${BASE_PREFIX}/PEINTURE INTERIEUR`, 
-  // R2 Key: PEINTURE INTERIEUR/photos/ESCALIER
-  "escalier-details": `${BASE_PREFIX}/ESCALIER`, 
-  // R2 Key: PEINTURE INTERIEUR/photos/AVANT-APRES
-  "avant-apres": `${BASE_PREFIX}/AVANT-APRES`, 
+  enduit: `${BASE_PREFIX}/ENDUIT`,
+  "peinture-interieure": `${BASE_PREFIX}/PEINTURE INTERIEUR`,
+  "escalier-details": `${BASE_PREFIX}/ESCALIER`,
+  avant: `${BASE_PREFIX}/AVANT-APRES`,
+  apres: `${BASE_PREFIX}/AVANT-APRES`,
 };
-// ----------------------------------------------------
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* ---------------------------------------------------- */
-/* ---------------------------------- */
-/* CORS CONFIGURATION (UNCHANGED)     */
-/* ---------------------------------- */
 const allowedOrigin = process.env.CORS_ORIGIN;
 const allowedOrigins = [
   ...(allowedOrigin ? [allowedOrigin] : []),
-  'http://127.0.0.1:8080', 
+  'http://127.0.0.1:8080',
 ];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error(`CORS Blocked: Origin ${origin} not in allowed list.`);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
-
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(`CORS Blocked: Origin ${origin} not in allowed list.`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ---------- TEMP UPLOAD DIR (UNCHANGED) ---------- */
 const tempDir = path.join(process.cwd(), "temp_uploads");
 if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-
 const tempStorage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, tempDir),
   filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname),
@@ -128,7 +89,6 @@ const adminUpload = multer({
   },
 });
 
-/* ---------- CONTACT FORM UPLOAD (UNCHANGED) ---------- */
 const contactUploadDir = path.join(process.cwd(), "public/uploads");
 if (!fs.existsSync(contactUploadDir)) fs.mkdirSync(contactUploadDir, { recursive: true });
 const contactStorage = multer.diskStorage({
@@ -137,7 +97,6 @@ const contactStorage = multer.diskStorage({
 });
 const contactUpload = multer({ storage: contactStorage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-/* ---------- JWT MIDDLEWARE (UNCHANGED) ---------- */
 const authenticate = (req: Request, res: Response, next: express.NextFunction) => {
   const token = req.headers.authorization?.split("Bearer ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -149,10 +108,6 @@ const authenticate = (req: Request, res: Response, next: express.NextFunction) =
   }
 };
 
-/* ---------------------------------------------------- */
-
-
-/* ---------- ADMIN LOGIN (UNCHANGED) ---------- */
 app.post("/api/admin/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
@@ -163,157 +118,120 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
   }
 });
 
-/* ---------- UPLOAD IMAGE (Cloudflare R2) ---------- */
+// UPLOAD AVEC ID COMMUN
 app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file" });
 
   const catId = (req.body.category as string).toLowerCase();
   const targetFolder = folderMap[catId];
   const tempFilePath = req.file.path;
-  
+
   if (!targetFolder) {
-    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
     return res.status(400).json({ error: "Invalid category" });
   }
 
-  // R2 Key (Path) combines the full folder prefix and the filename
-  const R2Key = `${targetFolder}/${req.file.filename}`;
+  const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  const prefix = catId === 'avant' ? 'avant' : 'apres';
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  const newFilename = `${prefix}-${pairId}${ext}`;
+  const R2Key = `${targetFolder}/${newFilename}`;
   const fileBody = fs.readFileSync(tempFilePath);
 
   try {
-    // 1. UPLOAD TO R2 using PutObjectCommand
     const uploadCommand = new PutObjectCommand({
-        Bucket: R2_BUCKET_NAME,
-        Key: R2Key, // The full path/filename in the bucket
-        Body: fileBody,
-        ContentType: req.file.mimetype,
-        ACL: 'public-read', // Essential for public display
+      Bucket: R2_BUCKET_NAME,
+      Key: R2Key,
+      Body: fileBody,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read',
     });
-    
     await s3Client.send(uploadCommand);
-    
-    // 2. DELETE TEMPORARY LOCAL FILE
-    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
-    // 3. RETURN R2 DATA (Public URL: R2_PUBLIC_DOMAIN/R2Key)
     const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
-
-    res.json({ 
-      url: publicUrl, 
-      publicId: R2Key, // The key is now the public ID for delete operations
-      filename: req.file.filename,
+    res.json({
+      url: publicUrl,
+      publicId: R2Key,
+      filename: newFilename,
     });
-
   } catch (err) {
-    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath); 
+    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
     console.error("R2 Upload failed:", err);
     res.status(500).json({ error: "Upload failed" });
   }
 });
 
-/* ---------- DELETE IMAGE (Cloudflare R2) - FIXED ---------- */
 app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res: Response) => {
   try {
-    // 1. DECODE THE URL-ENCODED publicId (R2 Key)
-    const R2Key = decodeURIComponent(req.params.publicId); 
-
-    // 2. DELETE FROM R2 using DeleteObjectCommand
+    const R2Key = decodeURIComponent(req.params.publicId);
     const deleteCommand = new DeleteObjectCommand({
-        Bucket: R2_BUCKET_NAME,
-        Key: R2Key,
+      Bucket: R2_BUCKET_NAME,
+      Key: R2Key,
     });
-    
     await s3Client.send(deleteCommand);
-
-    // 3. SUCCESS
     res.json({ message: "Deleted" });
-
   } catch (err) {
     console.error("R2 Delete failed:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
 
-/* ---------- R2 LIST UTILITY FUNCTION ---------- */
 const listR2Images = async (folder: string) => {
-    // 1. CONSTRUCT THE R2 PREFIX (e.g., PEINTURE INTERIEUR/photos/ENDUIT/)
-    const R2Prefix = `${folder}/`;
-
-    // 2. FETCH RESOURCES (IMAGES) FROM R2
-    const listCommand = new ListObjectsV2Command({
-        Bucket: R2_BUCKET_NAME,
-        Prefix: R2Prefix,
-        MaxKeys: 500,
+  const R2Prefix = `${folder}/`;
+  const listCommand = new ListObjectsV2Command({
+    Bucket: R2_BUCKET_NAME,
+    Prefix: R2Prefix,
+    MaxKeys: 500,
+  });
+  const result = await s3Client.send(listCommand);
+  return (result.Contents || [])
+    .filter(item => item.Key && !item.Key.endsWith('/'))
+    .map((item: any) => {
+      const R2Key = item.Key;
+      const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
+      return {
+        url: publicUrl,
+        publicId: R2Key,
+        filename: path.basename(R2Key),
+      };
     });
-
-    const result = await s3Client.send(listCommand);
-
-    // 3. MAP THE RESULTS 
-    const files = (result.Contents || [])
-      // Filter out files that are just directory placeholders (keys ending in /)
-      .filter(item => item.Key && !item.Key.endsWith('/')) 
-      .map((item: any) => {
-        const R2Key = item.Key;
-        // The public URL is R2_PUBLIC_DOMAIN/R2Key
-        const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
-
-        return {
-          url: publicUrl, 
-          publicId: R2Key, // The key is the public ID
-          filename: path.basename(R2Key), 
-        };
-      });
-      
-    return files;
 };
 
-/* ---------- NEW: PUBLIC LIST IMAGES (Cloudflare R2) ---------- */
-// This is the endpoint Portfolio.tsx calls
 app.get("/api/public/images/:category", async (req: Request, res: Response) => {
   try {
     const cat = req.params.category.toLowerCase();
     const folder = folderMap[cat];
     if (!folder) return res.status(400).json({ error: "Invalid category" });
-
     const files = await listR2Images(folder);
     res.json({ files });
-
   } catch (err) {
     console.error("R2 Public List failed:", err);
     res.status(500).json({ error: "List failed" });
   }
 });
 
-/* ---------- ADMIN LIST IMAGES (Cloudflare R2) ---------- */
-// This is the endpoint Admin.tsx calls
 app.get("/api/admin/images/:category", authenticate, async (req: Request, res: Response) => {
   try {
     const cat = req.params.category.toLowerCase();
     const folder = folderMap[cat];
     if (!folder) return res.status(400).json({ error: "Invalid category" });
-
     const files = await listR2Images(folder);
     res.json({ files });
-    
   } catch (err) {
     console.error("R2 Admin List failed:", err);
     res.status(500).json({ error: "List failed" });
   }
 });
 
-/* ---------------------------------------------------- */
-
-/* ---------- GOOGLE REVIEWS (unchanged) ---------- */
 app.use("/api", googleReviewsApi);
 
-/* ---------- CONTACT FORM (UNCHANGED) ---------- */
 const resend = new Resend(process.env.RESEND_API_KEY);
 app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Response) => {
   const recipient = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";
   const files = req.files as Express.Multer.File[] | undefined;
   const fields = req.body;
   const paths: string[] = [];
-
   try {
     const attachments = files?.map(f => {
       paths.push(f.path);
@@ -324,7 +242,6 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
         encoding: "base64",
       };
     });
-
     await resend.emails.send({
       from: `${fields.name} <${fields.email}>`,
       to: [recipient],
@@ -332,7 +249,6 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
       html: `<p><strong>Nom:</strong> ${fields.name}<br/><strong>Email:</strong> ${fields.email}<br/><strong>Tél:</strong> ${fields.phone}<br/><strong>Projet:</strong> ${fields.project}<br/><strong>Message:</strong> ${fields.message}</p>`,
       attachments,
     });
-
     paths.forEach(p => fs.unlinkSync(p));
     res.json({ message: "Envoyé !" });
   } catch (err) {
@@ -342,7 +258,6 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
   }
 });
 
-/* ---------- SERVE FRONTEND (PRODUCTION) ---------- */
 const frontend = path.join(process.cwd(), "dist");
 app.use(express.static(frontend));
 app.get(/.*/, (_: Request, res: Response) => res.sendFile(path.join(frontend, "index.html")));
