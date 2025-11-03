@@ -19,7 +19,7 @@ const CATEGORIES: Category[] = [
   { name: 'Enduit Professionnel', id: 'enduit', maxImages: 20 },
   { name: 'Peinture Intérieure', id: 'peinture-interieure', maxImages: 20 },
   { name: 'Escalier & Détails', id: 'escalier-details', maxImages: 20 },
-  { name: 'Avant / Après', id: 'avant-apres', maxImages: 40 }, // 20 paires
+  { name: 'Avant / Après', id: 'avant-apres', maxImages: 40 },
 ];
 
 interface Image {
@@ -95,7 +95,8 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
+  // MODIFIÉ : 2 BOUTONS, RENOMMAGE FORCÉ
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string, type: 'avant' | 'apres') => {
     const files = e.target.files;
     if (!files?.length) return;
     const cat = CATEGORIES.find(c => c.id === category);
@@ -104,7 +105,7 @@ const Admin: React.FC = () => {
     if (current.length + files.length > cat.maxImages) {
       toast({
         title: 'Limite dépassée',
-        description: `Maximum ${cat.maxImages} images (20 paires)`,
+        description: `Maximum 40 images (20 paires)`,
         variant: 'destructive',
       });
       return;
@@ -115,11 +116,9 @@ const Admin: React.FC = () => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const ext = path.extname(file.name).toLowerCase();
+      const ext = path.extname(file.name).toLowerCase() || '.jpg';
       const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const isAvant = /avant/i.test(file.name);
-      const prefix = isAvant ? 'avant' : 'apres';
-      const newFilename = `${prefix}-${pairId}${ext}`;
+      const newFilename = `${type}-${pairId}${ext}`;
 
       const fd = new FormData();
       fd.append('image', file);
@@ -139,9 +138,9 @@ const Admin: React.FC = () => {
           filename: json.filename,
           publicId: json.publicId,
         });
-        toast({ title: 'Succès', description: `${file.name} → ${json.filename}` });
+        toast({ title: 'Succès', description: `Upload ${type}: ${json.filename}` });
       } catch (err) {
-        toast({ title: 'Erreur', description: `Échec upload ${file.name}`, variant: 'destructive' });
+        toast({ title: 'Erreur', description: `Échec upload ${type}`, variant: 'destructive' });
       }
     }
 
@@ -252,6 +251,7 @@ const Admin: React.FC = () => {
           const count = images.length;
           const max = cat.maxImages;
           const uploading = isUploading[cat.id];
+
           return (
             <Card key={cat.id} className="overflow-hidden">
               <CardHeader>
@@ -261,24 +261,50 @@ const Admin: React.FC = () => {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                  <Upload className="mx-auto h-7 w-7 text-muted-foreground mb-2" />
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={uploading || count >= max}
-                    onChange={e => handleUpload(e, cat.id)}
-                    className="mt-1"
-                  />
-                  {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
-                  {count >= max && <p className="text-sm text-destructive mt-2">Limite atteinte</p>}
-                  {cat.id === 'avant-apres' && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Nommez vos fichiers : <code className="bg-gray-200 px-1 rounded">avant-...</code> ou <code className="bg-gray-200 px-1 rounded">apres-...</code>
-                    </p>
-                  )}
-                </div>
+                {/* 2 BOUTONS DANS LA MÊME DIV */}
+                {cat.id === 'avant-apres' ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border-2 border-dashed border-green-300 rounded-lg p-4 text-center">
+                      <Upload className="mx-auto h-6 w-6 text-green-600 mb-2" />
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={uploading || count >= max}
+                        onChange={e => handleUpload(e, cat.id, 'avant')}
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-green-600 mt-2">Upload Avant</p>
+                    </div>
+                    <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
+                      <Upload className="mx-auto h-6 w-6 text-blue-600 mb-2" />
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={uploading || count >= max}
+                        onChange={e => handleUpload(e, cat.id, 'apres')}
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-blue-600 mt-2">Upload Après</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                    <Upload className="mx-auto h-7 w-7 text-muted-foreground mb-2" />
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      disabled={uploading || count >= max}
+                      onChange={e => handleUpload(e, cat.id, 'avant')}
+                      className="mt-1"
+                    />
+                    {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                    {count >= max && <p className="text-sm text-destructive mt-2">Limite atteinte</p>}
+                  </div>
+                )}
+
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   <Label>Images (glisser pour réordonner)</Label>
                   {images.length === 0 ? (
@@ -299,7 +325,7 @@ const Admin: React.FC = () => {
                         <img src={img.url} alt="" className="w-14 h-14 object-cover rounded" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{img.filename}</p>
-                          <p className="text-xs text-muted-foreground truncate">
+                          <p className={`text-xs font-medium ${img.filename.startsWith('avant-') ? 'text-green-600' : 'text-blue-600'}`}>
                             {img.filename.startsWith('avant-') ? 'Avant' : 'Après'}
                           </p>
                         </div>
