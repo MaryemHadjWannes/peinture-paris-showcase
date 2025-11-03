@@ -87,13 +87,13 @@ const Hero = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto">
           <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
-              <span>{projects}&nbsp;+</span>
+              <span suppressHydrationWarning>{projects}<span aria-hidden="true">+</span></span>
             </div>
             <div className="text-xs sm:text-sm text-white/80">Projets Réalisés</div>
           </div>
           <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
-              <span>{clients}&nbsp;+</span>
+              <span suppressHydrationWarning>{clients}<span aria-hidden="true">+</span></span>
             </div>
             <div className="text-xs sm:text-sm text-white/80">Clients Satisfaits</div>
           </div>
