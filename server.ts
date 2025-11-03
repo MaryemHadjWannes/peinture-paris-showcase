@@ -44,8 +44,7 @@ const folderMap: Record<string, string> = {
   enduit: `${BASE_PREFIX}/ENDUIT`,
   "peinture-interieure": `${BASE_PREFIX}/PEINTURE INTERIEUR`,
   "escalier-details": `${BASE_PREFIX}/ESCALIER`,
-  avant: `${BASE_PREFIX}/AVANT-APRES`,
-  apres: `${BASE_PREFIX}/AVANT-APRES`,
+  "avant-apres": `${BASE_PREFIX}/AVANT-APRES`, // UNE SEULE CATEGORIE
 };
 
 const app = express();
@@ -118,11 +117,12 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
   }
 });
 
-// UPLOAD AVEC ID COMMUN
+// UPLOAD AVEC NOM FORCÉ
 app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file" });
 
   const catId = (req.body.category as string).toLowerCase();
+  const forcedFilename = req.body.filename as string | undefined;
   const targetFolder = folderMap[catId];
   const tempFilePath = req.file.path;
 
@@ -131,11 +131,8 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
     return res.status(400).json({ error: "Invalid category" });
   }
 
-  const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-  const prefix = catId === 'avant' ? 'avant' : 'apres';
-  const ext = path.extname(req.file.originalname).toLowerCase();
-  const newFilename = `${prefix}-${pairId}${ext}`;
-  const R2Key = `${targetFolder}/${newFilename}`;
+  const finalFilename = forcedFilename || req.file.filename;
+  const R2Key = `${targetFolder}/${finalFilename}`;
   const fileBody = fs.readFileSync(tempFilePath);
 
   try {
@@ -153,7 +150,7 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
     res.json({
       url: publicUrl,
       publicId: R2Key,
-      filename: newFilename,
+      filename: finalFilename,
     });
   } catch (err) {
     if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
