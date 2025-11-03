@@ -1,4 +1,3 @@
-// src/pages/Admin.tsx
 import React, { useState, useEffect, useCallback, DragEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,30 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown } from 'lucide-react';
 
-// === API BASE ===
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
-// === CATEGORIES ===
 interface Category {
   name: string;
   id: string;
   maxImages: number;
 }
+
 const CATEGORIES: Category[] = [
   { name: 'Enduit Professionnel', id: 'enduit', maxImages: 20 },
   { name: 'Peinture Intérieure', id: 'peinture-interieure', maxImages: 20 },
   { name: 'Escalier & Détails', id: 'escalier-details', maxImages: 20 },
-  { name: 'Avant / Après', id: 'avant-apres', maxImages: 20 },
+  { name: 'Avant', id: 'avant', maxImages: 20 },
+  { name: 'Après', id: 'apres', maxImages: 20 },
 ];
 
-// === IMAGE INTERFACE ===
 interface Image {
   url: string;
   filename: string;
   publicId: string;
 }
 
-// === LOCAL STORAGE ORDER ===
 const getInitialOrder = (): Record<string, string[]> => {
   const saved = localStorage.getItem('portfolioImageOrder');
   return saved ? JSON.parse(saved) : {};
@@ -41,37 +38,27 @@ const Admin: React.FC = () => {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // Images par catégorie
   const [imagesByCat, setImagesByCat] = useState<Record<string, Image[]>>({});
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
-
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
-  const [isDragging, setIsDragging] = useState<string | null>(null); // catégorie en drag
+  const [isDragging, setIsDragging] = useState<string | null>(null);
 
-  /* -------------------------------------------------------------- */
-  /* FETCH IMAGES FOR ONE CATEGORY */
-  /* -------------------------------------------------------------- */
   const fetchImages = useCallback(async (category: string) => {
     if (!token) return;
-
     try {
       const res = await fetch(`${API_BASE}/api/admin/images/${category}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { files }: { files: Image[] } = await res.json();
-
       const savedOrder = imageOrder[category] || [];
       const fileMap = new Map(files.map(f => [f.publicId, f]));
       const validOrder = savedOrder.filter(id => fileMap.has(id));
       const newFiles = files.filter(f => !validOrder.includes(f.publicId));
-
       const ordered = [
         ...validOrder.map(id => fileMap.get(id)!),
         ...newFiles,
       ];
-
       setImagesByCat(prev => ({ ...prev, [category]: ordered }));
       setImageOrder(prev => ({ ...prev, [category]: ordered.map(i => i.publicId) }));
     } catch (err) {
@@ -80,25 +67,16 @@ const Admin: React.FC = () => {
     }
   }, [token, toast]);
 
-  /* -------------------------------------------------------------- */
-  /* FETCH ALL CATEGORIES ON LOGIN */
-  /* -------------------------------------------------------------- */
   useEffect(() => {
     if (token) {
       CATEGORIES.forEach(cat => fetchImages(cat.id));
     }
   }, [token, fetchImages]);
 
-  /* -------------------------------------------------------------- */
-  /* SAVE ORDER TO localStorage */
-  /* -------------------------------------------------------------- */
   useEffect(() => {
     localStorage.setItem('portfolioImageOrder', JSON.stringify(imageOrder));
   }, [imageOrder]);
 
-  /* -------------------------------------------------------------- */
-  /* LOGIN */
-  /* -------------------------------------------------------------- */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -117,16 +95,11 @@ const Admin: React.FC = () => {
     }
   };
 
-  /* -------------------------------------------------------------- */
-  /* UPLOAD */
-  /* -------------------------------------------------------------- */
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
     const files = e.target.files;
     if (!files?.length) return;
-
     const cat = CATEGORIES.find(c => c.id === category);
     if (!cat) return;
-
     const current = imagesByCat[category] || [];
     if (current.length + files.length > cat.maxImages) {
       toast({
@@ -136,15 +109,12 @@ const Admin: React.FC = () => {
       });
       return;
     }
-
     setIsUploading(prev => ({ ...prev, [category]: true }));
     const uploaded: Image[] = [];
-
     for (let i = 0; i < files.length; i++) {
       const fd = new FormData();
       fd.append('image', files[i]);
       fd.append('category', category);
-
       try {
         const res = await fetch(`${API_BASE}/api/admin/upload`, {
           method: 'POST',
@@ -158,12 +128,11 @@ const Admin: React.FC = () => {
           filename: json.filename,
           publicId: json.publicId,
         });
-        toast({ title: 'Succès', description: `${files[i].name} uploadé` });
+        toast({ title: 'Succès', description: `${files[i].name} → ${json.filename}` });
       } catch (err) {
         toast({ title: 'Erreur', description: `Échec upload ${files[i].name}`, variant: 'destructive' });
       }
     }
-
     const newImages = [...current, ...uploaded];
     setImagesByCat(prev => ({ ...prev, [category]: newImages }));
     setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
@@ -171,9 +140,6 @@ const Admin: React.FC = () => {
     e.target.value = '';
   };
 
-  /* -------------------------------------------------------------- */
-  /* DELETE */
-  /* -------------------------------------------------------------- */
   const handleDelete = async (img: Image, category: string, idx: number) => {
     try {
       const res = await fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(img.publicId)}`, {
@@ -181,7 +147,6 @@ const Admin: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Delete failed');
-
       const newImgs = imagesByCat[category].filter((_, i) => i !== idx);
       setImagesByCat(prev => ({ ...prev, [category]: newImgs }));
       setImageOrder(prev => ({ ...prev, [category]: newImgs.map(i => i.publicId) }));
@@ -191,9 +156,6 @@ const Admin: React.FC = () => {
     }
   };
 
-  /* -------------------------------------------------------------- */
-  /* REORDER (DRAG & BUTTONS) */
-  /* -------------------------------------------------------------- */
   const updateOrder = (category: string, updated: Image[]) => {
     setImagesByCat(prev => ({ ...prev, [category]: updated }));
     setImageOrder(prev => ({ ...prev, [category]: updated.map(i => i.publicId) }));
@@ -211,24 +173,23 @@ const Admin: React.FC = () => {
     e.dataTransfer.setData('text/plain', `${category}|${idx}`);
     setIsDragging(category);
   };
+
   const onDragOver = (e: DragEvent) => e.preventDefault();
+
   const onDrop = (e: DragEvent<HTMLDivElement>, category: string, dropIdx: number) => {
     e.preventDefault();
     const [srcCat, dragIdxStr] = e.dataTransfer.getData('text/plain').split('|');
     const dragIdx = Number(dragIdxStr);
     if (srcCat !== category || dragIdx === dropIdx) return;
-
     const copy = [...imagesByCat[category]];
     const [moved] = copy.splice(dragIdx, 1);
     copy.splice(dropIdx, 0, moved);
     updateOrder(category, copy);
     setIsDragging(null);
   };
+
   const onDragEnd = () => setIsDragging(null);
 
-  /* -------------------------------------------------------------- */
-  /* LOGIN SCREEN */
-  /* -------------------------------------------------------------- */
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -256,9 +217,6 @@ const Admin: React.FC = () => {
     );
   }
 
-  /* -------------------------------------------------------------- */
-  /* MAIN ADMIN UI – ALL CATEGORIES */
-  /* -------------------------------------------------------------- */
   return (
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
@@ -276,14 +234,12 @@ const Admin: React.FC = () => {
           Déconnexion
         </Button>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {CATEGORIES.map(cat => {
           const images = imagesByCat[cat.id] || [];
           const count = images.length;
           const max = cat.maxImages;
           const uploading = isUploading[cat.id];
-
           return (
             <Card key={cat.id} className="overflow-hidden">
               <CardHeader>
@@ -293,7 +249,6 @@ const Admin: React.FC = () => {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* UPLOAD ZONE */}
                 <div className="border-2 border-dashed rounded-lg p-4 text-center">
                   <Upload className="mx-auto h-7 w-7 text-muted-foreground mb-2" />
                   <Input
@@ -306,9 +261,12 @@ const Admin: React.FC = () => {
                   />
                   {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                   {count >= max && <p className="text-sm text-destructive mt-2">Limite atteinte</p>}
+                  {(cat.id === 'avant' || cat.id === 'apres') && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ID généré automatiquement : <code className="bg-gray-200 px-1 rounded">{cat.id}-xyz123.jpg</code>
+                    </p>
+                  )}
                 </div>
-
-                {/* IMAGE LIST */}
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   <Label>Images (glisser pour réordonner)</Label>
                   {images.length === 0 ? (
@@ -329,8 +287,8 @@ const Admin: React.FC = () => {
                         <img src={img.url} alt="" className="w-14 h-14 object-cover rounded" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{img.filename}</p>
-                          <p className="text-xs text-muted-foreground truncate" title={img.publicId}>
-                            {img.publicId.length > 40 ? img.publicId.slice(0, 37) + '...' : img.publicId}
+                          <p className="text-xs text-muted-foreground truncate">
+                            {img.publicId.split('/').pop()}
                           </p>
                         </div>
                         <div className="flex gap-1">
