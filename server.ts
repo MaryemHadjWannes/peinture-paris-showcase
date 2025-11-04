@@ -9,7 +9,13 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  CopyObjectCommand,
+} from '@aws-sdk/client-s3';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,6 +25,7 @@ const required = [
   "JWT_SECRET", "ADMIN_EMAIL", "ADMIN_PASSWORD", "CORS_ORIGIN",
   "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_ACCOUNT_ID", "R2_BUCKET_NAME", "R2_PUBLIC_DOMAIN"
 ];
+
 required.forEach(v => {
   if (!process.env[v]) {
     console.error(`Missing env var ${v}`);
@@ -36,15 +43,16 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
 });
+
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 const R2_PUBLIC_DOMAIN = process.env.R2_PUBLIC_DOMAIN!;
-
 const BASE_PREFIX = "PEINTURE INTERIEUR/photos";
+
 const folderMap: Record<string, string> = {
   enduit: `${BASE_PREFIX}/ENDUIT`,
   "peinture-interieure": `${BASE_PREFIX}/PEINTURE INTERIEUR`,
   "escalier-details": `${BASE_PREFIX}/ESCALIER`,
-  "avant-apres": `${BASE_PREFIX}/AVANT-APRES`, // UNE SEULE CATEGORIE
+  "avant-apres": `${BASE_PREFIX}/AVANT-APRES`,
 };
 
 const app = express();
@@ -55,6 +63,7 @@ const allowedOrigins = [
   ...(allowedOrigin ? [allowedOrigin] : []),
   'http://127.0.0.1:8080',
 ];
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -68,15 +77,19 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// === TEMP UPLOADS ===
 const tempDir = path.join(process.cwd(), "temp_uploads");
 if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
 const tempStorage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, tempDir),
   filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
+
 const adminUpload = multer({
   storage: tempStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -88,14 +101,18 @@ const adminUpload = multer({
   },
 });
 
+// === CONTACT UPLOADS ===
 const contactUploadDir = path.join(process.cwd(), "public/uploads");
 if (!fs.existsSync(contactUploadDir)) fs.mkdirSync(contactUploadDir, { recursive: true });
+
 const contactStorage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, contactUploadDir),
   filename: (_, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
+
 const contactUpload = multer({ storage: contactStorage, limits: { fileSize: 5 * 1024 * 1024 } });
 
+// === AUTH ===
 const authenticate = (req: Request, res: Response, next: express.NextFunction) => {
   const token = req.headers.authorization?.split("Bearer ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -107,6 +124,7 @@ const authenticate = (req: Request, res: Response, next: express.NextFunction) =
   }
 };
 
+// === LOGIN ===
 app.post("/api/admin/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
@@ -117,7 +135,7 @@ app.post("/api/admin/login", (req: Request, res: Response) => {
   }
 });
 
-// UPLOAD AVEC NOM FORCÉ
+// === UPLOAD IMAGE ===
 app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (req: Request, res: Response) => {
   if (!req.file) return res.status(400).json({ error: "No file" });
 
@@ -144,6 +162,7 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
       ACL: 'public-read',
     });
     await s3Client.send(uploadCommand);
+
     if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
 
     const publicUrl = `${R2_PUBLIC_DOMAIN}/${R2Key}`;
@@ -159,6 +178,42 @@ app.post("/api/admin/upload", authenticate, adminUpload.single("image"), async (
   }
 });
 
+// === RENAME IMAGE (pour CONFIRMER LA PAIRE) ===
+app.post("/api/admin/rename", authenticate, async (req: Request, res: Response) => {
+  const { publicId, newFilename, category } = req.body;
+  const folder = folderMap[category];
+  if (!folder) return res.status(400).json({ error: "Invalid category" });
+
+  const newKey = `${folder}/${newFilename}`;
+
+  try {
+    // 1. Copier avec nouveau nom
+    await s3Client.send(new CopyObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      CopySource: `${R2_BUCKET_NAME}/${publicId}`,
+      Key: newKey,
+      ACL: 'public-read',
+    }));
+
+    // 2. Supprimer l'ancien
+    await s3Client.send(new DeleteObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: publicId,
+    }));
+
+    const publicUrl = `${R2_PUBLIC_DOMAIN}/${newKey}`;
+    res.json({
+      url: publicUrl,
+      publicId: newKey,
+      filename: newFilename,
+    });
+  } catch (err) {
+    console.error("Rename failed:", err);
+    res.status(500).json({ error: "Rename failed" });
+  }
+});
+
+// === DELETE IMAGE ===
 app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res: Response) => {
   try {
     const R2Key = decodeURIComponent(req.params.publicId);
@@ -174,6 +229,7 @@ app.delete("/api/admin/delete/:publicId", authenticate, async (req: Request, res
   }
 });
 
+// === LIST IMAGES ===
 const listR2Images = async (folder: string) => {
   const R2Prefix = `${folder}/`;
   const listCommand = new ListObjectsV2Command({
@@ -221,14 +277,18 @@ app.get("/api/admin/images/:category", authenticate, async (req: Request, res: R
   }
 });
 
+// === GOOGLE REVIEWS ===
 app.use("/api", googleReviewsApi);
 
+// === CONTACT FORM ===
 const resend = new Resend(process.env.RESEND_API_KEY);
+
 app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Response) => {
   const recipient = process.env.EMAIL_USER || "hn.renovation.fr@gmail.com";
   const files = req.files as Express.Multer.File[] | undefined;
   const fields = req.body;
   const paths: string[] = [];
+
   try {
     const attachments = files?.map(f => {
       paths.push(f.path);
@@ -239,6 +299,7 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
         encoding: "base64",
       };
     });
+
     await resend.emails.send({
       from: `${fields.name} <${fields.email}>`,
       to: [recipient],
@@ -246,6 +307,7 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
       html: `<p><strong>Nom:</strong> ${fields.name}<br/><strong>Email:</strong> ${fields.email}<br/><strong>Tél:</strong> ${fields.phone}<br/><strong>Projet:</strong> ${fields.project}<br/><strong>Message:</strong> ${fields.message}</p>`,
       attachments,
     });
+
     paths.forEach(p => fs.unlinkSync(p));
     res.json({ message: "Envoyé !" });
   } catch (err) {
@@ -255,6 +317,7 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
   }
 });
 
+// === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
 app.use(express.static(frontend));
 app.get(/.*/, (_: Request, res: Response) => res.sendFile(path.join(frontend, "index.html")));
