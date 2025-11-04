@@ -41,11 +41,8 @@ const Admin: React.FC = () => {
   const [imagesByCat, setImagesByCat] = useState<Record<string, Image[]>>({});
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
 
-  // ÉTAT PAR TYPE (avant / apres) → évite blocage mutuel
-  const [isUploading, setIsUploading] = useState<{
-    avant?: boolean;
-    apres?: boolean;
-  }>({});
+  // ÉTAT D'UPLOAD : un par catégorie + avant/apres
+  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
 
   const [isDragging, setIsDragging] = useState<string | null>(null);
 
@@ -101,8 +98,12 @@ const Admin: React.FC = () => {
     }
   };
 
-  // MODIFIÉ : upload par type, pas de blocage mutuel
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string, type: 'avant' | 'apres') => {
+  // MODIFIÉ : handleUpload avec type optionnel
+  const handleUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    category: string,
+    type?: 'avant' | 'apres'
+  ) => {
     const files = e.target.files;
     if (!files?.length) return;
 
@@ -113,13 +114,14 @@ const Admin: React.FC = () => {
     if (current.length + files.length > cat.maxImages) {
       toast({
         title: 'Limite dépassée',
-        description: `Maximum 40 images (20 paires)`,
+        description: `Maximum ${cat.maxImages} images`,
         variant: 'destructive',
       });
       return;
     }
 
-    setIsUploading(prev => ({ ...prev, [type]: true }));
+    const uploadKey = type ? `${category}-${type}` : category;
+    setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
 
     const uploaded: Image[] = [];
 
@@ -127,7 +129,14 @@ const Admin: React.FC = () => {
       const file = files[i];
       const ext = path.extname(file.name).toLowerCase() || '.jpg';
       const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const newFilename = `${type}-${pairId}${ext}`;
+
+      let newFilename: string;
+      if (type) {
+        newFilename = `${type}-${pairId}${ext}`;
+      } else {
+        // Autres catégories → nom unique
+        newFilename = `${category}-${pairId}${ext}`;
+      }
 
       const fd = new FormData();
       fd.append('image', file);
@@ -147,9 +156,9 @@ const Admin: React.FC = () => {
           filename: json.filename,
           publicId: json.publicId,
         });
-        toast({ title: 'Succès', description: `Upload ${type}: ${json.filename}` });
+        toast({ title: 'Succès', description: `Upload: ${json.filename}` });
       } catch (err) {
-        toast({ title: 'Erreur', description: `Échec upload ${type}`, variant: 'destructive' });
+        toast({ title: 'Erreur', description: `Échec upload`, variant: 'destructive' });
       }
     }
 
@@ -157,7 +166,7 @@ const Admin: React.FC = () => {
     setImagesByCat(prev => ({ ...prev, [category]: newImages }));
     setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
 
-    setIsUploading(prev => ({ ...prev, [type]: false }));
+    setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
     e.target.value = '';
   };
 
@@ -260,7 +269,7 @@ const Admin: React.FC = () => {
           const images = imagesByCat[cat.id] || [];
           const count = images.length;
           const max = cat.maxImages;
-          const uploading = isUploading[cat.id as keyof typeof isUploading];
+          const uploading = isUploading[cat.id] || isUploading[`${cat.id}-avant`] || isUploading[`${cat.id}-apres`];
 
           return (
             <Card key={cat.id} className="overflow-hidden">
@@ -271,7 +280,7 @@ const Admin: React.FC = () => {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* SECTION AVANT / APRÈS */}
+                {/* AVANT / APRÈS */}
                 {cat.id === 'avant-apres' ? (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="border-2 border-dashed border-green-300 rounded-lg p-4 text-center">
@@ -280,11 +289,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={!!isUploading.avant || count >= max}
+                        disabled={!!isUploading[`${cat.id}-avant`] || count >= max}
                         onChange={e => handleUpload(e, cat.id, 'avant')}
                         className="mt-1"
                       />
-                      {isUploading.avant && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                      {isUploading[`${cat.id}-avant`] && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-green-600 mt-2">Upload Avant</p>
                     </div>
                     <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
@@ -293,11 +302,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={!!isUploading.apres || count >= max}
+                        disabled={!!isUploading[`${cat.id}-apres`] || count >= max}
                         onChange={e => handleUpload(e, cat.id, 'apres')}
                         className="mt-1"
                       />
-                      {isUploading.apres && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                      {isUploading[`${cat.id}-apres`] && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-blue-600 mt-2">Upload Après</p>
                     </div>
                   </div>
@@ -309,7 +318,7 @@ const Admin: React.FC = () => {
                       accept="image/*"
                       multiple
                       disabled={uploading || count >= max}
-                      onChange={e => handleUpload(e, cat.id, 'avant')}
+                      onChange={e => handleUpload(e, cat.id)}
                       className="mt-1"
                     />
                     {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
@@ -322,38 +331,46 @@ const Admin: React.FC = () => {
                   {images.length === 0 ? (
                     <p className="text-center text-muted-foreground py-6">Aucune image</p>
                   ) : (
-                    images.map((img, idx) => (
-                      <div
-                        key={img.publicId}
-                        draggable
-                        onDragStart={e => onDragStart(e, cat.id, idx)}
-                        onDragOver={onDragOver}
-                        onDrop={e => onDrop(e, cat.id, idx)}
-                        onDragEnd={onDragEnd}
-                        className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab transition-opacity ${
-                          isDragging === cat.id ? 'opacity-50' : ''
-                        } active:cursor-grabbing`}
-                      >
-                        <img src={img.url} alt="" className="w-14 h-14 object-cover rounded" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{img.filename}</p>
-                          <p className={`text-xs font-medium ${img.filename.startsWith('avant-') ? 'text-green-600' : 'text-blue-600'}`}>
-                            {img.filename.startsWith('avant-') ? 'Avant' : 'Après'}
-                          </p>
+                    images.map((img, idx) => {
+                      const isAvantApres = cat.id === 'avant-apres';
+                      const isAvant = img.filename.startsWith('avant-');
+                      const isApres = img.filename.startsWith('apres-');
+
+                      return (
+                        <div
+                          key={img.publicId}
+                          draggable
+                          onDragStart={e => onDragStart(e, cat.id, idx)}
+                          onDragOver={onDragOver}
+                          onDrop={e => onDrop(e, cat.id, idx)}
+                          onDragEnd={onDragEnd}
+                          className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab transition-opacity ${
+                            isDragging === cat.id ? 'opacity-50' : ''
+                          } active:cursor-grabbing`}
+                        >
+                          <img src={img.url} alt="" className="w-14 h-14 object-cover rounded" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{img.filename}</p>
+                            {isAvantApres && (
+                              <p className={`text-xs font-medium ${isAvant ? 'text-green-600' : isApres ? 'text-blue-600' : 'text-gray-500'}`}>
+                                {isAvant ? 'Avant' : isApres ? 'Après' : 'Inconnu'}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'up')} disabled={idx === 0}>
+                              <MoveUp className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'down')} disabled={idx === images.length - 1}>
+                              <MoveDown className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleDelete(img, cat.id, idx)}>
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'up')} disabled={idx === 0}>
-                            <MoveUp className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'down')} disabled={idx === images.length - 1}>
-                            <MoveDown className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(img, cat.id, idx)}>
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </CardContent>
