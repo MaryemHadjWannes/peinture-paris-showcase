@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback, DragEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash, Upload, MoveUp, MoveDown } from 'lucide-react';
+import { Loader2, Trash, Upload, MoveUp, MoveDown, Check } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
@@ -41,6 +42,12 @@ const Admin: React.FC = () => {
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
   const [isDragging, setIsDragging] = useState<string | null>(null);
+
+  // ÉTAT POUR LA PAIRE EN ATTENTE
+  const [pendingPair, setPendingPair] = useState<{
+    avant?: Image;
+    apres?: Image;
+  }>({});
 
   const fetchImages = useCallback(async (category: string) => {
     if (!token) return;
@@ -94,72 +101,143 @@ const Admin: React.FC = () => {
     }
   };
 
-  // AVANT / APRÈS
-  // AVANT / APRÈS : un seul pairId pour la paire
-const handleAvantApresUpload = async (
-  e: React.ChangeEvent<HTMLInputElement>,
-  category: string,
-  type: 'avant' | 'apres'
-) => {
-  const files = e.target.files;
-  if (!files?.length) return;
+  // CONFIRMER LA PAIRE
+  const confirmPair = async (category: string) => {
+    if (!pendingPair.avant || !pendingPair.apres) {
+      toast({ title: 'Erreur', description: 'Sélectionnez avant + après', variant: 'destructive' });
+      return;
+    }
 
-  const cat = CATEGORIES.find(c => c.id === category);
-  if (!cat) return;
+    const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    const current = imagesByCat[category] || [];
 
-  const current = imagesByCat[category] || [];
-  if (current.length + files.length > cat.maxImages) {
-    toast({
-      title: 'Limite dépassée',
-      description: `Maximum 40 images (20 paires)`,
-      variant: 'destructive',
-    });
-    return;
-  }
+    setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: true }));
 
-  const uploadKey = `${category}-${type}`;
-  setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
+    const updated: Image[] = [];
 
-  const uploaded: Image[] = [];
-  const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5); // UN SEUL ID
+    const renameAndUpload = async (img: Image, type: 'avant' | 'apres') => {
+      const ext = img.filename.split('.').pop() || 'jpg';
+      const newFilename = `${type}-${pairId}.${ext}`;
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const parts = file.name.split('.');
-    const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
-    const newFilename = `${type}-${pairId}${ext}`; // MÊME pairId
-
-    const fd = new FormData();
-    fd.append('image', file);
-    fd.append('category', category);
-    fd.append('filename', newFilename);
+      const res = await fetch(`${API_BASE}/api/admin/rename`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          publicId: img.publicId,
+          newFilename,
+          category,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      const json = await res.json();
+      return { ...img, filename: json.filename, publicId: json.publicId };
+    };
 
     try {
-      const res = await fetch(`${API_BASE}/api/admin/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      });
-      if (!res.ok) throw new Error('Upload failed');
-      const json = await res.json();
-      uploaded.push({
-        url: json.url,
-        filename: json.filename,
-        publicId: json.publicId,
-      });
-      toast({ title: 'Succès', description: `${type}: ${json.filename}` });
+      const [avantNew, apresNew] = await Promise.all([
+        renameAndUpload(pendingPair.avant!, 'avant'),
+        renameAndUpload(pendingPair.apres!, 'apres'),
+      ]);
+
+      updated.push(avantNew, apresNew);
+
+      // Supprime les anciennes
+      const toDelete = [pendingPair.avant!.publicId, pendingPair.apres!.publicId];
+      await Promise.all(
+        toDelete.map(id =>
+          fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        )
+      );
+
+      const newImages = current.filter(img => !toDelete.includes(img.publicId)).concat(updated);
+      setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+      setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+
+      toast({ title: 'Paire confirmée !', description: `ID: ${pairId}` });
+      setPendingPair({});
     } catch (err) {
-      toast({ title: 'Erreur', description: `Échec ${type}`, variant: 'destructive' });
+      toast({ title: 'Erreur', description: 'Échec confirmation', variant: 'destructive' });
     }
-  }
 
-  const newImages = [...current, ...uploaded];
-  setImagesByCat(prev => ({ ...prev, [category]: newImages }));
-  setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+    setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: false }));
+  };
 
-  setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
-  e.target.value = '';
-};
+  // AVANT / APRÈS : upload séparé + pending
+  const handleAvantApresUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    category: string,
+    type: 'avant' | 'apres'
+  ) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+
+    const cat = CATEGORIES.find(c => c.id === category);
+    if (!cat) return;
+
+    const current = imagesByCat[category] || [];
+    if (current.length + files.length > cat.maxImages) {
+      toast({
+        title: 'Limite dépassée',
+        description: `Maximum 40 images (20 paires)`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const uploadKey = `${category}-${type}`;
+    setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
+
+    const uploaded: Image[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const parts = file.name.split('.');
+      const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
+      const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      const tempFilename = `${type}-temp-${tempId}${ext}`;
+
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('category', category);
+      fd.append('filename', tempFilename);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        const json = await res.json();
+        const uploadedImg = {
+          url: json.url,
+          filename: json.filename,
+          publicId: json.publicId,
+        };
+        uploaded.push(uploadedImg);
+
+        // AJOUTE DANS PENDING
+        setPendingPair(prev => ({ ...prev, [type]: uploadedImg }));
+
+        toast({ title: 'Prêt', description: `${type} en attente de confirmation` });
+      } catch (err) {
+        toast({ title: 'Erreur', description: `Échec ${type}`, variant: 'destructive' });
+      }
+    }
+
+    const newImages = [...current, ...uploaded];
+    setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+    setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+
+    setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
+    e.target.value = '';
+  };
 
   // AUTRES CATÉGORIES
   const handleNormalUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
@@ -325,6 +403,7 @@ const handleAvantApresUpload = async (
           const uploadingNormal = isUploading[cat.id];
           const uploadingAvant = isUploading[`${cat.id}-avant`];
           const uploadingApres = isUploading[`${cat.id}-apres`];
+          const confirming = isUploading[`${cat.id}-confirm`];
 
           return (
             <Card key={cat.id} className="overflow-hidden">
@@ -337,32 +416,63 @@ const handleAvantApresUpload = async (
               <CardContent className="space-y-4">
                 {/* AVANT / APRÈS */}
                 {cat.id === 'avant-apres' ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="border-2 border-dashed border-green-300 rounded-lg p-4 text-center">
-                      <Upload className="mx-auto h-6 w-6 text-green-600 mb-2" />
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        disabled={!!uploadingAvant || count >= max}
-                        onChange={e => handleAvantApresUpload(e, cat.id, 'avant')}
-                        className="mt-1"
-                      />
-                      {uploadingAvant && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
-                      <p className="text-xs text-green-600 mt-2">Upload Avant</p>
-                    </div>
-                    <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
-                      <Upload className="mx-auto h-6 w-6 text-blue-600 mb-2" />
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        disabled={!!uploadingApres || count >= max}
-                        onChange={e => handleAvantApresUpload(e, cat.id, 'apres')}
-                        className="mt-1"
-                      />
-                      {uploadingApres && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
-                      <p className="text-xs text-blue-600 mt-2">Upload Après</p>
+                  <div className="space-y-6">
+                    {/* CONFIRMATION */}
+                    <Card className="border-2 border-green-500">
+                      <CardHeader>
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Badge variant="outline" className={pendingPair.avant ? 'bg-green-100' : 'bg-gray-100'}>
+                            {pendingPair.avant ? 'Avant prêt' : 'Avant manquant'}
+                          </Badge>
+                          <Badge variant="outline" className={pendingPair.apres ? 'bg-blue-100' : 'bg-gray-100'}>
+                            {pendingPair.apres ? 'Après prêt' : 'Après manquant'}
+                          </Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          onClick={() => confirmPair(cat.id)}
+                          disabled={!pendingPair.avant || !pendingPair.apres || confirming}
+                          className="w-full bg-green-600 hover:bg-green-700"
+                        >
+                          {confirming ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Check className="h-4 w-4 mr-2" />
+                          )}
+                          CONFIRMER LA PAIRE
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* UPLOADS SÉPARÉS */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border-2 border-dashed border-green-300 rounded-lg p-4 text-center">
+                        <Upload className="mx-auto h-6 w-6 text-green-600 mb-2" />
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          disabled={!!uploadingAvant || count >= max}
+                          onChange={e => handleAvantApresUpload(e, cat.id, 'avant')}
+                          className="mt-1"
+                        />
+                        {uploadingAvant && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                        <p className="text-xs text-green-600 mt-2">Upload Avant</p>
+                      </div>
+                      <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
+                        <Upload className="mx-auto h-6 w-6 text-blue-600 mb-2" />
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          disabled={!!uploadingApres || count >= max}
+                          onChange={e => handleAvantApresUpload(e, cat.id, 'apres')}
+                          className="mt-1"
+                        />
+                        {uploadingApres && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                        <p className="text-xs text-blue-600 mt-2">Upload Après</p>
+                      </div>
                     </div>
                   </div>
                 ) : (
