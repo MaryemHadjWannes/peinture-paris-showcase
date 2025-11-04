@@ -40,7 +40,13 @@ const Admin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [imagesByCat, setImagesByCat] = useState<Record<string, Image[]>>({});
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
-  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
+
+  // ÉTAT PAR TYPE (avant / apres) → évite blocage mutuel
+  const [isUploading, setIsUploading] = useState<{
+    avant?: boolean;
+    apres?: boolean;
+  }>({});
+
   const [isDragging, setIsDragging] = useState<string | null>(null);
 
   const fetchImages = useCallback(async (category: string) => {
@@ -95,12 +101,14 @@ const Admin: React.FC = () => {
     }
   };
 
-  // MODIFIÉ : 2 BOUTONS, RENOMMAGE FORCÉ
+  // MODIFIÉ : upload par type, pas de blocage mutuel
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string, type: 'avant' | 'apres') => {
     const files = e.target.files;
     if (!files?.length) return;
+
     const cat = CATEGORIES.find(c => c.id === category);
     if (!cat) return;
+
     const current = imagesByCat[category] || [];
     if (current.length + files.length > cat.maxImages) {
       toast({
@@ -111,7 +119,8 @@ const Admin: React.FC = () => {
       return;
     }
 
-    setIsUploading(prev => ({ ...prev, [category]: true }));
+    setIsUploading(prev => ({ ...prev, [type]: true }));
+
     const uploaded: Image[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -147,7 +156,8 @@ const Admin: React.FC = () => {
     const newImages = [...current, ...uploaded];
     setImagesByCat(prev => ({ ...prev, [category]: newImages }));
     setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
-    setIsUploading(prev => ({ ...prev, [category]: false }));
+
+    setIsUploading(prev => ({ ...prev, [type]: false }));
     e.target.value = '';
   };
 
@@ -250,7 +260,7 @@ const Admin: React.FC = () => {
           const images = imagesByCat[cat.id] || [];
           const count = images.length;
           const max = cat.maxImages;
-          const uploading = isUploading[cat.id];
+          const uploading = isUploading[cat.id as keyof typeof isUploading];
 
           return (
             <Card key={cat.id} className="overflow-hidden">
@@ -261,7 +271,7 @@ const Admin: React.FC = () => {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* 2 BOUTONS DANS LA MÊME DIV */}
+                {/* SECTION AVANT / APRÈS */}
                 {cat.id === 'avant-apres' ? (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="border-2 border-dashed border-green-300 rounded-lg p-4 text-center">
@@ -270,10 +280,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={uploading || count >= max}
+                        disabled={!!isUploading.avant || count >= max}
                         onChange={e => handleUpload(e, cat.id, 'avant')}
                         className="mt-1"
                       />
+                      {isUploading.avant && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-green-600 mt-2">Upload Avant</p>
                     </div>
                     <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
@@ -282,10 +293,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={uploading || count >= max}
+                        disabled={!!isUploading.apres || count >= max}
                         onChange={e => handleUpload(e, cat.id, 'apres')}
                         className="mt-1"
                       />
+                      {isUploading.apres && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-blue-600 mt-2">Upload Après</p>
                     </div>
                   </div>
