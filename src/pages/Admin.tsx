@@ -95,70 +95,71 @@ const Admin: React.FC = () => {
   };
 
   // AVANT / APRÈS
-  const handleAvantApresUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    category: string,
-    type: 'avant' | 'apres'
-  ) => {
-    const files = e.target.files;
-    if (!files?.length) return;
+  // AVANT / APRÈS : un seul pairId pour la paire
+const handleAvantApresUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>,
+  category: string,
+  type: 'avant' | 'apres'
+) => {
+  const files = e.target.files;
+  if (!files?.length) return;
 
-    const cat = CATEGORIES.find(c => c.id === category);
-    if (!cat) return;
+  const cat = CATEGORIES.find(c => c.id === category);
+  if (!cat) return;
 
-    const current = imagesByCat[category] || [];
-    if (current.length + files.length > cat.maxImages) {
-      toast({
-        title: 'Limite dépassée',
-        description: `Maximum 40 images (20 paires)`,
-        variant: 'destructive',
+  const current = imagesByCat[category] || [];
+  if (current.length + files.length > cat.maxImages) {
+    toast({
+      title: 'Limite dépassée',
+      description: `Maximum 40 images (20 paires)`,
+      variant: 'destructive',
+    });
+    return;
+  }
+
+  const uploadKey = `${category}-${type}`;
+  setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
+
+  const uploaded: Image[] = [];
+  const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5); // UN SEUL ID
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const parts = file.name.split('.');
+    const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
+    const newFilename = `${type}-${pairId}${ext}`; // MÊME pairId
+
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('category', category);
+    fd.append('filename', newFilename);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
       });
-      return;
+      if (!res.ok) throw new Error('Upload failed');
+      const json = await res.json();
+      uploaded.push({
+        url: json.url,
+        filename: json.filename,
+        publicId: json.publicId,
+      });
+      toast({ title: 'Succès', description: `${type}: ${json.filename}` });
+    } catch (err) {
+      toast({ title: 'Erreur', description: `Échec ${type}`, variant: 'destructive' });
     }
+  }
 
-    const uploadKey = `${category}-${type}`;
-    setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
+  const newImages = [...current, ...uploaded];
+  setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+  setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
 
-    const uploaded: Image[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const parts = file.name.split('.');
-      const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
-      const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const newFilename = `${type}-${pairId}${ext}`;
-
-      const fd = new FormData();
-      fd.append('image', file);
-      fd.append('category', category);
-      fd.append('filename', newFilename);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/admin/upload`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: fd,
-        });
-        if (!res.ok) throw new Error('Upload failed');
-        const json = await res.json();
-        uploaded.push({
-          url: json.url,
-          filename: json.filename,
-          publicId: json.publicId,
-        });
-        toast({ title: 'Succès', description: `${type}: ${json.filename}` });
-      } catch (err) {
-        toast({ title: 'Erreur', description: `Échec ${type}`, variant: 'destructive' });
-      }
-    }
-
-    const newImages = [...current, ...uploaded];
-    setImagesByCat(prev => ({ ...prev, [category]: newImages }));
-    setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
-
-    setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
-    e.target.value = '';
-  };
+  setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
+  e.target.value = '';
+};
 
   // AUTRES CATÉGORIES
   const handleNormalUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string) => {

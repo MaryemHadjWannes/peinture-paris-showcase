@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Palette, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Palette, ChevronLeft, ChevronRight, Loader2, RefreshCw } from "lucide-react";
 
 const API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
 
@@ -16,90 +16,117 @@ const Portfolio = () => {
   const [activeIndexes, setActiveIndexes] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAll = async () => {
-      setIsLoading(true);
+  // Fonction de fetch (extraite pour réutilisation)
+  const fetchAll = async () => {
+    setIsLoading(true);
+    console.log('🔄 Portfolio: Fetching data...'); // Debug
 
-      const normalCats = ["enduit", "peinture-interieure", "escalier-details"];
-      const fetchedMap: Record<string, ImageFile[]> = {};
+    const normalCats = ["enduit", "peinture-interieure", "escalier-details"];
+    const fetchedMap: Record<string, ImageFile[]> = {};
 
-      await Promise.all(
-        normalCats.map(async (cat) => {
-          try {
-            const res = await fetch(`${API_BASE}/api/public/images/${cat}`);
-            const { files } = await res.json();
-            fetchedMap[cat] = files.map((f: any) => ({ url: f.url, filename: f.filename }));
-          } catch {
-            fetchedMap[cat] = [];
-          }
-        })
-      );
+    await Promise.all(
+      normalCats.map(async (cat) => {
+        try {
+          const res = await fetch(`${API_BASE}/api/public/images/${cat}`);
+          if (!res.ok) throw new Error();
+          const { files } = await res.json();
+          fetchedMap[cat] = files.map((f: any) => ({ url: f.url, filename: f.filename }));
+          console.log(`📁 ${cat}: ${files.length} images fetched`); // Debug
+        } catch (error) {
+          console.error(`Error fetching ${cat}:`, error);
+          fetchedMap[cat] = [];
+        }
+      })
+    );
 
-      let avantApresFiles: ImageFile[] = [];
-      try {
-        const res = await fetch(`${API_BASE}/api/public/images/avant-apres`);
-        const { files } = await res.json();
-        avantApresFiles = files.map((f: any) => ({ url: f.url, filename: f.filename }));
-      } catch (err) {
-        console.error("Failed to fetch avant-apres:", err);
+    let avantApresFiles: ImageFile[] = [];
+    try {
+      const res = await fetch(`${API_BASE}/api/public/images/avant-apres`);
+      if (!res.ok) throw new Error();
+      const { files } = await res.json();
+      avantApresFiles = files.map((f: any) => ({ url: f.url, filename: f.filename }));
+      console.log(`🔄 avant-apres: ${files.length} files fetched:`, files.map(f => f.filename)); // Debug : liste tous les fichiers
+    } catch (err) {
+      console.error("Failed to fetch avant-apres:", err);
+    }
+
+    const projects = [
+      {
+        title: "Enduit Professionnel",
+        description: "Surfaces parfaitement préparées et ratissées pour des finitions impeccables.",
+        images: fetchedMap.enduit?.map(f => f.url) || [],
+        tags: ["Finition lisse", "Ratissage", "Calicot"],
+      },
+      {
+        title: "Peinture Intérieure",
+        description: "Finitions soignées et durables avec peintures écologiques.",
+        images: fetchedMap["peinture-interieure"]?.map(f => f.url) || [],
+        tags: ["Couleurs", "Décoration", "Confort"],
+      },
+      {
+        title: "Escalier & Détails",
+        description: "Escaliers élégants avec finitions précises et matériaux de qualité.",
+        images: fetchedMap["escalier-details"]?.map(f => f.url) || [],
+        tags: ["Détails", "Bois", "Harmonie"],
+      },
+    ];
+
+    // Pairing avant/après
+    const getId = (name: string) => name.replace(/^(avant|apres)-/, '').replace(/\.[^.]+$/, '');
+    const avantMap = new Map<string, string>();
+    const apresMap = new Map<string, string>();
+
+    avantApresFiles.forEach(img => {
+      if (img.filename.startsWith('avant-')) {
+        avantMap.set(getId(img.filename), img.url);
+      } else if (img.filename.startsWith('apres-')) {
+        apresMap.set(getId(img.filename), img.url);
       }
+    });
 
-      const projects = [
-        {
-          title: "Enduit Professionnel",
-          description: "Surfaces parfaitement préparées et ratissées pour des finitions impeccables.",
-          images: fetchedMap.enduit?.map(f => f.url) || [],
-          tags: ["Finition lisse", "Ratissage", "Calicot"],
-        },
-        {
-          title: "Peinture Intérieure",
-          description: "Finitions soignées et durables avec peintures écologiques.",
-          images: fetchedMap["peinture-interieure"]?.map(f => f.url) || [],
-          tags: ["Couleurs", "Décoration", "Confort"],
-        },
-        {
-          title: "Escalier & Détails",
-          description: "Escaliers élégants avec finitions précises et matériaux de qualité.",
-          images: fetchedMap["escalier-details"]?.map(f => f.url) || [],
-          tags: ["Détails", "Bois", "Harmonie"],
-        },
-      ];
+    const pairs: any[] = [];
+    apresMap.forEach((after, id) => {
+      const before = avantMap.get(id);
+      if (before) {
+        pairs.push({
+          title: `Projet ${pairs.length + 1}`,
+          before,
+          after,
+        });
+      }
+    });
 
-      const getId = (name: string) => name.replace(/^(avant|apres)-/, '').replace(/\.[^.]+$/, '');
-      const avantMap = new Map<string, string>();
-      const apresMap = new Map<string, string>();
+    console.log('🔗 Pairs trouvées:', pairs.length); // Debug : nombre de paires
 
-      avantApresFiles.forEach(img => {
-        if (img.filename.startsWith('avant-')) avantMap.set(getId(img.filename), img.url);
-        if (img.filename.startsWith('apres-')) apresMap.set(getId(img.filename), img.url);
-      });
+    setPortfolioData(projects);
+    setAvantApresData(pairs);
+    setActiveIndexes(projects.map(() => 0));
+    setIsLoading(false);
+  };
 
-      const pairs = Array.from(apresMap.entries())
-        .map(([id, after]) => {
-          const before = avantMap.get(id);
-          return before ? { before, after, title: `Projet ${id}` } : null;
-        })
-        .filter(Boolean);
-
-      setPortfolioData(projects);
-      setAvantApresData(pairs);
-      setActiveIndexes(projects.map(() => 0));
-      setIsLoading(false);
-    };
-
-    fetchAll();
+  // Chargement initial + rafraîchissement automatique toutes les 10s
+  useEffect(() => {
+    fetchAll(); // Premier chargement
+    const interval = setInterval(fetchAll, 10000); // Toutes les 10s
+    return () => clearInterval(interval); // Nettoyage
   }, []);
 
   const handleSwitch = (projIdx: number, dir: "next" | "prev") => {
     setActiveIndexes(prev => {
       const copy = [...prev];
-      const total = portfolioData[projIdx].images.length;
+      const total = portfolioData[projIdx]?.images.length || 0;
       if (total === 0) return prev;
       copy[projIdx] = dir === "next"
         ? (copy[projIdx] + 1) % total
         : (copy[projIdx] - 1 + total) % total;
       return copy;
     });
+  };
+
+  // Bouton Actualiser
+  const refreshData = () => {
+    console.log('🔄 Manual refresh...');
+    fetchAll();
   };
 
   if (isLoading) {
@@ -124,6 +151,11 @@ const Portfolio = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Découvrez nos réalisations : enduits, peintures, escaliers et transformations avant / après.
           </p>
+          {/* Bouton Actualiser */}
+          <Button variant="outline" onClick={refreshData} className="mt-4">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -131,7 +163,7 @@ const Portfolio = () => {
             <div key={idx} className="bg-card rounded-xl overflow-hidden shadow-md border border-border/50 relative">
               <div className="relative group">
                 <img
-                  src={item.images[activeIndexes[idx]] || "/placeholder.svg"}
+                  src={item.images[activeIndexes[idx] || 0] || "/placeholder.svg"}
                   alt={item.title}
                   className="w-full h-[400px] object-contain transition-transform duration-500 group-hover:scale-105"
                 />
