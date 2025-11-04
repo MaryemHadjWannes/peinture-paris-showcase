@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown } from 'lucide-react';
-import path from 'path';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
@@ -40,10 +39,7 @@ const Admin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [imagesByCat, setImagesByCat] = useState<Record<string, Image[]>>({});
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
-
-  // ÉTAT D'UPLOAD : un par catégorie + avant/apres
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
-
   const [isDragging, setIsDragging] = useState<string | null>(null);
 
   const fetchImages = useCallback(async (category: string) => {
@@ -98,11 +94,11 @@ const Admin: React.FC = () => {
     }
   };
 
-  // MODIFIÉ : handleUpload avec type optionnel
-  const handleUpload = async (
+  // AVANT / APRÈS
+  const handleAvantApresUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     category: string,
-    type?: 'avant' | 'apres'
+    type: 'avant' | 'apres'
   ) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -114,29 +110,23 @@ const Admin: React.FC = () => {
     if (current.length + files.length > cat.maxImages) {
       toast({
         title: 'Limite dépassée',
-        description: `Maximum ${cat.maxImages} images`,
+        description: `Maximum 40 images (20 paires)`,
         variant: 'destructive',
       });
       return;
     }
 
-    const uploadKey = type ? `${category}-${type}` : category;
+    const uploadKey = `${category}-${type}`;
     setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
 
     const uploaded: Image[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const ext = path.extname(file.name).toLowerCase() || '.jpg';
+      const parts = file.name.split('.');
+      const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
       const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-
-      let newFilename: string;
-      if (type) {
-        newFilename = `${type}-${pairId}${ext}`;
-      } else {
-        // Autres catégories → nom unique
-        newFilename = `${category}-${pairId}${ext}`;
-      }
+      const newFilename = `${type}-${pairId}${ext}`;
 
       const fd = new FormData();
       fd.append('image', file);
@@ -156,7 +146,68 @@ const Admin: React.FC = () => {
           filename: json.filename,
           publicId: json.publicId,
         });
-        toast({ title: 'Succès', description: `Upload: ${json.filename}` });
+        toast({ title: 'Succès', description: `${type}: ${json.filename}` });
+      } catch (err) {
+        toast({ title: 'Erreur', description: `Échec ${type}`, variant: 'destructive' });
+      }
+    }
+
+    const newImages = [...current, ...uploaded];
+    setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+    setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+
+    setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
+    e.target.value = '';
+  };
+
+  // AUTRES CATÉGORIES
+  const handleNormalUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+
+    const cat = CATEGORIES.find(c => c.id === category);
+    if (!cat) return;
+
+    const current = imagesByCat[category] || [];
+    if (current.length + files.length > cat.maxImages) {
+      toast({
+        title: 'Limite dépassée',
+        description: `Maximum ${cat.maxImages} images`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUploading(prev => ({ ...prev, [category]: true }));
+
+    const uploaded: Image[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const parts = file.name.split('.');
+      const ext = parts.length > 1 ? `.${parts.pop()}` : '.jpg';
+      const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      const newFilename = `${category}-${pairId}${ext}`;
+
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('category', category);
+      fd.append('filename', newFilename);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: fd,
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        const json = await res.json();
+        uploaded.push({
+          url: json.url,
+          filename: json.filename,
+          publicId: json.publicId,
+        });
+        toast({ title: 'Succès', description: `Uploadé: ${json.filename}` });
       } catch (err) {
         toast({ title: 'Erreur', description: `Échec upload`, variant: 'destructive' });
       }
@@ -166,7 +217,7 @@ const Admin: React.FC = () => {
     setImagesByCat(prev => ({ ...prev, [category]: newImages }));
     setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
 
-    setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
+    setIsUploading(prev => ({ ...prev, [category]: false }));
     e.target.value = '';
   };
 
@@ -264,12 +315,15 @@ const Admin: React.FC = () => {
           Déconnexion
         </Button>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {CATEGORIES.map(cat => {
           const images = imagesByCat[cat.id] || [];
           const count = images.length;
           const max = cat.maxImages;
-          const uploading = isUploading[cat.id] || isUploading[`${cat.id}-avant`] || isUploading[`${cat.id}-apres`];
+          const uploadingNormal = isUploading[cat.id];
+          const uploadingAvant = isUploading[`${cat.id}-avant`];
+          const uploadingApres = isUploading[`${cat.id}-apres`];
 
           return (
             <Card key={cat.id} className="overflow-hidden">
@@ -289,11 +343,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={!!isUploading[`${cat.id}-avant`] || count >= max}
-                        onChange={e => handleUpload(e, cat.id, 'avant')}
+                        disabled={!!uploadingAvant || count >= max}
+                        onChange={e => handleAvantApresUpload(e, cat.id, 'avant')}
                         className="mt-1"
                       />
-                      {isUploading[`${cat.id}-avant`] && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                      {uploadingAvant && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-green-600 mt-2">Upload Avant</p>
                     </div>
                     <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 text-center">
@@ -302,11 +356,11 @@ const Admin: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={!!isUploading[`${cat.id}-apres`] || count >= max}
-                        onChange={e => handleUpload(e, cat.id, 'apres')}
+                        disabled={!!uploadingApres || count >= max}
+                        onChange={e => handleAvantApresUpload(e, cat.id, 'apres')}
                         className="mt-1"
                       />
-                      {isUploading[`${cat.id}-apres`] && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                      {uploadingApres && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                       <p className="text-xs text-blue-600 mt-2">Upload Après</p>
                     </div>
                   </div>
@@ -317,11 +371,11 @@ const Admin: React.FC = () => {
                       type="file"
                       accept="image/*"
                       multiple
-                      disabled={uploading || count >= max}
-                      onChange={e => handleUpload(e, cat.id)}
+                      disabled={!!uploadingNormal || count >= max}
+                      onChange={e => handleNormalUpload(e, cat.id)}
                       className="mt-1"
                     />
-                    {uploading && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
+                    {uploadingNormal && <Loader2 className="mx-auto h-5 w-5 animate-spin mt-2" />}
                     {count >= max && <p className="text-sm text-destructive mt-2">Limite atteinte</p>}
                   </div>
                 )}
@@ -353,7 +407,7 @@ const Admin: React.FC = () => {
                             <p className="font-medium text-sm truncate">{img.filename}</p>
                             {isAvantApres && (
                               <p className={`text-xs font-medium ${isAvant ? 'text-green-600' : isApres ? 'text-blue-600' : 'text-gray-500'}`}>
-                                {isAvant ? 'Avant' : isApres ? 'Après' : 'Inconnu'}
+                                {isAvant ? 'Avant' : isApres ? 'Après' : ''}
                               </p>
                             )}
                           </div>
