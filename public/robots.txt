@@ -1,29 +1,6 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: *
-Allow: /
-
-Sitemap: https://hn-renovation.fr/sitemap.xml  ```
-
----
-
-## 🚀 Prochaines Étapes Finales
-
-1.  **Modifiez les deux fichiers (`public/sitemap.xml` et `public/robots.txt`)** dans votre code source avec les versions corrigées ci-dessus.
-2.  **Commit-ez et Pushez** ces deux modifications dans votre dépôt Git.
-3.  Laissez Render **redéployer** votre service.
-4.  Une fois le déploiement terminé (cela devrait prendre 1 à 2 minutes), retournez à la **Google Search Console** :
-    * Allez à **Sitemaps**.
-    * **Resoumettez** le sitemap.xml.
-
-Google lira les fichiers mis à jour, verra les URL correctes, et le statut devrait passer à **Succès** ! Votre site sera alors prêt pour l'indexation.
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://hn-renovation.fr/</loc>  <priority>1.0</priority>
+  </url>
+  </urlset>
