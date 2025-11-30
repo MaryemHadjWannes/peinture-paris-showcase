@@ -92,7 +92,7 @@ const tempStorage = multer.diskStorage({
 
 const adminUpload = multer({
   storage: tempStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 15 * 1024 * 1024 },
   fileFilter: (_, file, cb) => {
     if (!file.originalname.match(/\.(jpe?g|png|webp)$/i)) {
       return cb(new Error("Only images"));
