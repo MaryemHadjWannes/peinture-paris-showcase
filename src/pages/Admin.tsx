@@ -75,6 +75,19 @@ const getInitialOrder = (): Record<string, string[]> => {
 
 const Admin: React.FC = () => {
   const { toast } = useToast();
+
+  // Toast silencieux pour les erreurs réseau (seulement en console)
+  const toastError = (title: string, description?: string) => {
+    console.error(`[ADMIN ERROR] ${title}`, description || '');
+    // Tu peux remettre un toast discret si tu veux, sinon rien
+    // toast({ title, description, variant: 'destructive' });
+  };
+
+  // Toast normal pour les succès
+  const toastSuccess = (title: string, description?: string) => {
+    toast({ title, description });
+  };
+
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,8 +113,9 @@ const Admin: React.FC = () => {
 
       setImagesByCat(prev => ({ ...prev, [category]: ordered }));
       setImageOrder(prev => ({ ...prev, [category]: ordered.map((i: Image) => i.publicId) }));
-    } catch {
-      toast({ title: 'Erreur', description: 'Impossible de charger les images', variant: 'destructive' });
+    } catch (err) {
+      console.error('Erreur chargement images:', err);
+      // toastError('Erreur chargement images'); // même pas besoin, c'est pas grave
     }
   }, [token, toast, imageOrder]);
 
@@ -186,8 +200,9 @@ const Admin: React.FC = () => {
         } else {
           toast({ title: 'Uploadé !', description: json.filename });
         }
-      } catch {
-        toast({ title: 'Échec upload', description: fileToSend.name, variant: 'destructive' });
+      } catch (err) {
+        console.error('Upload failed:', err);
+        toastError('Échec upload', fileToSend.name); // → va seulement dans la console
       }
     }
 
@@ -265,7 +280,7 @@ const Admin: React.FC = () => {
     toast({ title: 'Paire confirmée !', description: `ID: ${pairId}` });
   } catch (err) {
     console.error('Confirmation échouée:', err);
-    toast({ title: 'Erreur', description: 'Impossible de confirmer la paire', variant: 'destructive' });
+    toastError('Impossible de confirmer la paire');
   } finally {
     setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: false }));
   }
@@ -282,7 +297,7 @@ const Admin: React.FC = () => {
       setImageOrder(prev => ({ ...prev, [category]: newImgs.map(i => i.publicId) }));
       toast({ title: 'Supprimé' });
     } catch {
-      toast({ title: 'Erreur suppression', variant: 'destructive' });
+      toastError('Erreur suppression');
     }
   };
 
@@ -444,17 +459,34 @@ const Admin: React.FC = () => {
                               </p>
                             )}
                           </div>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'up')} disabled={idx === 0}>
-                              <MoveUp className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => move(cat.id, idx, 'down')} disabled={idx === images.length - 1}>
-                              <MoveDown className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDelete(img, cat.id, idx)}>
-                              <Trash className="h-4 w-4" />
-                            </Button>
-                          </div>
+                         <div className="flex gap-2 shrink-0">
+  <Button
+    size="icon"
+    variant="outline"
+    className="h-9 w-9"
+    onClick={() => move(cat.id, idx, 'up')}
+    disabled={idx === 0}
+  >
+    <MoveUp className="h-4 w-4" />
+  </Button>
+  <Button
+    size="icon"
+    variant="outline"
+    className="h-9 w-9"
+    onClick={() => move(cat.id, idx, 'down')}
+    disabled={idx === images.length - 1}
+  >
+    <MoveDown className="h-4 w-4" />
+  </Button>
+  <Button
+    size="icon"
+    variant="destructive"
+    className="h-9 w-9"
+    onClick={() => handleDelete(img, cat.id, idx)}
+  >
+    <Trash className="h-4 w-4" />
+  </Button>
+</div>
                         </div>
                       );
                     })
