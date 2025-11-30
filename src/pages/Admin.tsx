@@ -147,70 +147,80 @@ const Admin: React.FC = () => {
 
   // UPLOAD UNIVERSEL (avec compression simple)
   const uploadFiles = async (files: FileList | null, category: string, type?: 'avant' | 'apres') => {
-    if (!files?.length) return;
+  if (!files?.length) return;
 
-    const cat = CATEGORIES.find(c => c.id === category);
-    if (!cat) return;
+  const cat = CATEGORIES.find(c => c.id === category);
+  if (!cat) return;
 
-    const currentCount = imagesByCat[category]?.length || 0;
-    if (currentCount + files.length > cat.maxImages) {
-      toast({ title: 'Limite atteinte', description: `Max ${cat.maxImages} images`, variant: 'destructive' });
-      return;
+  const currentCount = imagesByCat[category]?.length || 0;
+  if (currentCount + files.length > cat.maxImages) {
+    toast({ title: 'Limite atteinte', description: `Max ${cat.maxImages} images`, variant: 'destructive' });
+    return;
+  }
+
+  const key = type ? `${category}-${type}` : category;
+  setIsUploading(prev => ({ ...prev, [key]: true }));
+
+  const uploaded: Image[] = [];
+
+  for (let i = 0; i < files.length; i++) {
+    let fileToSend = files[i];
+
+    // Compression si > 1 Mo
+    if (fileToSend.size > 1000000) {
+      toastSuccess('Compression...', fileToSend.name);
+      fileToSend = await compressImage(fileToSend);
     }
 
-    const key = type ? `${category}-${type}` : category;
-    setIsUploading(prev => ({ ...prev, [key]: true }));
+    const ext = fileToSend.type.includes('png') ? '.png' : '.jpg';
+    const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    const forcedFilename = type ? `${type}-temp-${tempId}${ext}` : `${category}-${tempId}${ext}`;
 
-    const uploaded: Image[] = [];
+    const fd = new FormData();
+    fd.append('image', fileToSend);
+    fd.append('category', category);
+    fd.append('filename', forcedFilename); // ← CE NOM EST CRUCIAL
 
-    for (let i = 0; i < files.length; i++) {
-      let fileToSend = files[i];
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
 
-      // Compression uniquement si > 1 Mo
-      if (fileToSend.size > 1000000) {
-        toast({ title: 'Compression...', description: fileToSend.name });
-        fileToSend = await compressImage(fileToSend);
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || 'Upload failed');
       }
 
-      const ext = fileToSend.type.includes('png') ? '.png' : '.jpg';
-      const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const filename = type ? `${type}-temp-${tempId}${ext}` : `${category}-${tempId}${ext}`;
+      const json = await res.json();
 
-      const fd = new FormData();
-      fd.append('image', fileToSend);
-      fd.append('category', category);
-      fd.append('filename', filename);
+      // ON FORCE LE BON NOM DANS L'ÉTAT (même si le serveur change)
+      const correctImg: Image = {
+        url: json.url,
+        filename: forcedFilename,        // ← ON GARDE NOTRE NOM
+        publicId: json.publicId,
+      };
 
-      try {
-        const res = await fetch(`${API_BASE}/api/admin/upload`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-          body: fd,
-        });
+      uploaded.push(correctImg);
 
-        if (!res.ok) throw new Error('Upload failed');
-        const json = await res.json();
-
-        const img: Image = { url: json.url, filename: json.filename, publicId: json.publicId };
-        uploaded.push(img);
-
-        if (type) {
-          setPendingPair(prev => ({ ...prev, [type]: img }));
-          toast({ title: 'Prêt', description: `${type.toUpperCase()} en attente` });
-        } else {
-          toast({ title: 'Uploadé !', description: json.filename });
-        }
-      } catch (err) {
-        console.error('Upload failed:', err);
-        toastError('Échec upload', fileToSend.name); // → va seulement dans la console
+      if (type) {
+        setPendingPair(prev => ({ ...prev, [type]: correctImg }));
+        toastSuccess('Prêt', `${type.toUpperCase()} en attente`);
+      } else {
+        toastSuccess('Uploadé !', forcedFilename);
       }
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      toastError('Échec upload', fileToSend.name);
     }
+  }
 
-    const newImages = [...(imagesByCat[category] || []), ...uploaded];
-    setImagesByCat(prev => ({ ...prev, [category]: newImages }));
-    setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
-    setIsUploading(prev => ({ ...prev, [key]: false }));
-  };
+  const newImages = [...(imagesByCat[category] || []), ...uploaded];
+  setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+  setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+  setIsUploading(prev => ({ ...prev, [key]: false }));
+};
 
   const confirmPair = async (category: string) => {
   if (!pendingPair.avant || !pendingPair.apres) {
@@ -224,7 +234,7 @@ const Admin: React.FC = () => {
   try {
     // 1. Renommer les deux images
     const renameOne = async (img: Image, type: 'avant' | 'apres') => {
-      const oldExt = img.filename.split('.').pop() || 'jpg';
+      const oldExt = img.filename.includes('.') ? img.filename.split('.').pop()! : 'jpg';
       const newFilename = `${type}-${pairId}.${oldExt}`;
 
       const res = await fetch(`${API_BASE}/api/admin/rename`, {
