@@ -92,14 +92,12 @@ const tempStorage = multer.diskStorage({
 
 const adminUpload = multer({
   storage: tempStorage,
-  limits: { fileSize: 15 * 1024 * 1024 }, // 15 Mo maintenant
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Seuls JPG, PNG et WebP sont acceptés'));
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_, file, cb) => {
+    if (!file.originalname.match(/\.(jpe?g|png|webp)$/i)) {
+      return cb(new Error("Only images"));
     }
+    cb(null, true);
   },
 });
 
