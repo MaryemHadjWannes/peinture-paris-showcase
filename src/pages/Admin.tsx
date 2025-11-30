@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, DragEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown, Check } from 'lucide-react';
@@ -28,15 +28,13 @@ interface Image {
   publicId: string;
 }
 
-// =============================================
-// COMPRESSION + CONVERSION WEBP (magie ici)
-// =============================================
-const compressAndConvertToWebP = (file: File): Promise<File> => {
+// COMPRESSION FORTE SANS CHANGER DE FORMAT (JPG/PNG seulement)
+const compressImageKeepFormat = (file: File): Promise<File> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 1600; // 1600px max → parfait qualité/taille
+      const MAX_SIZE = 1600;
 
       let width = img.width;
       let height = img.height;
@@ -58,17 +56,22 @@ const compressAndConvertToWebP = (file: File): Promise<File> => {
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0, width, height);
 
+      const quality = 0.80; // 80% → très bon compromis (0.75 si tu veux encore plus petit)
+      const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+
       canvas.toBlob(
         (blob) => {
-          if (!blob) return reject(new Error('Conversion WebP échouée'));
-          const webpFile = new File([blob], file.name.split('.').slice(0, -1).join('.') + '.webp', {
-            type: 'image/webp',
+          if (!blob) return reject(new Error('Compression échouée'));
+          const ext = file.type === 'image/png' ? '.png' : '.jpg';
+          const newName = file.name.replace(/\.[^/.]+$/, '') + ext;
+          const compressedFile = new File([blob], newName, {
+            type: mimeType,
             lastModified: Date.now(),
           });
-          resolve(webpFile);
+          resolve(compressedFile);
         },
-        'image/webp',
-        0.85 // 85% → qualité excellente, taille ÷5–10
+        mimeType,
+        quality
       );
     };
     img.onerror = reject;
@@ -90,12 +93,8 @@ const Admin: React.FC = () => {
   const [imageOrder, setImageOrder] = useState<Record<string, string[]>>(getInitialOrder());
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
   const [isDragging, setIsDragging] = useState<string | null>(null);
-  const [pendingPair, setPendingPair] = useState<{
-    avant?: Image;
-    apres?: Image;
-  }>({});
+  const [pendingPair, setPendingPair] = useState<{ avant?: Image; apres?: Image }>({});
 
-  // Fetch images
   const fetchImages = useCallback(async (category: string) => {
     if (!token) return;
     try {
@@ -109,22 +108,17 @@ const Admin: React.FC = () => {
       const fileMap = new Map(files.map(f => [f.publicId, f]));
       const validOrder = savedOrder.filter(id => fileMap.has(id));
       const newFiles = files.filter(f => !validOrder.includes(f.publicId));
-      const ordered = [
-        ...validOrder.map(id => fileMap.get(id)!),
-        ...newFiles,
-      ];
+      const ordered = [...validOrder.map(id => fileMap.get(id)!), ...newFiles];
 
       setImagesByCat(prev => ({ ...prev, [category]: ordered }));
       setImageOrder(prev => ({ ...prev, [category]: ordered.map(i => i.publicId) }));
-    } catch (err) {
+    } catch {
       toast({ title: 'Erreur', description: 'Impossible de charger les images', variant: 'destructive' });
     }
   }, [token, toast, imageOrder]);
 
   useEffect(() => {
-    if (token) {
-      CATEGORIES.forEach(cat => fetchImages(cat.id));
-    }
+    if (token) CATEGORIES.forEach(cat => fetchImages(cat.id));
   }, [token, fetchImages]);
 
   useEffect(() => {
@@ -149,9 +143,7 @@ const Admin: React.FC = () => {
     }
   };
 
-  // =============================================
-  // UPLOAD UNIVERSEL avec compression
-  // =============================================
+  // UPLOAD UNIVERSEL AVEC COMPRESSION FORTE (JPG/PNG seulement)
   const handleUploadWithCompression = async (
     files: FileList | null,
     category: string,
@@ -164,11 +156,7 @@ const Admin: React.FC = () => {
 
     const current = imagesByCat[category] || [];
     if (current.length + files.length > cat.maxImages) {
-      toast({
-        title: 'Limite atteinte',
-        description: `Maximum ${cat.maxImages} images dans cette catégorie`,
-        variant: 'destructive',
-      });
+      toast({ title: 'Limite atteinte', description: `Maximum ${cat.maxImages} images`, variant: 'destructive' });
       return;
     }
 
@@ -180,11 +168,11 @@ const Admin: React.FC = () => {
     for (let i = 0; i < files.length; i++) {
       let fileToUpload: File = files[i];
 
-      // Compression si > 1 Mo ou toujours pour WebP
-      if (fileToUpload.size > 1024 * 1024 || !fileToUpload.type.includes('webp')) {
-        toast({ title: 'Compression en cours...', description: fileToUpload.name });
+      // Compression automatique si > 800 Ko (ou toujours si tu veux)
+      if (fileToUpload.size > 800 * 1024) {
+        toast({ title: 'Compression...', description: fileToUpload.name });
         try {
-          fileToUpload = await compressAndConvertToWebP(files[i]);
+          fileToUpload = await compressImageKeepFormat(files[i]);
           const reduction = ((files[i].size - fileToUpload.size) / files[i].size * 100).toFixed(0);
           toast({
             title: 'Compressé !',
@@ -192,7 +180,6 @@ const Admin: React.FC = () => {
           });
         } catch (err) {
           console.warn('Compression échouée, envoi original', err);
-          fileToUpload = files[i]; // fallback
         }
       }
 
@@ -200,11 +187,9 @@ const Admin: React.FC = () => {
       fd.append('image', fileToUpload);
       fd.append('category', category);
 
-      const ext = fileToUpload.type === 'image/webp' ? '.webp' : '.jpg';
+      const ext = fileToUpload.type === 'image/png' ? '.png' : '.jpg';
       const tempId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const filename = type
-        ? `${type}-temp-${tempId}${ext}`
-        : `${category}-${tempId}${ext}`;
+      const filename = type ? `${type}-temp-${tempId}${ext}` : `${category}-${tempId}${ext}`;
       fd.append('filename', filename);
 
       try {
@@ -246,13 +231,12 @@ const Admin: React.FC = () => {
     setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
   };
 
-  // Confirmation paire avant/après
+  // CONFIRMER PAIRE
   const confirmPair = async (category: string) => {
     if (!pendingPair.avant || !pendingPair.apres) {
       toast({ title: 'Manquant', description: 'Il faut avant + après', variant: 'destructive' });
       return;
     }
-
     const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
     setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: true }));
 
@@ -262,15 +246,8 @@ const Admin: React.FC = () => {
         const newName = `${type}-${pairId}.${ext}`;
         const res = await fetch(`${API_BASE}/api/admin/rename`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            publicId: img.publicId,
-            newFilename: newName,
-            category,
-          }),
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ publicId: img.publicId, newFilename: newName, category }),
         });
         if (!res.ok) throw new Error();
         return await res.json();
@@ -281,7 +258,6 @@ const Admin: React.FC = () => {
         rename(pendingPair.apres, 'apres'),
       ]);
 
-      // Supprimer anciens
       await Promise.all(
         [pendingPair.avant.publicId, pendingPair.apres.publicId].map(id =>
           fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(id)}`, {
@@ -293,13 +269,13 @@ const Admin: React.FC = () => {
 
       const current = imagesByCat[category] || [];
       const filtered = current.filter(img => ![pendingPair.avant!.publicId, pendingPair.apres!.publicId].includes(img.publicId));
-      const updated = [...filtered, { ...avantNew, publicId: avantNew.publicId }, { ...apresNew, publicId: apresNew.publicId }];
+      const updated = [...filtered, avantNew, apresNew].map(i => ({ ...i, publicId: i.publicId }));
 
       setImagesByCat(prev => ({ ...prev, [category]: updated }));
       setImageOrder(prev => ({ ...prev, [category]: updated.map(i => i.publicId) }));
       setPendingPair({});
       toast({ title: 'Paire confirmée !', description: `ID: ${pairId}` });
-    } catch (err) {
+    } catch {
       toast({ title: 'Erreur', description: 'Confirmation échouée', variant: 'destructive' });
     } finally {
       setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: false }));
@@ -341,7 +317,6 @@ const Admin: React.FC = () => {
     const [srcCat, dragIdxStr] = e.dataTransfer.getData('text/plain').split('|');
     const dragIdx = Number(dragIdxStr);
     if (srcCat !== category || dragIdx === dropIdx) return;
-
     const copy = [...imagesByCat[category]];
     const [moved] = copy.splice(dragIdx, 1);
     copy.splice(dropIdx, 0, moved);
@@ -351,9 +326,6 @@ const Admin: React.FC = () => {
   };
   const onDragEnd = () => setIsDragging(null);
 
-  // =============================================
-  // RENDER
-  // =============================================
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -363,17 +335,9 @@ const Admin: React.FC = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <Label>Email</Label>
-                <Input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-              </div>
-              <div>
-                <Label>Mot de passe</Label>
-                <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-              </div>
-              <Button type="submit" className="w-full bg-[#0A2543] hover:bg-[#DF271C]">
-                Se connecter
-              </Button>
+              <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+              <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+              <Button type="submit" className="w-full bg-[#0A2543] hover:bg-[#DF271C]">Se connecter</Button>
             </form>
           </CardContent>
         </Card>
@@ -385,16 +349,7 @@ const Admin: React.FC = () => {
     <div className="min-h-screen p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#0A2543]">Admin – Portfolio</h1>
-        <Button
-          variant="outline"
-          onClick={() => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('portfolioImageOrder');
-            setToken('');
-            setImagesByCat({});
-            toast({ title: 'Déconnecté' });
-          }}
-        >
+        <Button variant="outline" onClick={() => { localStorage.clear(); setToken(''); setImagesByCat({}); toast({ title: 'Déconnecté' }); }}>
           Déconnexion
         </Button>
       </div>
@@ -411,19 +366,16 @@ const Admin: React.FC = () => {
             <Card key={cat.id} className="overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-[#0A2543]">{cat.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {images.length}/{cat.maxImages} images
-                </p>
+                <p className="text-sm text-muted-foreground">{images.length}/{cat.maxImages} images</p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
 
                 {/* AVANT / APRÈS */}
                 {cat.id === 'avant-apres' ? (
                   <div className="space-y-6">
-                    {/* Confirmation */}
                     <Card className="border-2 border-green-500">
                       <CardHeader>
-                        <div className="flex items-center gap-3">
+                        <div className="flex gap-3">
                           <Badge variant="outline" className={pendingPair.avant ? 'bg-green-100' : 'bg-gray-100'}>
                             {pendingPair.avant ? 'Avant prêt' : 'Avant manquant'}
                           </Badge>
@@ -444,14 +396,11 @@ const Admin: React.FC = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Uploads séparés */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-dashed border-green-300 rounded-lg p-6 text-center">
                         <Upload className="mx-auto h-8 w-8 text-green-600 mb-3" />
                         <Input
-                          type="file"
-                          accept="image/*"
-                          multiple
+                          type="file" accept="image/*" multiple
                           disabled={uploadingAvant || images.length >= cat.maxImages}
                           onChange={e => handleUploadWithCompression(e.target.files, cat.id, 'avant')}
                           className="cursor-pointer"
@@ -462,9 +411,7 @@ const Admin: React.FC = () => {
                       <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center">
                         <Upload className="mx-auto h-8 w-8 text-blue-600 mb-3" />
                         <Input
-                          type="file"
-                          accept="image/*"
-                          multiple
+                          type="file" accept="image/*" multiple
                           disabled={uploadingApres || images.length >= cat.maxImages}
                           onChange={e => handleUploadWithCompression(e.target.files, cat.id, 'apres')}
                           className="cursor-pointer"
@@ -478,9 +425,7 @@ const Admin: React.FC = () => {
                   <div className="border-2 border-dashed rounded-lg p-8 text-center">
                     <Upload className="mx-auto h-10 w-10 text-muted-foreground mb-4" />
                     <Input
-                      type="file"
-                      accept="image/*"
-                      multiple
+                      type="file" accept="image/*" multiple
                       disabled={uploadingNormal || images.length >= cat.maxImages}
                       onChange={e => handleUploadWithCompression(e.target.files, cat.id)}
                       className="cursor-pointer"
@@ -489,7 +434,7 @@ const Admin: React.FC = () => {
                   </div>
                 )}
 
-                {/* Liste images */}
+                {/* LISTE IMAGES */}
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   <Label>Images ({images.length}) – glisser pour réordonner</Label>
                   {images.length === 0 ? (
@@ -506,9 +451,7 @@ const Admin: React.FC = () => {
                           onDragOver={onDragOver}
                           onDrop={e => onDrop(e, cat.id, idx)}
                           onDragEnd={onDragEnd}
-                          className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab active:cursor-grabbing transition-opacity ${
-                            isDragging === cat.id ? 'opacity-50' : ''
-                          }`}
+                          className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab active:cursor-grabbing transition-opacity ${isDragging === cat.id ? 'opacity-50' : ''}`}
                         >
                           <img src={img.url} alt="" className="w-16 h-16 object-cover rounded" />
                           <div className="flex-1 min-w-0">
