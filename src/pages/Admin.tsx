@@ -198,52 +198,78 @@ const Admin: React.FC = () => {
   };
 
   const confirmPair = async (category: string) => {
-    if (!pendingPair.avant || !pendingPair.apres) return toast({ title: 'Erreur', description: 'Avant + Après requis', variant: 'destructive' });
+  if (!pendingPair.avant || !pendingPair.apres) {
+    toast({ title: 'Erreur', description: 'Sélectionnez avant + après', variant: 'destructive' });
+    return;
+  }
 
-    const pairId = Date.now().toString(36);
-    setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: true }));
+  const pairId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: true }));
 
-    try {
-      const rename = async (img: Image, type: 'avant' | 'apres') => {
-        const ext = img.filename.split('.').pop();
-        const newName = `${type}-${pairId}.${ext}`;
-        const res = await fetch(`${API_BASE}/api/admin/rename`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ publicId: img.publicId, newFilename: newName, category }),
-        });
-        if (!res.ok) throw new Error();
-        return await res.json();
-      };
+  try {
+    // 1. Renommer les deux images
+    const renameOne = async (img: Image, type: 'avant' | 'apres') => {
+      const oldExt = img.filename.split('.').pop() || 'jpg';
+      const newFilename = `${type}-${pairId}.${oldExt}`;
 
-      const [avantNew, apresNew] = await Promise.all([
-        rename(pendingPair.avant, 'avant'),
-        rename(pendingPair.apres, 'apres'),
-      ]);
+      const res = await fetch(`${API_BASE}/api/admin/rename`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          publicId: img.publicId,
+          newFilename,
+          category,
+        }),
+      });
 
-      await Promise.all(
-        [pendingPair.avant.publicId, pendingPair.apres.publicId].map(id =>
-          fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(id)}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        )
-      );
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || 'Rename failed');
+      }
+      return await res.json(); // → { url, publicId, filename }
+    };
 
-      const current = imagesByCat[category] || [];
-      const filtered = current.filter(img => ![pendingPair.avant!.publicId, pendingPair.apres!.publicId].includes(img.publicId));
-      const updated = [...filtered, avantNew, apresNew].map((i: any) => ({ ...i, publicId: i.publicId }));
+    const [avantRenamed, apresRenamed] = await Promise.all([
+      renameOne(pendingPair.avant, 'avant'),
+      renameOne(pendingPair.apres, 'apres'),
+    ]);
 
-      setImagesByCat(prev => ({ ...prev, [category]: updated }));
-      setImageOrder(prev => ({ ...prev, [category]: updated.map((i: any) => i.publicId) }));
-      setPendingPair({});
-      toast({ title: 'Paire confirmée !' });
-    } catch {
-      toast({ title: 'Erreur confirmation', variant: 'destructive' });
-    } finally {
-      setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: false }));
-    }
-  };
+    // 2. Supprimer les anciennes versions temporaires
+    await Promise.all([
+      fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(pendingPair.avant.publicId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      fetch(`${API_BASE}/api/admin/delete/${encodeURIComponent(pendingPair.apres.publicId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+
+    // 3. Mettre à jour l’état
+    const current = imagesByCat[category] || [];
+    const filtered = current.filter(
+      img => img.publicId !== pendingPair.avant!.publicId && img.publicId !== pendingPair.apres!.publicId
+    );
+
+    const newImages = [...filtered, avantRenamed, apresRenamed]
+      .map(i => ({ url: i.url, filename: i.filename, publicId: i.publicId } as Image));
+
+    setImagesByCat(prev => ({ ...prev, [category]: newImages }));
+    setImageOrder(prev => ({ ...prev, [category]: newImages.map(i => i.publicId) }));
+    setPendingPair({});
+
+    toast({ title: 'Paire confirmée !', description: `ID: ${pairId}` });
+  } catch (err) {
+    console.error('Confirmation échouée:', err);
+    toast({ title: 'Erreur', description: 'Impossible de confirmer la paire', variant: 'destructive' });
+  } finally {
+    setIsUploading(prev => ({ ...prev, [`${category}-confirm`]: false }));
+  }
+};
 
   const handleDelete = async (img: Image, category: string, idx: number) => {
     try {
