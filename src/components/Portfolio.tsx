@@ -38,12 +38,19 @@ const Portfolio = () => {
   const [isLoadingAvantApres, setIsLoadingAvantApres] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  // Lightbox state
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  // ⭐ NEW: lightbox gère un tableau d’images + index courant
+  const [lightboxState, setLightboxState] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const avantApresRef = useRef<HTMLDivElement>(null);
+
+  // Touch pour le lightbox
+  const lightboxTouchStartX = useRef(0);
+  const lightboxTouchEndX = useRef(0);
 
   // === FETCH PROJETS NORMAUX ===
   const fetchProjects = useCallback(async () => {
@@ -79,7 +86,8 @@ const Portfolio = () => {
         },
         {
           title: "Peinture Intérieure",
-          description: "Finitions soignées et durables avec peintures écologiques.",
+          description:
+            "Finitions soignées et durables avec peintures écologiques.",
           images: fetchedMap["peinture-interieure"]?.map((f) => f.url) || [],
           tags: ["Couleurs", "Décoration", "Confort"],
         },
@@ -128,7 +136,11 @@ const Portfolio = () => {
       apresMap.forEach((after, id) => {
         const before = avantMap.get(id);
         if (before) {
-          pairs.push({ title: `Transformation ${pairs.length + 1}`, before, after });
+          pairs.push({
+            title: `Transformation ${pairs.length + 1}`,
+            before,
+            after,
+          });
         }
       });
 
@@ -182,7 +194,7 @@ const Portfolio = () => {
     });
   };
 
-  // === SWIPE SUPPORT ===
+  // === SWIPE SUPPORT on cards ===
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -203,10 +215,49 @@ const Portfolio = () => {
     fetchAvantApres();
   };
 
+  // ⭐ NEW: ouvrir le lightbox avec un tableau d’images
+  const openLightbox = (images: string[], index: number) => {
+    if (!images || images.length === 0) return;
+    setLightboxState({
+      images,
+      index: Math.max(0, Math.min(index, images.length - 1)),
+    });
+  };
+
+  const closeLightbox = () => setLightboxState(null);
+
+  const handleLightboxSwitch = (dir: "next" | "prev") => {
+    setLightboxState((prev) => {
+      if (!prev || prev.images.length === 0) return prev;
+      const total = prev.images.length;
+      const newIndex =
+        dir === "next"
+          ? (prev.index + 1) % total
+          : (prev.index - 1 + total) % total;
+      return { ...prev, index: newIndex };
+    });
+  };
+
+  // Swipe dans le lightbox (mobile)
+  const handleLightboxTouchStart = (e: React.TouchEvent) => {
+    lightboxTouchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleLightboxTouchMove = (e: React.TouchEvent) => {
+    lightboxTouchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleLightboxTouchEnd = () => {
+    const diff = lightboxTouchStartX.current - lightboxTouchEndX.current;
+    if (Math.abs(diff) > 40) {
+      handleLightboxSwitch(diff > 0 ? "next" : "prev");
+    }
+  };
+
   // === CLOSE LIGHTBOX ON ESC ===
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightboxImage(null);
+      if (e.key === "Escape") closeLightbox();
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
@@ -258,7 +309,7 @@ const Portfolio = () => {
                       alt={item.title}
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 cursor-zoom-in"
                       onClick={() =>
-                        setLightboxImage(item.images[activeIndexes[idx]])
+                        openLightbox(item.images, activeIndexes[idx])
                       }
                       loading="lazy"
                     />
@@ -271,7 +322,7 @@ const Portfolio = () => {
                             e.stopPropagation();
                             handleSwitch(idx, "prev");
                           }}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 md:flex hidden"
                           aria-label="Précédent"
                         >
                           <ChevronLeft className="h-5 w-5" />
@@ -281,7 +332,7 @@ const Portfolio = () => {
                             e.stopPropagation();
                             handleSwitch(idx, "next");
                           }}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 md:flex hidden"
                           aria-label="Suivant"
                         >
                           <ChevronRight className="h-5 w-5" />
@@ -356,7 +407,9 @@ const Portfolio = () => {
                     {/* BEFORE */}
                     <div
                       className="relative aspect-video overflow-hidden cursor-zoom-in group"
-                      onClick={() => setLightboxImage(pair.before)}
+                      onClick={() =>
+                        openLightbox([pair.before, pair.after], 0)
+                      }
                     >
                       <img
                         src={pair.before}
@@ -373,7 +426,9 @@ const Portfolio = () => {
                     {/* AFTER */}
                     <div
                       className="relative aspect-video overflow-hidden cursor-zoom-in group"
-                      onClick={() => setLightboxImage(pair.after)}
+                      onClick={() =>
+                        openLightbox([pair.before, pair.after], 1)
+                      }
                     >
                       <img
                         src={pair.after}
@@ -400,32 +455,66 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* LIGHTBOX MODAL */}
-      {lightboxImage && (
+      {/* ⭐ LIGHTBOX MODAL AVEC NAVIGATION */}
+      {lightboxState && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md"
-          onClick={() => setLightboxImage(null)}
+          onClick={closeLightbox}
+          onTouchStart={handleLightboxTouchStart}
+          onTouchMove={handleLightboxTouchMove}
+          onTouchEnd={handleLightboxTouchEnd}
         >
           <button
-            className="absolute top-4 right-4 md:top-8 md:right-8 text-white hover:text-gray-300 transition-all duration-200 z-10"
-            onClick={() => setLightboxImage(null)}
+            className="absolute top-4 right-4 md:top-8 md:right-8 text-white hover:text-gray-300 transition-all duration-200 z-20"
+            onClick={(e) => {
+              e.stopPropagation();
+              closeLightbox();
+            }}
             aria-label="Fermer"
           >
             <X className="h-10 w-10 md:h-12 md:w-12" />
           </button>
 
-          <div className="relative max-w-7xl max-h-full p-4 md:p-8">
+          {/* Flèches navigation dans le lightbox */}
+          {lightboxState.images.length > 1 && (
+            <>
+              <button
+                className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 bg-black/50 rounded-full p-3 md:p-4 text-white z-20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLightboxSwitch("prev");
+                }}
+                aria-label="Précédent"
+              >
+                <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+              <button
+                className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 bg-black/50 rounded-full p-3 md:p-4 text-white z-20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLightboxSwitch("next");
+                }}
+                aria-label="Suivant"
+              >
+                <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+              </button>
+            </>
+          )}
+
+          <div
+            className="relative max-w-7xl max-h-full p-4 md:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
-              src={lightboxImage}
+              src={lightboxState.images[lightboxState.index]}
               alt="Vue agrandie"
               className="max-w-full max-h-screen object-contain rounded-xl shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
             />
-          </div>
-
-          {/* Optional: subtle zoom hint */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm hidden md:block">
-            Cliquez n'importe où ou appuyez sur Échap pour fermer
+            {lightboxState.images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 text-xs md:text-sm bg-black/50 px-3 py-1 rounded-full">
+                {lightboxState.index + 1} / {lightboxState.images.length}
+              </div>
+            )}
           </div>
         </div>
       )}
