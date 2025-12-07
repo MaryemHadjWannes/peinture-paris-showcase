@@ -1,3 +1,4 @@
+// src/components/Hero.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Paintbrush } from 'lucide-react';
@@ -5,10 +6,7 @@ import { motion } from 'framer-motion';
 import heroImageJpg from '@/assets/hero-painting.jpg';
 import heroImageWebp from '@/assets/hero-painting.webp';
 
-
-
 const Hero = () => {
-
   // Static values for stats
   const projects = 50;
   const clients = 48;
@@ -35,11 +33,11 @@ const Hero = () => {
           <source srcSet={heroImageWebp} type="image/webp" />
           <source srcSet={heroImageJpg} type="image/jpeg" />
           <img
-            src={heroImageJpg}
+            // ✅ WebP by default, no lazy loading
+            src={heroImageWebp}
             srcSet={`${heroImageWebp} 1x, ${heroImageJpg} 2x`}
-            alt="Peintre professionnel à Paris réalisant des travaux de peinture intérieure et extérieure, illustration de qualité et savoir-faire."
+            alt="Peintre professionnel réalisant des travaux de peinture intérieure et extérieure."
             className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
-            loading="lazy"
             width="1920"
             height="1080"
           />
@@ -70,30 +68,33 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
         >
-          Peinture intérieure, extérieure, enduit et plâtrerie en France.<br />
+          Peinture intérieure, extérieure, enduit et plâtrerie en France.
+          <br />
           Qualité exceptionnelle et service dédié pour vos projets.
         </motion.p>
-
 
         {/* Assurance Décennale */}
         <div className="flex justify-center items-center mb-6">
           <span className="text-accent font-semibold text-base sm:text-lg bg-white/90 px-4 py-1 rounded shadow-sm">
-            Protégé par l'assurance décennale
+            Protégé par l&apos;assurance décennale
           </span>
         </div>
-
 
         {/* Static Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto">
           <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
-              {projects}<span aria-hidden="true">{'\u002B'}</span>
+              {projects}
+              <span aria-hidden="true">{'\u002B'}</span>
             </div>
             <div className="text-xs sm:text-sm text-white/80">Projets Réalisés</div>
           </div>
           <div className="text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
-              <span suppressHydrationWarning>{clients}<span aria-hidden="true">+</span></span>
+              <span suppressHydrationWarning>
+                {clients}
+                <span aria-hidden="true">+</span>
+              </span>
             </div>
             <div className="text-xs sm:text-sm text-white/80">Clients Satisfaits</div>
           </div>

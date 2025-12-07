@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  RefreshCw,
   X,
 } from "lucide-react";
 
@@ -36,9 +35,8 @@ const Portfolio = () => {
   const [activeIndexes, setActiveIndexes] = useState<number[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingAvantApres, setIsLoadingAvantApres] = useState(true);
-  const [hasInteracted, setHasInteracted] = useState(false);
 
-  // ⭐ NEW: lightbox gère un tableau d’images + index courant
+  // Lightbox : un tableau d’images + index courant
   const [lightboxState, setLightboxState] = useState<{
     images: string[];
     index: number;
@@ -52,7 +50,7 @@ const Portfolio = () => {
   const lightboxTouchStartX = useRef(0);
   const lightboxTouchEndX = useRef(0);
 
-  // === FETCH PROJETS NORMAUX ===
+  // === FETCH PROJETS NORMAUX (une seule fois) ===
   const fetchProjects = useCallback(async () => {
     setIsLoadingProjects(true);
     const normalCats = ["enduit", "peinture-interieure", "escalier-details"];
@@ -109,9 +107,8 @@ const Portfolio = () => {
     }
   }, []);
 
-  // === FETCH AVANT/APRÈS ===
+  // === FETCH AVANT/APRÈS (appelé seulement quand la section devient visible) ===
   const fetchAvantApres = useCallback(async () => {
-    if (avantApres.length > 0 && !hasInteracted) return;
     setIsLoadingAvantApres(true);
 
     try {
@@ -150,16 +147,12 @@ const Portfolio = () => {
     } finally {
       setIsLoadingAvantApres(false);
     }
-  }, [avantApres.length, hasInteracted]);
+  }, []);
 
-  // === INITIAL LOAD + POLLING ===
+  // === INITIAL LOAD UNIQUEMENT POUR LES PROJETS ===
   useEffect(() => {
     fetchProjects();
-    const interval = setInterval(() => {
-      if (!hasInteracted) fetchProjects();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [fetchProjects, hasInteracted]);
+  }, [fetchProjects]);
 
   // === LAZY LOAD AVANT/APRÈS WHEN VISIBLE ===
   useEffect(() => {
@@ -181,7 +174,6 @@ const Portfolio = () => {
 
   // === CAROUSEL SWITCH ===
   const handleSwitch = (projIdx: number, dir: "next" | "prev") => {
-    setHasInteracted(true);
     setActiveIndexes((prev) => {
       const copy = [...prev];
       const total = projects[projIdx]?.images.length || 0;
@@ -198,24 +190,19 @@ const Portfolio = () => {
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
   };
+
   const handleTouchEnd = (projIdx: number) => {
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 50) {
-      setHasInteracted(true);
       handleSwitch(projIdx, diff > 0 ? "next" : "prev");
     }
   };
 
-  // === REFRESH ALL ===
-  const refreshAll = () => {
-    fetchProjects();
-    fetchAvantApres();
-  };
-
-  // ⭐ NEW: ouvrir le lightbox avec un tableau d’images
+  // ⭐ LIGHTBOX
   const openLightbox = (images: string[], index: number) => {
     if (!images || images.length === 0) return;
     setLightboxState({
@@ -282,10 +269,6 @@ const Portfolio = () => {
               Découvrez nos réalisations : enduits, peintures, escaliers et
               transformations avant / après.
             </p>
-            <Button variant="outline" size="sm" onClick={refreshAll}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualiser
-            </Button>
           </div>
 
           {/* PROJETS NORMAUX */}
