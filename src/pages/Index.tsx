@@ -6,6 +6,7 @@ import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Map from "@/components/Map"; // nouveau composant
+import Faq from "@/components/Faq";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
         {/*<GoogleReviews />*/}
         <Portfolio />
         <Services />
+        <Faq />
         <Contact />
 
         {/* Google Map */}
