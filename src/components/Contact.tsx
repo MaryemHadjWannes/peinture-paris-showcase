@@ -149,8 +149,9 @@ const Contact = () => {
               <span className="block text-accent">Projet Ensemble</span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Prêt à transformer votre espace ? Contactez-nous pour un devis gratuit
-              et personnalisé. Notre équipe est à votre écoute.
+              Prêt à transformer votre appartement, votre commerce ou vos bureaux à Cambrai et dans
+              les Hauts-de-France ? Contactez-nous pour un devis peinture gratuit, un accompagnement
+              couleur et un planning d&apos;exécution rapide. Notre équipe vous répond sous 24&nbsp;heures.
             </p>
           </div>
 

@@ -34,6 +34,7 @@ const Navigation = () => {
     { id: 'about', label: 'À Propos' },
     { id: 'portfolio', label: 'Portfolio' },
     { id: 'services', label: 'Services' },
+    { id: 'zones-desservies', label: 'Zones' },
     { id: 'faq', label: 'FAQ' },     
     { id: 'contact', label: 'Contact' },
   ];
@@ -50,13 +51,17 @@ const Navigation = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
-              <button
+              <a
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                href={`#${item.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection(item.id);
+                }}
                 className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
               >
                 {item.label}
-              </button>
+              </a>
             ))}
           </div>
 
@@ -96,13 +101,17 @@ const Navigation = () => {
             >
               <div className="flex flex-col items-center py-4 space-y-4">
                 {navItems.map((item) => (
-                  <button
+                  <a
                     key={item.id}
-                    onClick={() => scrollToSection(item.id)}
+                    href={`#${item.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(item.id);
+                    }}
                     className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
                   >
                     {item.label}
-                  </button>
+                  </a>
                 ))}
                 {/* Mobile Contact Info */}
                 <div className="flex flex-col items-center space-y-2 text-sm pt-2">

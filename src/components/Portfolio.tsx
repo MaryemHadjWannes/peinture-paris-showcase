@@ -289,7 +289,7 @@ const Portfolio = () => {
                   <div className="relative group aspect-square md:aspect-auto md:h-80 overflow-hidden">
                     <img
                       src={item.images[activeIndexes[idx]] || "/placeholder.svg"}
-                      alt={item.title}
+                      alt={`${item.title} - réalisation de peinture H.N. Rénovation à Cambrai et alentours`}
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 cursor-zoom-in"
                       onClick={() =>
                         openLightbox(item.images, activeIndexes[idx])
@@ -396,7 +396,7 @@ const Portfolio = () => {
                     >
                       <img
                         src={pair.before}
-                        alt={`Avant - ${pair.title}`}
+                        alt={`Avant - ${pair.title} à Cambrai et dans le Nord`}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
@@ -415,7 +415,7 @@ const Portfolio = () => {
                     >
                       <img
                         src={pair.after}
-                        alt={`Après - ${pair.title}`}
+                        alt={`Après - ${pair.title} réalisé par nos peintres à Cambrai`}
                         loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />

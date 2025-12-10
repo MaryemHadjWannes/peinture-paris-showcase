@@ -67,8 +67,11 @@ const About = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            HN Rénovation transforme vos espaces avec passion et précision.
-            Nous apportons innovation et excellence à chaque projet.
+            HN Rénovation transforme vos maisons, commerces et bureaux à Cambrai,
+            Caudry, Valenciennes ou Douai avec des finitions soignées. Préparation
+            intégrale des murs, conseils couleurs, applications multi-couches,
+            enduits décoratifs et plâtrerie : notre équipe coordonne l’ensemble
+            des étapes pour livrer un résultat durable et conforme aux normes.
           </motion.p>
         </div>
 
@@ -115,7 +118,10 @@ const About = () => {
             Notre Engagement
           </h3>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Nous mettons tout en œuvre pour respecter vos délais, votre budget et vos attentes, avec un suivi personnalisé et une garantie de satisfaction.
+            Nous mettons tout en œuvre pour respecter vos délais, votre budget et vos attentes,
+            avec des rapports d&apos;avancement, la protection des lieux occupés et une garantie
+            décennale couvrant nos travaux de peinture intérieure, extérieure, plâtrerie et parquet
+            dans tout le Nord.
           </p>
         </motion.div>
       </div>

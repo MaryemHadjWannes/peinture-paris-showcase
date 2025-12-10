@@ -55,9 +55,9 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.7, type: 'spring' }}
         >
-          Transformez Vos
+          Peintre professionnel à Cambrai
           <span className="block bg-gradient-to-r from-accent via-yellow-400 to-accent bg-clip-text text-transparent animate-gradient">
-            Espaces
+            pour vos travaux de peinture intérieure et extérieure
           </span>
         </motion.h1>
 
@@ -68,9 +68,11 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
         >
-          Peinture intérieure, extérieure, enduit et plâtrerie en France.
-          <br />
-          Qualité exceptionnelle et service dédié pour vos projets.
+          H.N. Rénovation accompagne les particuliers et professionnels à Cambrai,
+          Valenciennes, Douai et sur l&apos;ensemble du Nord pour peindre,
+          enduire et rénover chaque pièce. Nous prenons en charge la préparation
+          des supports, le choix des finitions, la protection des sols et la
+          livraison clé en main avec devis gratuit.
         </motion.p>
 
         {/* Assurance Décennale */}

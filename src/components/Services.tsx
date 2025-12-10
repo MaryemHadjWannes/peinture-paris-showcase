@@ -179,6 +179,18 @@ const Services = () => {
               );
             })}
           </div>
+          <div className="bg-card/70 border border-border/60 rounded-2xl p-8 text-center shadow-soft">
+            <h3 className="text-2xl font-heading font-semibold mb-4 text-primary">
+              Une approche complète pour vos travaux
+            </h3>
+            <p className="text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+              Nous analysons chaque support avant intervention, réalisons les préparations nécessaires
+              (rebouchage, ponçage, sous-couches adaptées), sécurisons les zones de passage et livrons
+              des peintures faciles d&apos;entretien. Que votre chantier soit situé à Cambrai, Valenciennes,
+              Arras ou dans un village voisin, nous déplaçons notre équipe avec tout le matériel nécessaire
+              et un interlocuteur unique jusqu&apos;à la réception.
+            </p>
+          </div>
         </div>
       </div>
     </section>

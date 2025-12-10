@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Admin from './pages/Admin';
@@ -103,43 +103,12 @@ const App = () => {
         <Toaster />
         <Sonner />
 
-        {/* Section SEO : Zones desservies */}
-        <div style={{ display: 'none' }} aria-hidden="true">
-          <h2>Zones desservies</h2>
-          <ul>
-            <li>103 rue Saint Ladre, 59400 Cambrai</li>
-            <li>Cambrai</li>
-            <li>Caudry</li>
-            <li>Le Cateau</li>
-            <li>Solesmes</li>
-            <li>Denain</li>
-            <li>Valenciennes</li>
-            <li>Douai</li>
-            <li>Arras</li>
-            <li>Saint-Quentin</li>
-            <li>Nord</li>
-            <li>Hauts-de-France</li>
-            <li>70 km autour de Cambrai</li>
-            <li>et tous les villages alentours</li>
-          </ul>
-          <p>
-            Peintre professionnel, entreprise de peinture, artisan peintre, devis
-            peinture, travaux de peinture, rénovation, plâtrerie, enduit, peinture
-            intérieure, peinture extérieure, peinture façade, peinture décorative,
-            peinture maison, peinture appartement, peinture bâtiment, interventions
-            rapides, qualité, satisfaction garantie, prix attractifs, devis gratuit,
-            service local.
-          </p>
-        </div>
-
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin/*" element={<Admin />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/admin/*" element={<Admin />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </TooltipProvider>
     </QueryClientProvider>
   );
