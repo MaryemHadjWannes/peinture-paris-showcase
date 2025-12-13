@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import nhLogo from '@/assets/nh-logo.png';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Phone, Mail } from 'lucide-react';
@@ -63,6 +64,12 @@ const Navigation = () => {
                 {item.label}
               </a>
             ))}
+            <Link
+              to="/peinture"
+              className="text-primary font-semibold text-sm sm:text-base"
+            >
+              Pages locales
+            </Link>
           </div>
 
           {/* Desktop Contact Info */}
@@ -113,6 +120,13 @@ const Navigation = () => {
                     {item.label}
                   </a>
                 ))}
+                <Link
+                  to="/peinture"
+                  className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Pages locales
+                </Link>
                 {/* Mobile Contact Info */}
                 <div className="flex flex-col items-center space-y-2 text-sm pt-2">
                   <div className="flex items-center space-x-2">

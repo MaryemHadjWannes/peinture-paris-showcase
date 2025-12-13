@@ -1,14 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { MapPin, Compass } from "lucide-react";
-
-const areas = [
-  "Cambrai et Proville",
-  "Caudry & Le Cateau",
-  "Valenciennes & Denain",
-  "Douai & Arras",
-  "Saint-Quentin",
-  "Solesmes et villages voisins",
-];
+import { locationProfiles } from "@/data/locationProfiles";
 
 const AreasServed = () => {
   return (
@@ -44,11 +37,16 @@ const AreasServed = () => {
               Nous réalisons chaque mois des projets de peinture décorative,
               d’enduit et de plâtrerie dans les communes suivantes :
             </p>
-            <ul className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-              {areas.map((city) => (
-                <li key={city} className="pl-3 relative">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+              {locationProfiles.map((city) => (
+                <li key={city.id} className="pl-3 relative">
                   <span className="absolute left-0 top-1 h-1.5 w-1.5 rounded-full bg-accent" />
-                  {city}
+                  <Link
+                    to={`/peinture/${city.id}`}
+                    className="hover:text-primary underline underline-offset-2"
+                  >
+                    {city.name} &bull; {city.postalCodes[0]}
+                  </Link>
                 </li>
               ))}
             </ul>

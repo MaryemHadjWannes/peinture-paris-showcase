@@ -1,0 +1,80 @@
+[
+  {
+    "id": "cambrai",
+    "name": "Cambrai",
+    "department": "Nord",
+    "region": "Hauts-de-France",
+    "postalCodes": ["59400"],
+    "tagline": "Peintre professionnel à Cambrai et Proville",
+    "serviceRadiusKm": 70,
+    "geo": { "lat": 50.175, "lng": 3.234 },
+    "nearby": ["Proville", "Escaudœuvres", "Caudry", "Le Cateau", "Solesmes", "Denain"],
+    "neighborhoods": ["Cambrai centre", "Proville", "Escaudœuvres", "Fontaine-Notre-Dame", "Naves", "Sailly-lez-Cambrai", "Awoingt"],
+    "keywords": ["peintre cambrai", "peinture intérieure cambrai", "rénovation cambrai", "artisan peinture cambrai"]
+  },
+  {
+    "id": "douai",
+    "name": "Douai",
+    "department": "Nord",
+    "region": "Hauts-de-France",
+    "postalCodes": ["59500"],
+    "tagline": "Peinture et enduit à Douai et Sin-le-Noble",
+    "serviceRadiusKm": 60,
+    "geo": { "lat": 50.370, "lng": 3.079 },
+    "nearby": ["Sin-le-Noble", "Cuincy", "Lambres-lez-Douai", "Dechy", "Flers-en-Escrebieux"],
+    "neighborhoods": ["Douai centre", "Faubourg de Béthune", "Faubourg d'Esquerchin", "Cuincy", "Dechy", "Sin-le-Noble"],
+    "keywords": ["peintre douai", "peinture façades douai", "rénovation maisons douai", "artisan peintre sin-le-noble"]
+  },
+  {
+    "id": "valenciennes",
+    "name": "Valenciennes",
+    "department": "Nord",
+    "region": "Hauts-de-France",
+    "postalCodes": ["59300", "59220"],
+    "tagline": "Peinture décorative à Valenciennes et Anzin",
+    "serviceRadiusKm": 55,
+    "geo": { "lat": 50.359, "lng": 3.525 },
+    "nearby": ["Anzin", "Saint-Saulve", "Marly", "Bruay-sur-l'Escaut", "Denain"],
+    "neighborhoods": ["Valenciennes centre", "Anzin", "Saint-Saulve", "Marly", "Bruay-sur-l'Escaut", "Beuvrages", "Denain"],
+    "keywords": ["peintre valenciennes", "peinture appartement valenciennes", "rénovation bureaux valenciennes", "artisan peintre anzins"]
+  },
+  {
+    "id": "denain",
+    "name": "Denain",
+    "department": "Nord",
+    "region": "Hauts-de-France",
+    "postalCodes": ["59220"],
+    "tagline": "Rénovation et peinture à Denain",
+    "serviceRadiusKm": 45,
+    "geo": { "lat": 50.33, "lng": 3.39 },
+    "nearby": ["Valenciennes", "Haveluy", "Wavrechain-sous-Denain", "Somain", "Lourches"],
+    "neighborhoods": ["Denain centre", "La Sentinelle", "Haveluy", "Lourches", "Wavrechain", "Somain"],
+    "keywords": ["peintre denain", "rénovation denain", "peinture maison denain", "artisan peintre somain"]
+  },
+  {
+    "id": "arras",
+    "name": "Arras",
+    "department": "Pas-de-Calais",
+    "region": "Hauts-de-France",
+    "postalCodes": ["62000"],
+    "tagline": "Peinture patrimoniale à Arras et Saint-Nicolas",
+    "serviceRadiusKm": 60,
+    "geo": { "lat": 50.291, "lng": 2.777 },
+    "nearby": ["Saint-Nicolas", "Saint-Laurent-Blangy", "Dainville", "Beaurains", "Achicourt"],
+    "neighborhoods": ["Arras centre", "Quartier Méaulens", "Saint-Nicolas", "Beaurains", "Dainville", "Saint-Laurent-Blangy"],
+    "keywords": ["peintre arras", "rénovation appartement arras", "peinture façades arras", "artisan peintre saint-nicolas"]
+  },
+  {
+    "id": "saint-quentin",
+    "name": "Saint-Quentin",
+    "department": "Aisne",
+    "region": "Hauts-de-France",
+    "postalCodes": ["02100"],
+    "tagline": "Peinture intérieure à Saint-Quentin et Gauchy",
+    "serviceRadiusKm": 65,
+    "geo": { "lat": 49.848, "lng": 3.286 },
+    "nearby": ["Gauchy", "Harly", "Holnon", "Neuville-Saint-Amand"],
+    "neighborhoods": ["Saint-Quentin centre", "Remicourt", "Europe", "Neuville-Saint-Amand", "Gauchy", "Harly"],
+    "keywords": ["peintre saint-quentin", "rénovation saint-quentin", "peinture maison gauchy", "artisan peintre aisne"]
+  }
+]
