@@ -1,58 +1,89 @@
-import React, { useState } from 'react';
-import nhLogo from '@/assets/nh-logo.png';
-import { Button } from '@/components/ui/button';
-import { Menu, X, Phone, Mail } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import nhLogo from "@/assets/nh-logo.png";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Phone, Mail } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const scrollToSection = (id: string) => {
-    // If mobile menu is open, close it first, then scroll after a short delay
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const goToHomeSection = (id: string) => {
+    const doScroll = () => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      else window.location.hash = `#${id}`;
+    };
+
+    // If not on home page, go home first with hash, then scroll after route change
+    if (location.pathname !== "/") {
+      navigate(`/#${id}`);
+      // Allow the home page to render before trying to scroll
+      setTimeout(doScroll, 250);
+      return;
+    }
+
+    doScroll();
+  };
+
+  const handleNavClick = (item: { id: string; label: string; type: "section" | "route"; path?: string }) => {
     if (isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
+      closeMobileMenu();
       setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+        if (item.type === "route" && item.path) {
+          navigate(item.path);
         } else {
-          window.location.hash = `#${id}`;
+          goToHomeSection(item.id);
         }
-      }, 350); // Wait for menu close animation
+      }, 300);
+      return;
+    }
+
+    if (item.type === "route" && item.path) {
+      navigate(item.path);
     } else {
-      const element = document.getElementById(id);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        window.location.hash = `#${id}`;
-      }
+      goToHomeSection(item.id);
     }
   };
 
-  const navItems = [
-    { id: 'home', label: 'Accueil' },
-    { id: 'about', label: 'À Propos' },
-    { id: 'portfolio', label: 'Portfolio' },
-    { id: 'services', label: 'Services' },
-    { id: 'faq', label: 'FAQ' },     
-    { id: 'contact', label: 'Contact' },
+  const navItems: Array<
+    { id: string; label: string; type: "section" | "route"; path?: string }
+  > = [
+    { id: "home", label: "Accueil", type: "section" },
+    { id: "about", label: "À Propos", type: "section" },
+    { id: "realisations", label: "Réalisations", type: "route", path: "/realisations" },
+    { id: "services", label: "Services", type: "section" },
+    { id: "faq", label: "FAQ", type: "section" },
+    { id: "contact", label: "Contact", type: "section" },
   ];
 
   return (
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-soft" style={{WebkitTransform: 'translateZ(0)'}}>
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-soft"
+      style={{ WebkitTransform: "translateZ(0)" }}
+    >
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
-            <img src={nhLogo} alt="NH Logo" className="h-12 sm:h-14 w-auto" />
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center"
+            aria-label="Retour à l'accueil"
+          >
+            <img src={nhLogo} alt="HN Rénovation" className="h-12 sm:h-14 w-auto" />
+          </button>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                onClick={() => handleNavClick(item)}
                 className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
               >
                 {item.label}
@@ -77,8 +108,8 @@ const Navigation = () => {
             variant="outline"
             size="sm"
             className="md:hidden p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+            aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -90,20 +121,21 @@ const Navigation = () => {
             <motion.div
               className="md:hidden bg-background/95 backdrop-blur-sm border-t border-border"
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
             >
               <div className="flex flex-col items-center py-4 space-y-4">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => scrollToSection(item.id)}
+                    onClick={() => handleNavClick(item)}
                     className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
                   >
                     {item.label}
                   </button>
                 ))}
+
                 {/* Mobile Contact Info */}
                 <div className="flex flex-col items-center space-y-2 text-sm pt-2">
                   <div className="flex items-center space-x-2">
