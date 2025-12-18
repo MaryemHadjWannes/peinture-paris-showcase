@@ -16,6 +16,7 @@ export default function CityPage() {
   const city = useMemo(() => getCityBySlug(citySlug), [citySlug]);
 
   const canonical = `https://hn-renovation.fr/ville/${city.slug}`;
+  const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
 
   return (
     <div className="min-h-screen">
@@ -26,6 +27,21 @@ export default function CityPage() {
           content={`HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) : peinture intérieure, peinture extérieure, enduit, plâtrerie, rénovation. Devis gratuit et finitions durables.`}
         />
         <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={`Peintre à ${city.name} (${city.postalCode}) | HN Rénovation`} />
+        <meta
+          property="og:description"
+          content={`HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) : peinture intérieure, peinture extérieure, enduit, plâtrerie, rénovation. Devis gratuit et finitions durables.`}
+        />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`Peintre à ${city.name} (${city.postalCode}) | HN Rénovation`} />
+        <meta
+          name="twitter:description"
+          content={`HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) : peinture intérieure, peinture extérieure, enduit, plâtrerie, rénovation. Devis gratuit et finitions durables.`}
+        />
+        <meta name="twitter:image" content={ogImage} />
       </Helmet>
 
       <Navigation />

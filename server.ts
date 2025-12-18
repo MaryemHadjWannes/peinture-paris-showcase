@@ -320,6 +320,35 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
 // === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
 app.use(express.static(frontend));
-app.get(/.*/, (_: Request, res: Response) => res.sendFile(path.join(frontend, "index.html")));
+
+// Basic allowlist for SPA routes so we can return 404 for unknown URLs (avoid soft-404)
+const staticSpaRoutes = new Set([
+  "/",
+  "/realisations",
+  "/peinture-interieure",
+  "/peinture-exterieure",
+  "/ravalement-facade",
+  "/renovation-interieure",
+  "/artisan-peintre-cambrai",
+]);
+
+const isSpaRoute = (pathname: string) => {
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  if (staticSpaRoutes.has(cleanPath)) return true;
+  if (cleanPath.startsWith("/admin")) return true;
+  // /ville/:citySlug and /ville/:citySlug/:serviceSlug
+  if (/^\/ville\/[^/]+$/i.test(cleanPath)) return true;
+  if (/^\/ville\/[^/]+\/[^/]+$/i.test(cleanPath)) return true;
+  return false;
+};
+
+app.use((req: Request, res: Response) => {
+  const indexPath = path.join(frontend, "index.html");
+  if (isSpaRoute(req.path)) {
+    return res.sendFile(indexPath);
+  }
+  // Unknown route → 404 status but render SPA 404 screen
+  return res.status(404).sendFile(indexPath);
+});
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

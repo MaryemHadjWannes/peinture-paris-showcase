@@ -72,14 +72,14 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
     <section id="contact" className="py-12 sm:py-16 bg-background">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10 sm:mb-12">
-            <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-6">
-              <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-              <span className="text-accent font-medium text-sm sm:text-base">Contactez-Nous</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 sm:mb-6">
-              Démarrons Votre <span className="block text-accent">Projet Ensemble</span>
-            </h2>
+        <div className="text-center mb-10 sm:mb-12">
+          <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-6">
+            <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+            <span className="text-accent font-medium text-sm sm:text-base">Contactez-Nous</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 sm:mb-6">
+            Démarrons votre projet <span className="text-accent">ensemble</span>
+          </h2>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Intervention à {city.name} ({city.postalCode}) et alentours. Contactez-nous pour un devis gratuit et personnalisé.
             </p>

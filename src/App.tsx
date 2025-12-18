@@ -59,6 +59,21 @@ const App = () => {
           />
           <meta name="robots" content="index, follow" />
           <link rel="canonical" href="https://hn-renovation.fr/" />
+          <meta property="og:title" content="H.N. Rénovation | Peintre professionnel à Cambrai (59)" />
+          <meta
+            property="og:description"
+            content="Peinture intérieure et extérieure, enduits, plâtrerie et ravalement de façade. Artisan peintre à Cambrai, devis gratuit."
+          />
+          <meta property="og:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
+          <meta property="og:url" content="https://hn-renovation.fr/" />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="H.N. Rénovation | Peintre professionnel à Cambrai (59)" />
+          <meta
+            name="twitter:description"
+            content="Peinture intérieure et extérieure, enduits, plâtrerie et ravalement de façade. Artisan peintre à Cambrai, devis gratuit."
+          />
+          <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
 
           <link rel="preload" as="image" href={heroImageWebp} type="image/webp" />
         </Helmet>

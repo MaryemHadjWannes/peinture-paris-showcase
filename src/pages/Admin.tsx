@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, DragEvent } from 'react';
+import { Helmet } from "react-helmet-async";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -340,25 +341,38 @@ const Admin: React.FC = () => {
   };
   const onDragEnd = () => setIsDragging(null);
 
+  const adminHelmet = (
+    <Helmet>
+      <title>Administration | HN Rénovation</title>
+      <meta name="robots" content="noindex, nofollow" />
+      <link rel="canonical" href="https://hn-renovation.fr/admin" />
+    </Helmet>
+  );
+
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <Card className="w-96 shadow-lg">
-          <CardHeader><CardTitle className="text-[#0A2543]">Connexion Admin</CardTitle></CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-              <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
-              <Button type="submit" className="w-full bg-[#0A2543] hover:bg-[#DF271C]">Se connecter</Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        {adminHelmet}
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+          <Card className="w-96 shadow-lg">
+            <CardHeader><CardTitle className="text-[#0A2543]">Connexion Admin</CardTitle></CardHeader>
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+                <div><Label>Mot de passe</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></div>
+                <Button type="submit" className="w-full bg-[#0A2543] hover:bg-[#DF271C]">Se connecter</Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
+    <>
+      {adminHelmet}
+      <div className="min-h-screen p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#0A2543]">Admin – Portfolio</h1>
         <Button variant="outline" onClick={() => { localStorage.clear(); setToken(''); setImagesByCat({}); toast({ title: 'Déconnecté' }); }}>
@@ -507,7 +521,8 @@ const Admin: React.FC = () => {
           );
         })}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

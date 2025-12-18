@@ -58,15 +58,14 @@ const About: React.FC<AboutProps> = ({ city }) => {
             <span className="text-accent font-medium">Notre Expertise</span>
           </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-heading font-bold mb-6"
-          >
-            Votre Vision, Notre
-            <span className="block text-accent">Savoir-Faire</span>
-          </motion.h2>
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-4xl md:text-5xl font-heading font-bold mb-6"
+        >
+          Votre vision, notre <span className="text-accent">savoir-faire</span>
+        </motion.h2>
 
           <motion.p
             initial={{ opacity: 0 }}

@@ -58,6 +58,7 @@ function getServiceMeta(serviceSlug: string, city: CitySeo): ServiceMeta {
       };
 
     case "artisan-peintre-cambrai":
+    case "artisan-peintre":
       return {
         canonical,
         title: `Artisan peintre à ${city.name} (${city.postalCode}) | HN Rénovation`,
@@ -84,6 +85,7 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
     case "renovation-interieure":
       return <RenovationInterieureContent city={city} />;
     case "artisan-peintre":
+    case "artisan-peintre-cambrai":
       return <ArtisanPeintreContent city={city} />;
     default:
       return (
@@ -104,6 +106,14 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
 
 export default function CityServicePage() {
   const { citySlug, serviceSlug } = useParams<{ citySlug?: string; serviceSlug?: string }>();
+  const knownServiceSlugs = new Set([
+    "peinture-exterieure",
+    "peinture-interieure",
+    "ravalement-facade",
+    "renovation-interieure",
+    "artisan-peintre-cambrai",
+    "artisan-peintre",
+  ]);
 
   const city: CitySeo = useMemo(() => {
     if (!citySlug) return DEFAULT_CITY;
@@ -113,9 +123,10 @@ export default function CityServicePage() {
 
   const slug = serviceSlug ?? "";
   const meta = getServiceMeta(slug, city);
+  const noindex = !knownServiceSlugs.has(slug);
 
   return (
-    <ServiceLayout title={meta.title} description={meta.description} canonical={meta.canonical}>
+    <ServiceLayout title={meta.title} description={meta.description} canonical={meta.canonical} noindex={noindex}>
       {renderServiceContent(slug, city)}
     </ServiceLayout>
   );

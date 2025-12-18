@@ -4,13 +4,17 @@ import { ArrowRight } from "lucide-react";
 import heroImageJpg from "@/assets/hero-painting.jpg";
 import heroImageWebp from "@/assets/hero-painting.webp";
 import type { City } from "@/data/seo";
+import { useNavigate } from "react-router-dom";
 
 type HeroProps = {
   city: City;
   serviceLabel?: string; // optional for /ville/:citySlug/:serviceSlug
+  priority?: boolean;
 };
 
-const Hero: React.FC<HeroProps> = ({ city, serviceLabel }) => {
+const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => {
+  const navigate = useNavigate();
+
   const projects = 50;
   const clients = 48;
   const satisfaction = 96;
@@ -19,6 +23,10 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel }) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
   }, []);
+
+  const goToRealisations = useCallback(() => {
+    navigate("/realisations");
+  }, [navigate]);
 
   const title = serviceLabel
     ? `${serviceLabel} à ${city.name}`
@@ -46,8 +54,8 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel }) => {
             width="1920"
             height="1080"
             decoding="async"
-            fetchPriority="high"
-            loading="eager"
+            fetchPriority={priority ? "high" : "auto"}
+            loading={priority ? "eager" : "lazy"}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
           />
         </picture>
@@ -58,15 +66,13 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel }) => {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-heading font-bold mb-8 leading-tight drop-shadow-2xl">
-          {title}{" "}
-          <span className="bg-gradient-to-r from-accent via-yellow-400 to-accent bg-clip-text text-transparent animate-gradient">
-            ({city.postalCode})
-          </span>
-          <span className="block mt-4 text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-white/90 leading-relaxed max-w-xl mx-auto">
-            {subtitle}
-          </span>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-heading font-bold mb-4 leading-tight drop-shadow-2xl">
+          {title} ({city.postalCode})
         </h1>
+
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-white/90 leading-relaxed max-w-xl mx-auto mb-8">
+          {subtitle}
+        </p>
 
         <div className="flex justify-center items-center mb-6">
           <p className="text-accent font-semibold text-base sm:text-lg bg-white/90 px-4 py-1 rounded shadow-sm">
@@ -103,7 +109,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel }) => {
           <Button
             size="lg"
             className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 shadow-xl hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
-            onClick={() => scrollToSection("portfolio")}
+            onClick={goToRealisations}
           >
             Voir Nos Réalisations
             <ArrowRight className="ml-2 h-5 w-5" />

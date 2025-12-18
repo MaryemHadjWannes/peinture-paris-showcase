@@ -100,7 +100,7 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
               <span className="text-accent font-medium">Nos Services</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-              Services <span className="block text-accent">Professionnels</span>
+              Services <span className="text-accent">professionnels</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Peinture, enduit et plâtrerie à {city.name} ({city.postalCode}) pour particuliers et professionnels.
