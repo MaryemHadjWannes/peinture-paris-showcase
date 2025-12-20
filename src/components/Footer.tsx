@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import nhLogo from '@/assets/nh-logo.png';
 import { MapPin, Mail, Phone, Heart } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { CITIES, DEFAULT_CITY } from '@/data/seo';
 
 const Footer = () => {
+  const location = useLocation();
   const currentYear = new Date().getFullYear();
+  const citySlugs = useMemo(() => new Set(CITIES.map((city) => city.slug)), []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -13,6 +17,14 @@ const Footer = () => {
       window.location.hash = `#${id}`;
     }
   };
+
+  const activeCitySlug = (() => {
+    const cleanPath = location.pathname.replace(/\/+$/, "");
+    const parts = cleanPath.split("/").filter(Boolean);
+    if (parts.length >= 2 && citySlugs.has(parts[1])) return parts[1];
+    if (parts.length === 1 && citySlugs.has(parts[0])) return parts[0];
+    return DEFAULT_CITY.slug;
+  })();
 
   return (
     <footer className="bg-primary text-primary-foreground py-8 sm:py-12">
@@ -68,36 +80,44 @@ const Footer = () => {
               </h4>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/enduit/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Enduit Professionnel
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/peinture-interieure/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Peinture Intérieure
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/peinture-exterieure/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Peinture Extérieure
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/platrerie/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Plâtrerie et Finition
-                  </button>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`/artisan-peintre/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Artisan peintre
+                  </Link>
                 </li>
                 <li>
                   <button

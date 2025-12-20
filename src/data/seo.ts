@@ -54,11 +54,11 @@ export type Service = {
 };
 
 export const SERVICES: Service[] = [
+  { slug: "enduit", label: "Enduit professionnel", path: "/enduit" },
   { slug: "peinture-interieure", label: "Peinture intérieure", path: "/peinture-interieure" },
   { slug: "peinture-exterieure", label: "Peinture extérieure", path: "/peinture-exterieure" },
-  { slug: "ravalement-facade", label: "Ravalement de façade", path: "/ravalement-facade" },
-  { slug: "renovation-interieure", label: "Rénovation intérieure", path: "/renovation-interieure" },
-  { slug: "artisan-peintre-cambrai", label: "Artisan peintre à Cambrai", path: "/artisan-peintre-cambrai" },
+  { slug: "platrerie", label: "Plâtrerie et finitions", path: "/platrerie" },
+  { slug: "artisan-peintre", label: "Artisan peintre", path: "/artisan-peintre" },
 ];
 
 

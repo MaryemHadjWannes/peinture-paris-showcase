@@ -9,13 +9,18 @@ import Faq from "@/components/Faq";
 import Contact from "@/components/Contact";
 import Map from "@/components/Map";
 import Footer from "@/components/Footer";
-import { CITIES, getCityBySlug } from "@/data/seo";
+import { CITIES } from "@/data/seo";
+import NotFound from "@/pages/NotFound";
 
 export default function CityPage() {
   const { citySlug } = useParams();
-  const city = useMemo(() => getCityBySlug(citySlug), [citySlug]);
+  const city = useMemo(() => CITIES.find((c) => c.slug === citySlug), [citySlug]);
 
-  const canonical = `https://hn-renovation.fr/ville/${city.slug}`;
+  if (!city) {
+    return <NotFound />;
+  }
+
+  const canonical = `https://hn-renovation.fr/${city.slug}`;
   const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
 
   return (
@@ -55,17 +60,24 @@ export default function CityPage() {
         <Contact city={city} />
 
         <section className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Notre Localisation</h2>
+          <h2 className="text-2xl font-bold mb-4">Intervention et localisation à {city.name}</h2>
           <Map city={city} />
         </section>
 
         <section className="container mx-auto px-4 pb-12">
-          <h2 className="text-2xl font-bold mb-4">Autres zones d’intervention</h2>
+          <h2 className="text-2xl font-bold mb-4">Autres zones d’intervention près de {city.name}</h2>
           <p className="text-muted-foreground mb-4">Découvrez aussi nos pages locales :</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CITIES.map((c) => (
-              <Link key={c.slug} to={`/ville/${c.slug}`} className="text-sm underline hover:text-accent">
-                {c.name} ({c.postalCode})
+              <Link
+                key={c.slug}
+                to={`/${c.slug}`}
+                className="group rounded-xl border border-border/60 bg-card/60 p-4 shadow-sm transition hover:shadow-md"
+              >
+                <div className="font-semibold text-primary group-hover:text-accent">{c.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {c.postalCode} • {c.department}
+                </div>
               </Link>
             ))}
           </div>

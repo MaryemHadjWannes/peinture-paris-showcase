@@ -3,19 +3,13 @@ import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ServiceLayout, { CitySeo } from "@/pages/services/ServiceLayout";
 import { CITIES } from "@/data/seo";
+import NotFound from "@/pages/NotFound";
 
 import PeintureExterieureContent from "@/pages/services/PeintureExterieureContent";
 import PeintureInterieureContent from "@/pages/services/PeintureInterieureContent";
-import RavalementFacadeContent from "@/pages/services/RavalementFacadeContent";
-import RenovationInterieureContent from "@/pages/services/RenovationInterieureContent";
 import ArtisanPeintreContent from "./services/ArtisanPeintreContent";
-
-const DEFAULT_CITY: CitySeo = {
-  slug: "cambrai-59400",
-  name: "Cambrai",
-  postalCode: "59400",
-  department: "Nord",
-};
+import EnduitContent from "./services/EnduitContent";
+import PlatrerieFinitionContent from "./services/PlatrerieFinitionContent";
 
 type ServiceMeta = {
   canonical: string;
@@ -25,7 +19,7 @@ type ServiceMeta = {
 
 function getServiceMeta(serviceSlug: string, city: CitySeo): ServiceMeta {
   const base = "https://hn-renovation.fr";
-  const canonical = `${base}/ville/${city.slug}/${serviceSlug}`;
+  const canonical = serviceSlug ? `${base}/${serviceSlug}/${city.slug}` : `${base}/${city.slug}`;
 
   switch (serviceSlug) {
     case "peinture-exterieure":
@@ -42,27 +36,26 @@ function getServiceMeta(serviceSlug: string, city: CitySeo): ServiceMeta {
         title: `Peinture intérieure à ${city.name} (${city.postalCode}) | HN Rénovation`,
         description: `Peinture intérieure à ${city.name} : murs, plafonds, préparation, finitions. Devis gratuit.`,
       };
-
-    case "ravalement-facade":
+    
+    case "enduit":
       return {
         canonical,
-        title: `Ravalement de façade à ${city.name} (${city.postalCode}) | HN Rénovation`,
-        description: `Ravalement de façade à ${city.name} : nettoyage, traitement anti-mousse, réparation fissures. Devis gratuit.`,
+        title: `Enduit professionnel à ${city.name} (${city.postalCode}) | HN Rénovation`,
+        description: `Enduit professionnel à ${city.name} : ratissage, bandes, préparation des supports, finitions lisses. Devis gratuit.`,
       };
 
-    case "renovation-interieure":
+    case "platrerie":
       return {
         canonical,
-        title: `Rénovation intérieure à ${city.name} (${city.postalCode}) | HN Rénovation`,
-        description: `Rénovation intérieure à ${city.name} : enduits, plâtrerie, finitions. Devis gratuit.`,
+        title: `Plâtrerie et finitions à ${city.name} (${city.postalCode}) | HN Rénovation`,
+        description: `Plâtrerie et finitions à ${city.name} : cloisons, plafonds, enduits et rendu soigné. Devis gratuit.`,
       };
 
-    case "artisan-peintre-cambrai":
     case "artisan-peintre":
       return {
         canonical,
         title: `Artisan peintre à ${city.name} (${city.postalCode}) | HN Rénovation`,
-        description: `Artisan peintre à ${city.name} : peinture intérieure, extérieure, rénovation, façade. Devis gratuit.`,
+        description: `Artisan peintre à ${city.name} : peinture intérieure et extérieure, enduits, plâtrerie et finitions. Devis gratuit.`,
       };
 
     default:
@@ -80,12 +73,11 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
       return <PeintureExterieureContent city={city} />;
     case "peinture-interieure":
       return <PeintureInterieureContent city={city} />;
-    case "ravalement-facade":
-      return <RavalementFacadeContent city={city} />;
-    case "renovation-interieure":
-      return <RenovationInterieureContent city={city} />;
+    case "enduit":
+      return <EnduitContent city={city} />;
+    case "platrerie":
+      return <PlatrerieFinitionContent city={city} />;
     case "artisan-peintre":
-    case "artisan-peintre-cambrai":
       return <ArtisanPeintreContent city={city} />;
     default:
       return (
@@ -95,7 +87,7 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
             Ce service n’est pas encore disponible pour cette ville.
           </p>
           <div className="mt-6">
-            <Link to={`/ville/${city.slug}`} className="underline hover:text-accent">
+            <Link to={`/${city.slug}`} className="underline hover:text-accent">
               ← Retour à {city.name}
             </Link>
           </div>
@@ -107,21 +99,26 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
 export default function CityServicePage() {
   const { citySlug, serviceSlug } = useParams<{ citySlug?: string; serviceSlug?: string }>();
   const knownServiceSlugs = new Set([
+    "enduit",
     "peinture-exterieure",
     "peinture-interieure",
-    "ravalement-facade",
-    "renovation-interieure",
-    "artisan-peintre-cambrai",
+    "platrerie",
     "artisan-peintre",
   ]);
 
-  const city: CitySeo = useMemo(() => {
-    if (!citySlug) return DEFAULT_CITY;
-    const found = CITIES.find((c) => c.slug === citySlug);
-    return (found as CitySeo) ?? DEFAULT_CITY;
+  const city = useMemo<CitySeo | undefined>(() => {
+    if (!citySlug) return undefined;
+    return CITIES.find((c) => c.slug === citySlug) as CitySeo | undefined;
   }, [citySlug]);
 
+  if (!city) {
+    return <NotFound />;
+  }
+
   const slug = serviceSlug ?? "";
+  if (!knownServiceSlugs.has(slug)) {
+    return <NotFound />;
+  }
   const meta = getServiceMeta(slug, city);
   const noindex = !knownServiceSlugs.has(slug);
 

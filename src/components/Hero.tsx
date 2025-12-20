@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 type HeroProps = {
   city: City;
-  serviceLabel?: string; // optional for /ville/:citySlug/:serviceSlug
+  serviceLabel?: string; // optional for /:serviceSlug/:citySlug
   priority?: boolean;
 };
 

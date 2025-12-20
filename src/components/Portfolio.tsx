@@ -263,7 +263,7 @@ const Portfolio = () => {
               </span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold mb-3 font-heading">
-              Portfolio de Nos <span className="text-accent">Créations</span>
+              Réalisations de peinture et rénovation
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Découvrez nos réalisations : enduits, peintures, escaliers et

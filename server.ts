@@ -5,6 +5,7 @@ import cors from "cors";
 import { Resend } from "resend";
 import fs from "fs";
 import googleReviewsApi from "./googleReviewsApi";
+import { CITIES } from "./src/data/seo";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
@@ -325,22 +326,69 @@ app.use(express.static(frontend));
 const staticSpaRoutes = new Set([
   "/",
   "/realisations",
-  "/peinture-interieure",
-  "/peinture-exterieure",
-  "/ravalement-facade",
-  "/renovation-interieure",
-  "/artisan-peintre-cambrai",
 ]);
+
+const serviceSlugs = new Set([
+  "enduit",
+  "peinture-interieure",
+  "peinture-exterieure",
+  "platrerie",
+  "artisan-peintre",
+]);
+
+const rootServiceRedirects = new Set([
+  "enduit",
+  "peinture-interieure",
+  "peinture-exterieure",
+  "platrerie",
+  "artisan-peintre",
+]);
+
+const defaultCitySlug = "cambrai-59400";
+const citySlugs = new Set(CITIES.map((city) => city.slug));
 
 const isSpaRoute = (pathname: string) => {
   const cleanPath = pathname.replace(/\/+$/, "") || "/";
   if (staticSpaRoutes.has(cleanPath)) return true;
   if (cleanPath.startsWith("/admin")) return true;
-  // /ville/:citySlug and /ville/:citySlug/:serviceSlug
-  if (/^\/ville\/[^/]+$/i.test(cleanPath)) return true;
-  if (/^\/ville\/[^/]+\/[^/]+$/i.test(cleanPath)) return true;
+  // /:serviceSlug/:citySlug
+  const parts = cleanPath.split("/").filter(Boolean);
+  if (parts.length === 2 && serviceSlugs.has(parts[0]) && citySlugs.has(parts[1])) return true;
+  // /:citySlug
+  if (parts.length === 1 && citySlugs.has(parts[0])) return true;
   return false;
 };
+
+// Legacy URL redirect: /ville/:citySlug/:serviceSlug -> /:serviceSlug/:citySlug
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  const cleanPath = req.path.replace(/\/+$/, "");
+  if (cleanPath === "/artisan-peintre-cambrai") {
+    return res.redirect(301, "/artisan-peintre/cambrai-59400");
+  }
+  const match = cleanPath.match(/^\/ville\/([^/]+)\/([^/]+)$/i);
+  if (match) {
+    const citySlug = match[1];
+    const legacyService = match[2];
+    if (serviceSlugs.has(legacyService)) {
+      return res.redirect(301, `/${legacyService}/${citySlug}`);
+    }
+  }
+  const cityMatch = cleanPath.match(/^\/ville\/([^/]+)$/i);
+  if (cityMatch) {
+    const citySlug = cityMatch[1];
+    if (citySlugs.has(citySlug)) {
+      return res.redirect(301, `/${citySlug}`);
+    }
+  }
+  const rootMatch = cleanPath.match(/^\/([^/]+)$/);
+  if (rootMatch) {
+    const legacyService = rootMatch[1];
+    if (rootServiceRedirects.has(legacyService)) {
+      return res.redirect(301, `/${legacyService}/${defaultCitySlug}`);
+    }
+  }
+  return next();
+});
 
 app.use((req: Request, res: Response) => {
   const indexPath = path.join(frontend, "index.html");

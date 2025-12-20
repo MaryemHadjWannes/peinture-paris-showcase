@@ -72,7 +72,7 @@ const Faq: React.FC<FaqProps> = ({ city }) => {
             <span className="text-accent font-medium text-sm sm:text-base">FAQ – Questions fréquentes</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4">
-            Vos questions les plus <span className="block text-accent">fréquentes</span>
+            FAQ peinture et rénovation à {city.name}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Réponses sur nos services de peinture, rénovation, enduit et plâtrerie à {city.name} ({city.postalCode}).

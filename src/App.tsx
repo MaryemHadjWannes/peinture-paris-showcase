@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -13,18 +13,32 @@ import Admin from "./pages/Admin";
 import Realisations from "./pages/Realisations";
 import CityPage from "./pages/CityPage";
 import CityServicePage from "./pages/CityServicePage";
+import ScrollToTop from "@/components/ScrollToTop";
+import { CITIES } from "@/data/seo";
 
 // ✅ pages services
-import PeintureInterieurePage from "./pages/PeintureInterieurePage";
-import PeintureExterieurePage from "./pages/PeintureExterieurePage";
-import RavalementFacadePage from "./pages/RavalementFacadePage";
-import RenovationInterieurePage from "./pages/RenovationInterieurePage";
-import ArtisanPeintreCambraiPage from "./pages/ArtisanPeintreCambraiPage";
 
 // ✅ IMPORT hero image for preload
 import heroImageWebp from "@/assets/hero-painting.webp";
 
 const queryClient = new QueryClient();
+const citySlugSet = new Set(CITIES.map((city) => city.slug));
+
+const LegacyCityServiceRedirect = () => {
+  const { citySlug, serviceSlug } = useParams<{ citySlug?: string; serviceSlug?: string }>();
+  if (!citySlug || !serviceSlug || !citySlugSet.has(citySlug)) {
+    return <Navigate to="/" replace />;
+  }
+  return <Navigate to={`/${serviceSlug}/${citySlug}`} replace />;
+};
+
+const LegacyCityRedirect = () => {
+  const { citySlug } = useParams<{ citySlug?: string }>();
+  if (!citySlug || !citySlugSet.has(citySlug)) {
+    return <Navigate to="/" replace />;
+  }
+  return <Navigate to={`/${citySlug}`} replace />;
+};
 
 const App = () => {
   useEffect(() => {
@@ -82,21 +96,20 @@ const App = () => {
         <Sonner />
 
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/realisations" element={<Realisations />} />
 
             {/* ✅ pages services */}
-            <Route path="/peinture-interieure" element={<PeintureInterieurePage />} />
-            <Route path="/peinture-exterieure" element={<PeintureExterieurePage />} />
-            <Route path="/ravalement-facade" element={<RavalementFacadePage />} />
-            <Route path="/renovation-interieure" element={<RenovationInterieurePage />} />
-            <Route path="/artisan-peintre-cambrai" element={<ArtisanPeintreCambraiPage />} />
+            <Route path="/artisan-peintre-cambrai" element={<Navigate to="/artisan-peintre/cambrai-59400" replace />} />
 
-            {/* ✅ SEO city routes (si tu gardes aussi la variante par ville) */}
-            <Route path="/ville/:citySlug" element={<CityPage />} />
-            <Route path="/ville/:citySlug/:serviceSlug" element={<CityServicePage />} />
+            {/* ✅ SEO city routes */}
+            <Route path="/:citySlug" element={<CityPage />} />
+            <Route path="/:serviceSlug/:citySlug" element={<CityServicePage />} />
+            <Route path="/ville/:citySlug" element={<LegacyCityRedirect />} />
+            <Route path="/ville/:citySlug/:serviceSlug" element={<LegacyCityServiceRedirect />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

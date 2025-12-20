@@ -64,7 +64,7 @@ const About: React.FC<AboutProps> = ({ city }) => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-4xl md:text-5xl font-heading font-bold mb-6"
         >
-          Votre vision, notre <span className="text-accent">savoir-faire</span>
+          Entreprise de peinture à {city.name} : notre savoir-faire
         </motion.h2>
 
           <motion.p

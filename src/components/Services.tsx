@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, Building, Palette, Brush, Clock, Shield, ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import type { City } from "@/data/seo";
 
 type ServicesProps = {
@@ -100,7 +101,7 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
               <span className="text-accent font-medium">Nos Services</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-              Services <span className="text-accent">professionnels</span>
+              Services de peinture à {city.name}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Peinture, enduit et plâtrerie à {city.name} ({city.postalCode}) pour particuliers et professionnels.
@@ -154,8 +155,7 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
 
                       {/* ✅ Seul changement : ajout "à {city.name}" */}
                       <CardTitle className="text-xl font-heading text-primary">
-                        {service.title}{" "}
-                        <span className="text-muted-foreground font-normal">à {city.name}</span>
+                        {service.title} à {city.name}
                       </CardTitle>
                     </CardHeader>
 
@@ -171,7 +171,14 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
                         ))}
                       </div>
 
-                      <div className="pt-4 border-t border-border/60 mt-auto">
+                      <div className="pt-4 border-t border-border/60 mt-auto space-y-3">
+                        <Button className="w-full" variant="outline" asChild>
+                          <Link to={`/${service.slug}/${city.slug}`}>
+                            Voir la page
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+
                         <Button
                           className="w-full group relative overflow-hidden"
                           variant={service.popular ? "default" : "outline"}

@@ -78,7 +78,7 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
             <span className="text-accent font-medium text-sm sm:text-base">Contactez-Nous</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 sm:mb-6">
-            Démarrons votre projet <span className="text-accent">ensemble</span>
+            Devis peinture à {city.name} : parlons de votre projet
           </h2>
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Intervention à {city.name} ({city.postalCode}) et alentours. Contactez-nous pour un devis gratuit et personnalisé.
