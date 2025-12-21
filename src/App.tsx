@@ -47,9 +47,31 @@ const App = () => {
   script.innerHTML = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": "https://hn-renovation.fr/#localbusiness",
     name: "H.N. Rénovation",
     url: "https://hn-renovation.fr/",
     telephone: "+33 6 02 22 80 01",
+    email: "hn.renovation.fr@gmail.com",
+    image: "https://hn-renovation.fr/hn-logo.png",
+    logo: "https://hn-renovation.fr/hn-logo.png",
+    priceRange: "€€",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "103 rue Saint Ladre",
+      addressLocality: "Cambrai",
+      postalCode: "59400",
+      addressRegion: "Hauts-de-France",
+      addressCountry: "FR",
+    },
+    areaServed: [
+      { "@type": "City", name: "Cambrai" },
+      { "@type": "City", name: "Douai" },
+      { "@type": "City", name: "Valenciennes" },
+      { "@type": "City", name: "Arras" },
+      { "@type": "City", name: "Caudry" },
+    ],
+    openingHours: "Mo-Fr 08:00-18:00",
+    sameAs: ["https://www.facebook.com/profile.php?id=61576234322277"],
   });
 
   document.head.appendChild(script);
