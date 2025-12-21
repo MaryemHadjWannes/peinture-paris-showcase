@@ -362,6 +362,9 @@ const isSpaRoute = (pathname: string) => {
 // Legacy URL redirect: /ville/:citySlug/:serviceSlug -> /:serviceSlug/:citySlug
 app.use((req: Request, res: Response, next: express.NextFunction) => {
   const cleanPath = req.path.replace(/\/+$/, "");
+  if (cleanPath === "/index.html" || cleanPath === "/index.php") {
+    return res.redirect(301, "/");
+  }
   if (cleanPath === "/artisan-peintre-cambrai") {
     return res.redirect(301, "/artisan-peintre/cambrai-59400");
   }
