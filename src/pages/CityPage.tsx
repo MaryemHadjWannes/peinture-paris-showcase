@@ -53,7 +53,7 @@ export default function CityPage() {
         <br/>
         <br/>
       <main>
-        <Hero city={city} />
+        <Hero city={city} priority />
         <About city={city} />
         <Services city={city} />
         <Faq city={city} />

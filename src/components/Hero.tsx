@@ -50,6 +50,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => 
           <img
             src={heroImageWebp}
             alt={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
+            title={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
             width="1920"
             height="1080"

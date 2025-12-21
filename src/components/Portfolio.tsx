@@ -290,11 +290,16 @@ const Portfolio = () => {
                     <img
                       src={item.images[activeIndexes[idx]] || "/placeholder.svg"}
                       alt={item.title}
+                      title={item.title}
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 cursor-zoom-in"
                       onClick={() =>
                         openLightbox(item.images, activeIndexes[idx])
                       }
                       loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
+                      width={1200}
+                      height={1200}
                     />
 
                     {/* Carousel controls */}
@@ -397,7 +402,12 @@ const Portfolio = () => {
                       <img
                         src={pair.before}
                         alt={`Avant - ${pair.title}`}
+                        title={`Avant - ${pair.title}`}
                         loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        width={1280}
+                        height={720}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -416,7 +426,12 @@ const Portfolio = () => {
                       <img
                         src={pair.after}
                         alt={`Après - ${pair.title}`}
+                        title={`Après - ${pair.title}`}
                         loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        width={1280}
+                        height={720}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -491,6 +506,7 @@ const Portfolio = () => {
             <img
               src={lightboxState.images[lightboxState.index]}
               alt="Vue agrandie"
+              decoding="async"
               className="max-w-full max-h-screen object-contain rounded-xl shadow-2xl"
             />
             {lightboxState.images.length > 1 && (

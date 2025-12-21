@@ -88,14 +88,14 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Helmet>
-          <title>H.N. Rénovation | Peintre professionnel à Cambrai (59) et alentours</title>
+          <title>HN Rénovation | Artisan peintre à Cambrai (59)</title>
           <meta
             name="description"
             content="H.N. Rénovation : entreprise de peinture à Cambrai et alentours : peinture intérieure, extérieure, rénovation, plâtrerie, enduit, façades. Artisan qualifié, devis gratuit."
           />
           <meta name="robots" content="index, follow" />
           <link rel="canonical" href="https://hn-renovation.fr/" />
-          <meta property="og:title" content="H.N. Rénovation | Peintre professionnel à Cambrai (59)" />
+          <meta property="og:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
           <meta
             property="og:description"
             content="Peinture intérieure et extérieure, enduits, plâtrerie et ravalement de façade. Artisan peintre à Cambrai, devis gratuit."
@@ -104,7 +104,7 @@ const App = () => {
           <meta property="og:url" content="https://hn-renovation.fr/" />
           <meta property="og:type" content="website" />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="H.N. Rénovation | Peintre professionnel à Cambrai (59)" />
+          <meta name="twitter:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
           <meta
             name="twitter:description"
             content="Peinture intérieure et extérieure, enduits, plâtrerie et ravalement de façade. Artisan peintre à Cambrai, devis gratuit."

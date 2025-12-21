@@ -68,6 +68,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
           alt={`Enduit intérieur à ${city.name} (${city.department}) : murs lisses avant peinture, préparation et finitions par artisan`}
           title={`Enduit intérieur à ${city.name} – murs lisses`}
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1400}
           height={900}
           className="h-[260px] w-full object-cover"
@@ -81,6 +83,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Préparation des murs à ${city.name} : ratissage, bandes calicot et ponçage avant enduit`}
             title={`Préparation murs à ${city.name} – ratissage / bandes`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
@@ -93,6 +97,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Enduit de finition à ${city.name} : correction des défauts, rendu lisse et prêt à peindre`}
             title={`Enduit de finition à ${city.name} – prêt à peindre`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"

@@ -75,7 +75,15 @@ const Navigation = () => {
             className="flex items-center"
             aria-label="Retour à l'accueil"
           >
-            <img src={nhLogo} alt="HN Rénovation" className="h-12 sm:h-14 w-auto" />
+            <img
+              src={nhLogo}
+              alt="HN Rénovation"
+              title="HN Rénovation"
+              className="h-12 sm:h-14 w-auto"
+              width={661}
+              height={377}
+              decoding="async"
+            />
           </button>
 
           {/* Desktop Menu */}

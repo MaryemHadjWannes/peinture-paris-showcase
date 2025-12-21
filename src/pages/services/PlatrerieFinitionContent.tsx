@@ -68,6 +68,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
           alt={`Plâtrerie à ${city.name} (${city.department}) : finitions propres, surfaces lisses et préparation avant peinture`}
           title={`Plâtrerie et finitions à ${city.name}`}
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1400}
           height={900}
           className="h-[260px] w-full object-cover"
@@ -81,6 +83,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Finitions plâtrerie à ${city.name} : joints, bandes, reprise des angles et préparation des supports`}
             title={`Finitions plâtrerie à ${city.name} – joints / bandes`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
@@ -93,10 +97,12 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Enduits et finitions intérieures à ${city.name} : rendu lisse, prêt à peindre, contrôle qualité`}
             title={`Finition intérieure à ${city.name} – prêt à peindre`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
-        />
+          />
         </div>
       </div>
 

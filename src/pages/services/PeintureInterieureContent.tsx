@@ -67,6 +67,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
           alt={`Peinture intérieure à ${city.name} (${city.department}) : peinture murs et plafonds par artisan peintre HN Rénovation`}
           title={`Peinture intérieure à ${city.name} – murs et plafonds`}
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1400}
           height={900}
           className="h-[260px] w-full object-cover"
@@ -80,6 +82,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Préparation des murs avant peinture intérieure à ${city.name} : enduit, ratissage et ponçage pour un rendu lisse`}
             title={`Préparation des murs à ${city.name} (enduit / ratissage)`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
@@ -92,6 +96,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Finition peinture intérieure à ${city.name} : application soignée, lignes nettes et finition mate/satin/velours`}
             title={`Finition peinture intérieure à ${city.name}`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"

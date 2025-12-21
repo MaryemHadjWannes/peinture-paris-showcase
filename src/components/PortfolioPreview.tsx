@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { City } from "@/data/seo";
@@ -36,6 +36,8 @@ const categories: Category[] = [
 
 const PortfolioPreview = ({ city }: { city: City }) => {
   const [covers, setCovers] = useState<Record<string, string>>({});
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const fetchCovers = useCallback(async () => {
     const next: Record<string, string> = {};
@@ -62,8 +64,28 @@ const PortfolioPreview = ({ city }: { city: City }) => {
   }, []);
 
   useEffect(() => {
-    fetchCovers();
-  }, [fetchCovers]);
+    if (hasLoaded) return;
+    const node = sectionRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      fetchCovers();
+      setHasLoaded(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchCovers();
+          setHasLoaded(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [fetchCovers, hasLoaded]);
 
   const cityLabel = useMemo(
     () => `${city.name} (${city.postalCode})`,
@@ -71,7 +93,7 @@ const PortfolioPreview = ({ city }: { city: City }) => {
   );
 
   return (
-    <section className="py-12 sm:py-16 bg-secondary/10">
+    <section ref={sectionRef} className="py-12 sm:py-16 bg-secondary/10">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="text-center mb-10 sm:mb-12">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
@@ -94,7 +116,12 @@ const PortfolioPreview = ({ city }: { city: City }) => {
                   <img
                     src={image}
                     alt={`${category.title} - réalisations à ${cityLabel}`}
+                    title={`${category.title} - réalisations à ${cityLabel}`}
                     loading="lazy"
+                    decoding="async"
+                    fetchPriority="low"
+                    width={1200}
+                    height={900}
                     className="h-full w-full object-cover"
                   />
                 </div>

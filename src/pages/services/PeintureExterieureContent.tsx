@@ -67,6 +67,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
           alt={`Peinture extérieure à ${city.name} (${city.department}) : rénovation et protection de façade par artisan peintre HN Rénovation`}
           title={`Peinture extérieure à ${city.name} – rénovation façade`}
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1400}
           height={900}
           className="h-[260px] w-full object-cover"

@@ -67,6 +67,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
           alt={`Artisan peintre à ${city.name} (${city.department}) : préparation des murs et finitions soignées`}
           title={`Artisan peintre à ${city.name} – préparation et finitions`}
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1400}
           height={900}
           className="h-[260px] w-full object-cover"
@@ -80,6 +82,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Peinture intérieure à ${city.name} : murs prêts à peindre, enduits et ratissage`}
             title={`Peinture intérieure à ${city.name}`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
@@ -91,6 +95,8 @@ function ServicePhotos({ city }: { city: CitySeo }) {
             alt={`Finitions à ${city.name} : plâtrerie, reprise des défauts et rendu lisse`}
             title={`Finitions à ${city.name}`}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             width={900}
             height={700}
             className="h-[180px] w-full object-cover"
