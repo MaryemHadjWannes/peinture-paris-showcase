@@ -90,7 +90,7 @@ const Navigation = () => {
                 sizes="(max-width: 640px) 84px, 98px"
                 alt="HN Rénovation"
                 title="HN Rénovation"
-                className="h-12 sm:h-14 w-auto"
+                className="h-12 w-[84px] sm:h-14 sm:w-[98px]"
                 width={147}
                 height={84}
                 decoding="async"

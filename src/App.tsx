@@ -1,10 +1,7 @@
 // src/App.tsx
 import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
 import Index from "./pages/Index";
@@ -23,7 +20,6 @@ import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
 import heroImageWebp1920 from "@/assets/hero-painting.webp";
 import Avis from "./pages/Avis";
 
-const queryClient = new QueryClient();
 const citySlugSet = new Set(CITIES.map((city) => city.slug));
 
 const LegacyCityServiceRedirect = () => {
@@ -87,8 +83,7 @@ const App = () => {
 
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+    <TooltipProvider>
         <Helmet>
           <title>HN Rénovation | Artisan peintre à Cambrai (59)</title>
           <meta
@@ -136,9 +131,6 @@ const App = () => {
           />
         </Helmet>
 
-        <Toaster />
-        <Sonner />
-
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -161,7 +153,6 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
   );
 };
 

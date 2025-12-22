@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
 
 const About = lazy(() => import("@/components/About"));
 const Services = lazy(() => import("@/components/Services"));
+const GoogleReviews = lazy(() => import("@/components/GoogleReviews"));
 const Faq = lazy(() => import("@/components/Faq"));
 const Contact = lazy(() => import("@/components/Contact"));
 const Map = lazy(() => import("@/components/Map"));
@@ -64,6 +65,11 @@ export default function CityPage() {
         <LazyRender minHeight="520px">
           <Suspense fallback={null}>
             <Services city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="420px">
+          <Suspense fallback={null}>
+            <GoogleReviews />
           </Suspense>
         </LazyRender>
         <LazyRender minHeight="360px">

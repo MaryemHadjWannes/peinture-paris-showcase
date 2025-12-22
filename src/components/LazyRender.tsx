@@ -6,13 +6,15 @@ type LazyRenderProps = {
   rootMargin?: string;
   minHeight?: string;
   className?: string;
+  threshold?: number;
 };
 
 const LazyRender = ({
   children,
-  rootMargin = "300px",
+  rootMargin = "0px",
   minHeight = "240px",
   className,
+  threshold = 0.2,
 }: LazyRenderProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -32,7 +34,7 @@ const LazyRender = ({
           observer.disconnect();
         }
       },
-      { rootMargin }
+      { rootMargin, threshold }
     );
 
     observer.observe(node);

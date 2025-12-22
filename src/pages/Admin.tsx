@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown, Check } from 'lucide-react';
 
@@ -522,6 +523,7 @@ const Admin: React.FC = () => {
         })}
       </div>
       </div>
+      <Toaster />
     </>
   );
 };

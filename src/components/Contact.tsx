@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, Clock, Send, Facebook, Instagram } from "lucide-react";
+import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import type { City } from "@/data/seo";
 
@@ -172,6 +173,7 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
           </div>
         </div>
       </div>
+      <Toaster />
     </section>
   );
 };
