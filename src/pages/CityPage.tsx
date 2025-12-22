@@ -1,16 +1,18 @@
-import { useMemo } from "react";
+import { Suspense, lazy, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Services from "@/components/Services";
-import Faq from "@/components/Faq";
-import Contact from "@/components/Contact";
-import Map from "@/components/Map";
 import Footer from "@/components/Footer";
+import LazyRender from "@/components/LazyRender";
 import { CITIES } from "@/data/seo";
 import NotFound from "@/pages/NotFound";
+
+const About = lazy(() => import("@/components/About"));
+const Services = lazy(() => import("@/components/Services"));
+const Faq = lazy(() => import("@/components/Faq"));
+const Contact = lazy(() => import("@/components/Contact"));
+const Map = lazy(() => import("@/components/Map"));
 
 export default function CityPage() {
   const { citySlug } = useParams();
@@ -54,15 +56,35 @@ export default function CityPage() {
         <br/>
       <main>
         <Hero city={city} priority />
-        <About city={city} />
-        <Services city={city} />
-        <Faq city={city} />
-        <Contact city={city} />
+        <LazyRender minHeight="320px">
+          <Suspense fallback={null}>
+            <About city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="520px">
+          <Suspense fallback={null}>
+            <Services city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="360px">
+          <Suspense fallback={null}>
+            <Faq city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="520px">
+          <Suspense fallback={null}>
+            <Contact city={city} />
+          </Suspense>
+        </LazyRender>
 
-        <section className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Intervention et localisation à {city.name}</h2>
-          <Map city={city} />
-        </section>
+        <LazyRender minHeight="420px">
+          <Suspense fallback={null}>
+            <section className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Intervention et localisation à {city.name}</h2>
+              <Map city={city} />
+            </section>
+          </Suspense>
+        </LazyRender>
 
         <section className="container mx-auto px-4 pb-12">
           <h2 className="text-2xl font-bold mb-4">Autres zones d’intervention près de {city.name}</h2>

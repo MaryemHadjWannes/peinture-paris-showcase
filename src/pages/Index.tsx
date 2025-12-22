@@ -1,15 +1,18 @@
+import { Suspense, lazy } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Services from "@/components/Services";
-import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import Map from "@/components/Map";
-import Faq from "@/components/Faq";
-import PortfolioPreview from "@/components/PortfolioPreview";
+import LazyRender from "@/components/LazyRender";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
 import { Link } from "react-router-dom";
-import GoogleReviews from "@/components/GoogleReviews";
+
+const About = lazy(() => import("@/components/About"));
+const Services = lazy(() => import("@/components/Services"));
+const PortfolioPreview = lazy(() => import("@/components/PortfolioPreview"));
+const GoogleReviews = lazy(() => import("@/components/GoogleReviews"));
+const Faq = lazy(() => import("@/components/Faq"));
+const Contact = lazy(() => import("@/components/Contact"));
+const Map = lazy(() => import("@/components/Map"));
 
 const Index = () => {
   const city = DEFAULT_CITY;
@@ -21,17 +24,45 @@ const Index = () => {
       <br/>
       <main>
         <Hero city={city} priority />
-        <About city={city} />
-        <Services city={city} />
-        <PortfolioPreview city={city} />
-        <GoogleReviews />
-        <Faq city={city} />
-        <Contact city={city} />
+        <LazyRender minHeight="320px">
+          <Suspense fallback={null}>
+            <About city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="520px">
+          <Suspense fallback={null}>
+            <Services city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="560px">
+          <Suspense fallback={null}>
+            <PortfolioPreview city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="420px">
+          <Suspense fallback={null}>
+            <GoogleReviews />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="360px">
+          <Suspense fallback={null}>
+            <Faq city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="520px">
+          <Suspense fallback={null}>
+            <Contact city={city} />
+          </Suspense>
+        </LazyRender>
 
-        <section className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Notre localisation à {city.name}</h2>
-          <Map city={city} />
-        </section>
+        <LazyRender minHeight="420px">
+          <Suspense fallback={null}>
+            <section className="p-6">
+              <h2 className="text-2xl font-bold mb-4">Notre localisation à {city.name}</h2>
+              <Map city={city} />
+            </section>
+          </Suspense>
+        </LazyRender>
 
         <section className="container mx-auto px-4 pb-12">
           <h2 className="text-2xl font-bold mb-4">Zones d’intervention autour de {city.name}</h2>

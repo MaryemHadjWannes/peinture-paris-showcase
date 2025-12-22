@@ -5,7 +5,6 @@ import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
 import nhLogoWebp294 from "@/assets/nh-logo-294.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, Mail } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
@@ -137,45 +136,44 @@ const Navigation = () => {
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              className="md:hidden bg-background/95 backdrop-blur-sm border-t border-border"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <div className="flex flex-col items-center py-4 space-y-4">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNavClick(item)}
-                    className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
-                  >
-                    {item.label}
-                  </button>
-                ))}
+        <div
+          className={`md:hidden bg-background/95 backdrop-blur-sm border-t border-border overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+            isMobileMenuOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
+          }`}
+          aria-hidden={!isMobileMenuOpen}
+        >
+          <div
+            className={`flex flex-col items-center py-4 space-y-4 ${
+              isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
+            }`}
+          >
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item)}
+                className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
+              >
+                {item.label}
+              </button>
+            ))}
 
-                {/* Mobile Contact Info */}
-                <div className="flex flex-col items-center space-y-2 text-sm pt-2">
-                  <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-accent" />
-                    <a href="tel:+330602228001" className="hover:text-primary">
-                      +33 06 02 22 80 01
-                    </a>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Mail className="h-4 w-4 text-accent" />
-                    <a href="mailto:hn.renovation.fr@gmail.com" className="hover:text-primary">
-                      hn.renovation.fr@gmail.com
-                    </a>
-                  </div>
-                </div>
+            {/* Mobile Contact Info */}
+            <div className="flex flex-col items-center space-y-2 text-sm pt-2">
+              <div className="flex items-center space-x-2">
+                <Phone className="h-4 w-4 text-accent" />
+                <a href="tel:+330602228001" className="hover:text-primary">
+                  +33 06 02 22 80 01
+                </a>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div className="flex items-center space-x-2">
+                <Mail className="h-4 w-4 text-accent" />
+                <a href="mailto:hn.renovation.fr@gmail.com" className="hover:text-primary">
+                  hn.renovation.fr@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
   );
