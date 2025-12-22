@@ -57,6 +57,7 @@ const Navigation = () => {
     { id: "about", label: "À Propos", type: "section" },
     { id: "realisations", label: "Réalisations", type: "route", path: "/realisations" },
     { id: "services", label: "Services", type: "section" },
+    { id: "Avis", label: "Avis", type: "route", path: "/avis" },
     { id: "faq", label: "FAQ", type: "section" },
     { id: "contact", label: "Contact", type: "section" },
   ];
