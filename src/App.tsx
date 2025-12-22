@@ -15,11 +15,11 @@ import CityPage from "./pages/CityPage";
 import CityServicePage from "./pages/CityServicePage";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CITIES } from "@/data/seo";
-
 // ✅ pages services
 
 // ✅ IMPORT hero image for preload
 import heroImageWebp from "@/assets/hero-painting.webp";
+import Avis from "./pages/Avis";
 
 const queryClient = new QueryClient();
 const citySlugSet = new Set(CITIES.map((city) => city.slug));
@@ -133,6 +133,8 @@ const App = () => {
             <Route path="/ville/:citySlug" element={<LegacyCityRedirect />} />
             <Route path="/ville/:citySlug/:serviceSlug" element={<LegacyCityServiceRedirect />} />
 
+
+            <Route path="/avis" element={<Avis />} />   
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

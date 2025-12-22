@@ -9,6 +9,7 @@ import Faq from "@/components/Faq";
 import PortfolioPreview from "@/components/PortfolioPreview";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
 import { Link } from "react-router-dom";
+import GoogleReviews from "@/components/GoogleReviews";
 
 const Index = () => {
   const city = DEFAULT_CITY;
@@ -23,6 +24,7 @@ const Index = () => {
         <About city={city} />
         <Services city={city} />
         <PortfolioPreview city={city} />
+        <GoogleReviews />
         <Faq city={city} />
         <Contact city={city} />
 

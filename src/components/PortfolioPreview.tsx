@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { City } from "@/data/seo";
+import { Image } from "lucide-react";
 
 type Category = {
   id: string;
@@ -96,13 +97,22 @@ const PortfolioPreview = ({ city }: { city: City }) => {
     <section ref={sectionRef} className="py-12 sm:py-16 bg-secondary/10">
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="text-center mb-10 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4">
+          <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-5">
+            <Image className="h-5 w-5 text-accent" />
+            <span className="text-accent font-medium text-sm sm:text-base">
+              Réalisations & Chantiers
+            </span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4">
             Nos réalisations à {city.name}
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Un aperçu de nos chantiers : enduits, peinture intérieure et détails soignés.
+
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Un aperçu de nos chantiers en enduit, peinture intérieure et finitions soignées à {city.name}.
           </p>
         </div>
+
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
