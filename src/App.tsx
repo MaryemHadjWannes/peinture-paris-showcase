@@ -18,7 +18,9 @@ import { CITIES } from "@/data/seo";
 // ✅ pages services
 
 // ✅ IMPORT hero image for preload
-import heroImageWebp from "@/assets/hero-painting.webp";
+import heroImageWebp640 from "@/assets/hero-painting-640.webp";
+import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
+import heroImageWebp1920 from "@/assets/hero-painting.webp";
 import Avis from "./pages/Avis";
 
 const queryClient = new QueryClient();
@@ -111,7 +113,27 @@ const App = () => {
           />
           <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
 
-          <link rel="preload" as="image" href={heroImageWebp} type="image/webp" />
+          <link
+            rel="preload"
+            as="image"
+            href={heroImageWebp640}
+            type="image/webp"
+            media="(max-width: 640px)"
+          />
+          <link
+            rel="preload"
+            as="image"
+            href={heroImageWebp1280}
+            type="image/webp"
+            media="(min-width: 641px) and (max-width: 1280px)"
+          />
+          <link
+            rel="preload"
+            as="image"
+            href={heroImageWebp1920}
+            type="image/webp"
+            media="(min-width: 1281px)"
+          />
         </Helmet>
 
         <Toaster />

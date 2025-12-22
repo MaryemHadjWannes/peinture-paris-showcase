@@ -1,8 +1,14 @@
 import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import heroImageJpg from "@/assets/hero-painting.jpg";
-import heroImageWebp from "@/assets/hero-painting.webp";
+import heroImageJpg640 from "@/assets/hero-painting-640.jpg";
+import heroImageJpg960 from "@/assets/hero-painting-960.jpg";
+import heroImageJpg1280 from "@/assets/hero-painting-1280.jpg";
+import heroImageJpg1920 from "@/assets/hero-painting.jpg";
+import heroImageWebp640 from "@/assets/hero-painting-640.webp";
+import heroImageWebp960 from "@/assets/hero-painting-960.webp";
+import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
+import heroImageWebp1920 from "@/assets/hero-painting.webp";
 import type { City } from "@/data/seo";
 import { useNavigate } from "react-router-dom";
 
@@ -45,10 +51,14 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => 
       {/* Background (no motion) */}
       <div className="absolute inset-0 min-h-[95vh] sm:min-h-[110vh]">
         <picture>
-          <source srcSet={heroImageWebp} type="image/webp" />
-          <source srcSet={heroImageJpg} type="image/jpeg" />
+          <source
+            type="image/webp"
+            srcSet={`${heroImageWebp640} 640w, ${heroImageWebp960} 960w, ${heroImageWebp1280} 1280w, ${heroImageWebp1920} 1920w`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+          />
           <img
-            src={heroImageWebp}
+            src={heroImageJpg1280}
+            srcSet={`${heroImageJpg640} 640w, ${heroImageJpg960} 960w, ${heroImageJpg1280} 1280w, ${heroImageJpg1920} 1920w`}
             alt={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             title={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"

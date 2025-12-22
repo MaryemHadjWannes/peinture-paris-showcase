@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react';
-import nhLogo from '@/assets/nh-logo.png';
+import nhLogoPng147 from '@/assets/nh-logo-147.png';
+import nhLogoPng294 from '@/assets/nh-logo-294.png';
+import nhLogoWebp147 from '@/assets/nh-logo-147.webp';
+import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
 import { MapPin, Mail, Phone, Heart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { CITIES, DEFAULT_CITY } from '@/data/seo';
@@ -34,15 +37,24 @@ const Footer = () => {
             {/* Company Info */}
             <div className="md:col-span-2">
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
-                <img
-                  src={nhLogo}
-                  alt="HN Logo"
-                  title="HN Logo"
-                  className="h-12 sm:h-14 w-auto"
-                  width={661}
-                  height={377}
-                  decoding="async"
-                />
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`${nhLogoWebp147} 147w, ${nhLogoWebp294} 294w`}
+                    sizes="(max-width: 640px) 84px, 98px"
+                  />
+                  <img
+                    src={nhLogoPng147}
+                    srcSet={`${nhLogoPng147} 147w, ${nhLogoPng294} 294w`}
+                    sizes="(max-width: 640px) 84px, 98px"
+                    alt="HN Logo"
+                    title="HN Logo"
+                    className="h-12 sm:h-14 w-auto"
+                    width={147}
+                    height={84}
+                    decoding="async"
+                  />
+                </picture>
               </div>
               <p className="text-primary-foreground/80 text-sm sm:text-base mb-4 leading-relaxed">
                 Votre partenaire de confiance pour tous vos projets de peinture.  

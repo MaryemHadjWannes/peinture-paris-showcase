@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import nhLogo from "@/assets/nh-logo.png";
+import nhLogoPng147 from "@/assets/nh-logo-147.png";
+import nhLogoPng294 from "@/assets/nh-logo-294.png";
+import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
+import nhLogoWebp294 from "@/assets/nh-logo-294.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -76,15 +79,24 @@ const Navigation = () => {
             className="flex items-center"
             aria-label="Retour à l'accueil"
           >
-            <img
-              src={nhLogo}
-              alt="HN Rénovation"
-              title="HN Rénovation"
-              className="h-12 sm:h-14 w-auto"
-              width={661}
-              height={377}
-              decoding="async"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`${nhLogoWebp147} 147w, ${nhLogoWebp294} 294w`}
+                sizes="(max-width: 640px) 84px, 98px"
+              />
+              <img
+                src={nhLogoPng147}
+                srcSet={`${nhLogoPng147} 147w, ${nhLogoPng294} 294w`}
+                sizes="(max-width: 640px) 84px, 98px"
+                alt="HN Rénovation"
+                title="HN Rénovation"
+                className="h-12 sm:h-14 w-auto"
+                width={147}
+                height={84}
+                decoding="async"
+              />
+            </picture>
           </button>
 
           {/* Desktop Menu */}
