@@ -16,11 +16,13 @@ const LazyRender = ({
   className,
   threshold = 0.2,
 }: LazyRenderProps) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const isPrerender =
+    typeof navigator !== "undefined" && navigator.userAgent.includes("ReactSnap");
+  const [isVisible, setIsVisible] = useState(isPrerender);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (isVisible) return;
+    if (isVisible || isPrerender) return;
     const node = ref.current;
     if (!node || typeof IntersectionObserver === "undefined") {
       setIsVisible(true);

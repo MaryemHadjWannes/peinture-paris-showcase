@@ -320,12 +320,41 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
 
 // === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
-app.use(express.static(frontend));
+
+const getPrerenderPath = (pathname: string) => {
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/assets") ||
+    pathname.startsWith("/data") ||
+    pathname.startsWith("/uploads")
+  ) {
+    return null;
+  }
+  if (path.extname(pathname)) return null;
+  const cleanPath = pathname.replace(/\/+$/, "");
+  const relPath = cleanPath ? cleanPath.replace(/^\/+/, "") : "";
+  const prerenderPath = path.join(frontend, relPath, "index.html");
+  return fs.existsSync(prerenderPath) ? prerenderPath : null;
+};
+
+// Serve prerendered HTML when available (react-snap output)
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  if (req.method !== "GET") return next();
+  const prerenderPath = getPrerenderPath(req.path);
+  if (prerenderPath) {
+    res.setHeader("Cache-Control", "no-cache");
+    return res.sendFile(prerenderPath);
+  }
+  return next();
+});
+
+app.use(express.static(frontend, { redirect: false }));
 
 // Basic allowlist for SPA routes so we can return 404 for unknown URLs (avoid soft-404)
 const staticSpaRoutes = new Set([
   "/",
   "/realisations",
+  "/avis",
 ]);
 
 const serviceSlugs = new Set([
@@ -371,21 +400,6 @@ app.use((req: Request, res: Response, next: express.NextFunction) => {
   if (cleanPath === "/artisan-peintre-cambrai") {
     return res.redirect(301, "/artisan-peintre/cambrai-59400");
   }
-  const match = cleanPath.match(/^\/ville\/([^/]+)\/([^/]+)$/i);
-  if (match) {
-    const citySlug = match[1];
-    const legacyService = match[2];
-    if (serviceSlugs.has(legacyService)) {
-      return res.redirect(301, `/${legacyService}/${citySlug}`);
-    }
-  }
-  const cityMatch = cleanPath.match(/^\/ville\/([^/]+)$/i);
-  if (cityMatch) {
-    const citySlug = cityMatch[1];
-    if (citySlugs.has(citySlug)) {
-      return res.redirect(301, `/${citySlug}`);
-    }
-  }
   const rootMatch = cleanPath.match(/^\/([^/]+)$/);
   if (rootMatch) {
     const legacyService = rootMatch[1];
@@ -399,6 +413,11 @@ app.use((req: Request, res: Response, next: express.NextFunction) => {
 app.use((req: Request, res: Response) => {
   const indexPath = path.join(frontend, "index.html");
   if (isSpaRoute(req.path)) {
+    const prerenderPath = getPrerenderPath(req.path);
+    if (prerenderPath) {
+      res.setHeader("Cache-Control", "no-cache");
+      return res.sendFile(prerenderPath);
+    }
     return res.sendFile(indexPath);
   }
   // Unknown route → 404 status but render SPA 404 screen

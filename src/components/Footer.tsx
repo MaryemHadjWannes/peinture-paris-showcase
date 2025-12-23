@@ -3,7 +3,7 @@ import nhLogoPng147 from '@/assets/nh-logo-147.png';
 import nhLogoPng294 from '@/assets/nh-logo-294.png';
 import nhLogoWebp147 from '@/assets/nh-logo-147.webp';
 import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
-import { MapPin, Mail, Phone, Heart } from 'lucide-react';
+import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { CITIES, DEFAULT_CITY } from '@/data/seo';
 
@@ -11,6 +11,9 @@ const Footer = () => {
   const location = useLocation();
   const currentYear = new Date().getFullYear();
   const citySlugs = useMemo(() => new Set(CITIES.map((city) => city.slug)), []);
+  const shareUrl = `https://hn-renovation.fr${location.pathname}${location.search}`;
+  const encodedShareUrl = encodeURIComponent(shareUrl);
+  const encodedShareText = encodeURIComponent("HN Rénovation - Artisan peintre");
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -57,8 +60,9 @@ const Footer = () => {
                 </picture>
               </div>
               <p className="text-primary-foreground/80 text-sm sm:text-base mb-4 leading-relaxed">
-                Votre partenaire de confiance pour tous vos projets de peinture.  
-                Excellence, créativité et satisfaction, protégées par l'assurance décennale.
+                <strong className="text-primary-foreground">HN Rénovation</strong> : votre partenaire de confiance
+                pour tous vos projets de peinture. Excellence, créativité et satisfaction, protégées par l'assurance
+                décennale.
               </p>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center space-x-2">
@@ -91,13 +95,46 @@ const Footer = () => {
                   </a>
                 </div>
               </div>
+
+              <div className="mt-5">
+                <div className="text-xs sm:text-sm font-semibold mb-2">Partager cette page</div>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Partager sur Facebook"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Partager sur LinkedIn"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                  <a
+                    href={`https://x.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareText}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Partager sur X"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Services */}
             <div>
-              <h4 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
+              <h3 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
                 Services
-              </h4>
+              </h3>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
                   <Link
@@ -152,9 +189,9 @@ const Footer = () => {
 
             {/* Company */}
             <div>
-              <h4 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
+              <h3 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
                 Entreprise
-              </h4>
+              </h3>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
                   <button

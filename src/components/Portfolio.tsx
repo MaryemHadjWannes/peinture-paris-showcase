@@ -29,6 +29,32 @@ interface AvantApresPair {
   after: string;
 }
 
+const isPrerender =
+  typeof navigator !== "undefined" && navigator.userAgent.includes("ReactSnap");
+const fallbackProjects: Project[] = [
+  {
+    title: "Enduit Professionnel",
+    description:
+      "Surfaces parfaitement préparées et ratissées pour des finitions impeccables.",
+    images: ["/enduit1.webp", "/enduit2.webp", "/enduit3.webp"],
+    tags: ["Finition lisse", "Ratissage", "Calicot"],
+  },
+  {
+    title: "Peinture Intérieure",
+    description:
+      "Finitions soignées et durables avec peintures écologiques.",
+    images: ["/interieur1.webp", "/interieur2.webp", "/interieur3.webp"],
+    tags: ["Couleurs", "Décoration", "Confort"],
+  },
+  {
+    title: "Escalier & Détails",
+    description:
+      "Escaliers élégants avec finitions précises et matériaux de qualité.",
+    images: ["/exterieur1.webp"],
+    tags: ["Détails", "Bois", "Harmonie"],
+  },
+];
+
 const Portfolio = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [avantApres, setAvantApres] = useState<AvantApresPair[]>([]);
@@ -52,6 +78,12 @@ const Portfolio = () => {
 
   // === FETCH PROJETS NORMAUX (une seule fois) ===
   const fetchProjects = useCallback(async () => {
+    if (isPrerender) {
+      setProjects(fallbackProjects);
+      setActiveIndexes(fallbackProjects.map(() => 0));
+      setIsLoadingProjects(false);
+      return;
+    }
     setIsLoadingProjects(true);
     const normalCats = ["enduit", "peinture-interieure", "escalier-details"];
     const fetchedMap: Record<string, ImageFile[]> = {};
@@ -109,6 +141,11 @@ const Portfolio = () => {
 
   // === FETCH AVANT/APRÈS (appelé seulement quand la section devient visible) ===
   const fetchAvantApres = useCallback(async () => {
+    if (isPrerender) {
+      setAvantApres([]);
+      setIsLoadingAvantApres(false);
+      return;
+    }
     setIsLoadingAvantApres(true);
 
     try {

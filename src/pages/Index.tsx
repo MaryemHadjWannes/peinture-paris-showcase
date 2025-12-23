@@ -1,10 +1,14 @@
 import { Suspense, lazy } from "react";
+import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import LazyRender from "@/components/LazyRender";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
 import { Link } from "react-router-dom";
+import heroImageWebp640 from "@/assets/hero-painting-640.webp";
+import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
+import heroImageWebp1920 from "@/assets/hero-painting.webp";
 
 const About = lazy(() => import("@/components/About"));
 const Services = lazy(() => import("@/components/Services"));
@@ -16,14 +20,56 @@ const Map = lazy(() => import("@/components/Map"));
 
 const Index = () => {
   const city = DEFAULT_CITY;
+  const description =
+    "HN Rénovation, artisan peintre à Cambrai (59) : peinture intérieure et extérieure, enduits, plâtrerie, façades. Devis gratuit.";
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>HN Rénovation | Artisan peintre à Cambrai (59)</title>
+        <meta name="description" content={description} />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://hn-renovation.fr/" />
+        <meta property="og:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
+        <meta property="og:url" content="https://hn-renovation.fr/" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
+        <link
+          rel="preload"
+          as="image"
+          href={heroImageWebp640}
+          type="image/webp"
+          media="(max-width: 640px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={heroImageWebp1280}
+          type="image/webp"
+          media="(min-width: 641px) and (max-width: 1280px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={heroImageWebp1920}
+          type="image/webp"
+          media="(min-width: 1281px)"
+        />
+      </Helmet>
       <Navigation />
       <br/>
       <br/>
       <main>
-        <Hero city={city} priority />
+        <Hero
+          city={city}
+          priority
+          titleOverride="Entreprise de peinture à Cambrai et alentours"
+        />
         <LazyRender minHeight="320px">
           <Suspense fallback={null}>
             <About city={city} />

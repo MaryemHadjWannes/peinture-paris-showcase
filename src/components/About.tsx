@@ -166,7 +166,7 @@ const About: React.FC<AboutProps> = ({ city }) => {
                   <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mb-4">
                     <Icon className="h-6 w-6 text-accent" />
                   </div>
-                  <h4 className="font-heading font-semibold mb-2 text-primary">{feature.title}</h4>
+                  <h3 className="font-heading font-semibold mb-2 text-primary">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
               </motion.div>

@@ -5,6 +5,11 @@ html {
 section[id] {
   scroll-margin-top: 4.5rem; /* Prevents nav bar from covering section on scroll */
 }
+
+.nav-translate {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

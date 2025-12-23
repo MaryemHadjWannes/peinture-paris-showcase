@@ -130,7 +130,7 @@ export default function PlatrerieFinitionContent({ city }: Props) {
       {/* HERO (H1 full width) */}
       <section className="container mx-auto px-4 pt-10 pb-8 max-w-5xl">
         <h1 className="text-3xl md:text-5xl font-heading font-bold leading-tight">
-          Plâtrerie et finitions à {city.name} – Joints placo, reprises et rendu prêt à peindre ({city.department})
+          Plâtrerie et finitions à {city.name} ({city.postalCode})
         </h1>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-stretch">

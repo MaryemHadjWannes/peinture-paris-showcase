@@ -16,9 +16,10 @@ type HeroProps = {
   city: City;
   serviceLabel?: string; // optional for /:serviceSlug/:citySlug
   priority?: boolean;
+  titleOverride?: string;
 };
 
-const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => {
+const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, titleOverride }) => {
   const navigate = useNavigate();
 
   const projects = 50;
@@ -34,9 +35,11 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => 
     navigate("/realisations");
   }, [navigate]);
 
-  const title = serviceLabel
-    ? `${serviceLabel} à ${city.name}`
-    : `Entreprise de peinture et rénovation à ${city.name}`;
+  const title =
+    titleOverride ??
+    (serviceLabel
+      ? `${serviceLabel} à ${city.name}`
+      : `Entreprise de peinture et rénovation à ${city.name}`);
 
   const subtitle = serviceLabel
     ? `Interventions à ${city.name} (${city.postalCode}) et alentours. Devis gratuit.`
@@ -78,7 +81,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false }) => 
       {/* Main Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-heading font-bold mb-4 leading-tight drop-shadow-2xl">
-          {title} ({city.postalCode})
+          {titleOverride ? title : `${title} (${city.postalCode})`}
         </h1>
 
         <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-white/90 leading-relaxed max-w-xl mx-auto mb-8">

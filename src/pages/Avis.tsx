@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const Avis: React.FC = () => {
   const reviews: Review[] = data?.reviews ?? [];
   const summary = data?.summary ?? {};
   const googleMapsUrl: string | undefined = data?.googleMapsUrl;
+  const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
 
   const [sort, setSort] = React.useState<SortKey>("withTextFirst");
 
@@ -56,6 +58,29 @@ const Avis: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Avis clients | HN Rénovation</title>
+        <meta
+          name="description"
+          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+        />
+        <link rel="canonical" href="https://hn-renovation.fr/avis" />
+        <meta property="og:title" content="Avis clients | HN Rénovation" />
+        <meta
+          property="og:description"
+          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+        />
+        <meta property="og:url" content="https://hn-renovation.fr/avis" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Avis clients | HN Rénovation" />
+        <meta
+          name="twitter:description"
+          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+        />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
       <Navigation />
       <br />
       <br />
@@ -75,7 +100,9 @@ const Avis: React.FC = () => {
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Découvrez les retours de nos clients sur la qualité de nos finitions, la propreté du chantier et notre sérieux.
+                Découvrez les retours de nos clients sur la{" "}
+                <strong className="text-primary font-semibold">qualité</strong> de nos finitions, la propreté du
+                chantier et notre sérieux.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -117,6 +144,9 @@ const Avis: React.FC = () => {
         <section className="py-10">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl font-heading font-semibold mb-4">
+                Avis Google et témoignages clients
+              </h2>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <Tabs defaultValue="withText" className="w-full md:w-auto">
                   <TabsList className="rounded-xl">

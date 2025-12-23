@@ -5,7 +5,7 @@ import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
 import nhLogoWebp294 from "@/assets/nh-logo-294.webp";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, Mail } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,20 +36,18 @@ const Navigation = () => {
     if (isMobileMenuOpen) {
       closeMobileMenu();
       setTimeout(() => {
-        if (item.type === "route" && item.path) {
-          navigate(item.path);
-        } else {
-          goToHomeSection(item.id);
-        }
+        goToHomeSection(item.id);
       }, 300);
       return;
     }
+    goToHomeSection(item.id);
+  };
 
-    if (item.type === "route" && item.path) {
-      navigate(item.path);
-    } else {
-      goToHomeSection(item.id);
-    }
+  const handleRouteClick = (event: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    if (!isMobileMenuOpen) return;
+    event.preventDefault();
+    closeMobileMenu();
+    setTimeout(() => navigate(path), 300);
   };
 
   const navItems: Array<
@@ -65,10 +63,7 @@ const Navigation = () => {
   ];
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-soft"
-      style={{ WebkitTransform: "translateZ(0)" }}
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-soft nav-translate">
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -100,15 +95,26 @@ const Navigation = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item)}
-                className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
-              >
-                {item.label}
-              </button>
-            ))}
+            {navItems.map((item) =>
+              item.type === "route" && item.path ? (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  onClick={(event) => handleRouteClick(event, item.path)}
+                  className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item)}
+                  className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
+                >
+                  {item.label}
+                </button>
+              )
+            )}
           </div>
 
           {/* Desktop Contact Info */}
@@ -147,15 +153,26 @@ const Navigation = () => {
               isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
             }`}
           >
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item)}
-                className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
-              >
-                {item.label}
-              </button>
-            ))}
+            {navItems.map((item) =>
+              item.type === "route" && item.path ? (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  onClick={(event) => handleRouteClick(event, item.path)}
+                  className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item)}
+                  className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
+                >
+                  {item.label}
+                </button>
+              )
+            )}
 
             {/* Mobile Contact Info */}
             <div className="flex flex-col items-center space-y-2 text-sm pt-2">
