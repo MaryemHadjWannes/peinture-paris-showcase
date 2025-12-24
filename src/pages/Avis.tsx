@@ -59,25 +59,25 @@ const Avis: React.FC = () => {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>Avis clients | HN Rénovation</title>
+        <title>Avis clients peintre à Cambrai (59) | HN Rénovation</title>
         <meta
           name="description"
-          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure, la propreté du chantier et le sérieux de l’équipe."
         />
         <link rel="canonical" href="https://hn-renovation.fr/avis" />
-        <meta property="og:title" content="Avis clients | HN Rénovation" />
+        <meta property="og:title" content="Avis clients peintre à Cambrai (59) | HN Rénovation" />
         <meta
           property="og:description"
-          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure."
         />
         <meta property="og:url" content="https://hn-renovation.fr/avis" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Avis clients | HN Rénovation" />
+        <meta name="twitter:title" content="Avis clients peintre à Cambrai (59) | HN Rénovation" />
         <meta
           name="twitter:description"
-          content="Avis clients HN Rénovation : retours sur la qualité des travaux, la propreté du chantier et le sérieux de l’équipe."
+          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure."
         />
         <meta name="twitter:image" content={ogImage} />
       </Helmet>
@@ -96,7 +96,7 @@ const Avis: React.FC = () => {
               </div>
 
               <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
-                Tous les avis
+                Avis clients sur nos travaux de peinture
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">

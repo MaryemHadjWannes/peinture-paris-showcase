@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock, Send, Facebook, Instagram } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import type { City } from "@/data/seo";
@@ -64,10 +64,6 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
     { icon: Clock, title: "Horaires", content: "Lundi - Vendredi", subtitle: "8h00 - 18h00" },
   ];
 
-  const socialLinks = [
-    { icon: Facebook, href: "https://www.facebook.com/profile.php?id=61576234322277", label: "Facebook" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-  ];
 
   return (
     <section id="contact" className="py-12 sm:py-16 bg-background">
@@ -150,27 +146,6 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
             </div>
           </div>
 
-          <div className="mt-10">
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-3 sm:mb-4">Suivez-Nous</h3>
-                <p className="text-muted-foreground text-sm sm:text-base mb-4 sm:mb-6">Découvrez nos dernières réalisations sur nos réseaux sociaux</p>
-                <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                  {socialLinks.map((social, index) => {
-                    const IconComponent = social.icon;
-                    return (
-                      <Button key={index} variant="outline" size="sm" className="hover-lift w-full sm:w-auto px-4 sm:px-6" asChild>
-                        <a href={social.href} target="_blank" rel="noopener noreferrer">
-                          <IconComponent className="h-4 w-4 mr-2" />
-                          {social.label}
-                        </a>
-                      </Button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
       <Toaster />

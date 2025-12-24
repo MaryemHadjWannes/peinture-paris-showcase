@@ -48,7 +48,11 @@ const App = () => {
       { "@type": "City", name: "Caudry" },
     ],
     openingHours: "Mo-Fr 08:00-18:00",
-    sameAs: ["https://www.facebook.com/profile.php?id=61576234322277"],
+    sameAs: [
+      "https://www.facebook.com/profile.php?id=61576234322277",
+      "https://www.youtube.com/@HN-Renovation",
+      "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
+    ],
   });
 
   document.head.appendChild(script);

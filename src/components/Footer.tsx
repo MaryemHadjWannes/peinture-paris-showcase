@@ -3,7 +3,7 @@ import nhLogoPng147 from '@/assets/nh-logo-147.png';
 import nhLogoPng294 from '@/assets/nh-logo-294.png';
 import nhLogoWebp147 from '@/assets/nh-logo-147.webp';
 import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
-import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter } from 'lucide-react';
+import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { CITIES, DEFAULT_CITY } from '@/data/seo';
 
@@ -36,9 +36,9 @@ const Footer = () => {
     <footer className="bg-primary text-primary-foreground py-8 sm:py-12">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] gap-6 sm:gap-8 mb-6 sm:mb-8">
             {/* Company Info */}
-            <div className="md:col-span-2">
+            <div>
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
                 <picture>
                   <source
@@ -96,38 +96,6 @@ const Footer = () => {
                 </div>
               </div>
 
-              <div className="mt-5">
-                <div className="text-xs sm:text-sm font-semibold mb-2">Partager cette page</div>
-                <div className="flex items-center gap-3">
-                  <a
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Partager sur Facebook"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
-                  >
-                    <Facebook className="h-4 w-4" />
-                  </a>
-                  <a
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Partager sur LinkedIn"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
-                  >
-                    <Linkedin className="h-4 w-4" />
-                  </a>
-                  <a
-                    href={`https://x.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareText}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Partager sur X"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
-                  >
-                    <Twitter className="h-4 w-4" />
-                  </a>
-                </div>
-              </div>
             </div>
 
             {/* Services */}
@@ -203,14 +171,6 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
-                  >
-                    Services
-                  </button>
-                </li>
-                <li>
-                  <button
                     onClick={() => scrollToSection('about')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -218,11 +178,35 @@ const Footer = () => {
                   </button>
                 </li>
                 <li>
+                  <Link
+                    to="/realisations"
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Réalisations
+                  </Link>
+                </li>
+                <li>
                   <button
-                    onClick={() => scrollToSection('portfolio')}
+                    onClick={() => scrollToSection('services')}
                     className="hover:text-accent underline w-full text-left"
                   >
-                    Portfolio
+                    Services
+                  </button>
+                </li>
+                <li>
+                  <Link
+                    to="/avis"
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Avis
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('faq')}
+                    className="hover:text-accent underline w-full text-left"
+                  >
+                    FAQ
                   </button>
                 </li>
                 <li>
@@ -234,6 +218,76 @@ const Footer = () => {
                   </button>
                 </li>
               </ul>
+            </div>
+
+            {/* Social & Share */}
+            <div className="text-xs sm:text-sm font-semibold">
+              <div>Partager cette page</div>
+              <div className="mt-2 flex items-center gap-3">
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur Facebook"
+                  title="Partager HN Rénovation sur Facebook"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur LinkedIn"
+                  title="Partager HN Rénovation sur LinkedIn"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://x.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareText}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur X"
+                  title="Partager HN Rénovation sur X"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
+              </div>
+              <div className="mt-4">Suivez-nous</div>
+              <div className="mt-2 flex items-center gap-3">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61576234322277"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook HN Rénovation"
+                  title="Facebook HN Rénovation"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn HN Rénovation"
+                  title="LinkedIn HN Rénovation"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </a>
+                <a
+                  href="https://www.youtube.com/@HN-Renovation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chaîne YouTube HN Rénovation"
+                  title="YouTube HN Rénovation"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Youtube className="h-4 w-4" />
+                </a>
+              </div>
             </div>
           </div>
 

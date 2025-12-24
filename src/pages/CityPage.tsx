@@ -25,21 +25,22 @@ export default function CityPage() {
 
   const canonical = `https://hn-renovation.fr/${city.slug}`;
   const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
-  const description = `HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) : peinture intérieure et extérieure, enduits, plâtrerie. Devis gratuit.`;
+  const title = `Peintre à ${city.name} (${city.postalCode}) | HN Rénovation - peinture`;
+  const description = `HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) dans le ${city.department} : peinture intérieure et extérieure, enduits, plâtrerie. Devis gratuit.`;
 
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>{`Peintre à ${city.name} (${city.postalCode}) | HN Rénovation`}</title>
+        <title>{title}</title>
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />
-        <meta property="og:title" content={`Peintre à ${city.name} (${city.postalCode}) | HN Rénovation`} />
+        <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`Peintre à ${city.name} (${city.postalCode}) | HN Rénovation`} />
+        <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={ogImage} />
       </Helmet>

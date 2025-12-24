@@ -21,22 +21,22 @@ const Map = lazy(() => import("@/components/Map"));
 const Index = () => {
   const city = DEFAULT_CITY;
   const description =
-    "HN Rénovation, artisan peintre à Cambrai (59) : peinture intérieure et extérieure, enduits, plâtrerie, façades. Devis gratuit.";
+    "HN Rénovation, artisan peintre à Cambrai (59) dans le Nord : peinture intérieure et extérieure, enduits, plâtrerie, façades. Devis gratuit.";
 
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>HN Rénovation | Artisan peintre à Cambrai (59)</title>
+        <title>HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure</title>
         <meta name="description" content={description} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://hn-renovation.fr/" />
-        <meta property="og:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
+        <meta property="og:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
         <meta property="og:description" content={description} />
         <meta property="og:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
         <meta property="og:url" content="https://hn-renovation.fr/" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="HN Rénovation | Artisan peintre à Cambrai (59)" />
+        <meta name="twitter:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
         <link
@@ -68,8 +68,30 @@ const Index = () => {
         <Hero
           city={city}
           priority
-          titleOverride="Entreprise de peinture à Cambrai et alentours"
+          titleOverride="Entreprise de peinture à Cambrai (Nord) et alentours"
         />
+        <section className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-heading font-semibold text-primary mb-4">
+              Peinture à Cambrai (Nord) : services de rénovation intérieure et extérieure
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              HN Rénovation est une entreprise et artisan peintre à Cambrai (59), au cœur du Nord, spécialisée dans la
+              rénovation et la décoration des maisons et locaux professionnels. Nous intervenons aussi dans les
+              alentours (Douai, Valenciennes, Caudry, Arras) pour des chantiers soignés et durables.
+            </p>
+            <p className="text-muted-foreground mb-6">
+              Nos services couvrent la peinture intérieure, la peinture extérieure, les enduits et la plâtrerie, avec
+              une préparation rigoureuse des supports, des finitions propres et un devis gratuit.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2 text-sm text-muted-foreground">
+              <div>Peinture intérieure : murs, plafonds, boiseries et finitions.</div>
+              <div>Peinture extérieure : façades, pignons et protections durables.</div>
+              <div>Enduits et ratissage pour des supports lisses et prêts à peindre.</div>
+              <div>Plâtrerie, reprises et rénovation complète avant mise en peinture.</div>
+            </div>
+          </div>
+        </section>
         <LazyRender minHeight="320px">
           <Suspense fallback={null}>
             <About city={city} />

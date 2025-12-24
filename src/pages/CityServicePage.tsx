@@ -41,14 +41,14 @@ function getServiceMeta(serviceSlug: string, city: CitySeo): ServiceMeta {
       return {
         canonical,
         title: `Enduit professionnel à ${city.name} (${city.postalCode}) | HN Rénovation`,
-        description: `Enduit professionnel à ${city.name} : ratissage, bandes, préparation des supports, finitions lisses. Devis gratuit.`,
+        description: `Enduit professionnel à ${city.name} : ratissage, bandes, préparation des supports avant peinture et finitions lisses. Devis gratuit.`,
       };
 
     case "platrerie":
       return {
         canonical,
         title: `Plâtrerie et finitions à ${city.name} (${city.postalCode}) | HN Rénovation`,
-        description: `Plâtrerie et finitions à ${city.name} : cloisons, plafonds, enduits et rendu soigné. Devis gratuit.`,
+        description: `Plâtrerie et finitions à ${city.name} : cloisons, plafonds, enduits et préparation avant peinture. Devis gratuit.`,
       };
 
     case "artisan-peintre":
