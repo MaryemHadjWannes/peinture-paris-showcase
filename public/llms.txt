@@ -1,0 +1,32 @@
+# llms.txt
+
+## Site
+- Name: HN Renovation
+- URL: https://hn-renovation.fr
+- Language: fr
+- Contact: hn.renovation.fr@gmail.com
+
+## Summary
+HN Renovation is a local painting and renovation company in the Hauts-de-France region (Cambrai and nearby cities).
+
+## Primary Pages
+- https://hn-renovation.fr/
+- https://hn-renovation.fr/realisations
+- https://hn-renovation.fr/avis
+
+## Service Pages
+- https://hn-renovation.fr/artisan-peintre/cambrai-59400
+- https://hn-renovation.fr/peinture-interieure/cambrai-59400
+- https://hn-renovation.fr/peinture-exterieure/cambrai-59400
+- https://hn-renovation.fr/enduit/cambrai-59400
+- https://hn-renovation.fr/platrerie/cambrai-59400
+
+## Cities
+- https://hn-renovation.fr/cambrai-59400
+- https://hn-renovation.fr/douai-59500
+- https://hn-renovation.fr/valenciennes-59300
+- https://hn-renovation.fr/arras-62000
+- https://hn-renovation.fr/caudry-59540
+
+## Notes
+- Use the URLs above as canonical references.
