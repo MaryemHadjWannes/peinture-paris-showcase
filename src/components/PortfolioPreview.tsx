@@ -35,15 +35,6 @@ const categories: Category[] = [
   },
 ];
 
-const isPrerender =
-  typeof navigator !== "undefined" && navigator.userAgent.includes("ReactSnap");
-const fallbackCovers: Record<string, string> = {
-  enduit: "/enduit1.webp",
-  "peinture-interieure": "/interieur1.webp",
-  "escalier-details": "/exterieur1.webp",
-  "avant-apres": "/placeholder.svg",
-};
-
 const PortfolioPreview = ({ city }: { city: City }) => {
   const [covers, setCovers] = useState<Record<string, string>>({});
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -75,11 +66,6 @@ const PortfolioPreview = ({ city }: { city: City }) => {
 
   useEffect(() => {
     if (hasLoaded) return;
-    if (isPrerender) {
-      setCovers(fallbackCovers);
-      setHasLoaded(true);
-      return;
-    }
     const node = sectionRef.current;
     if (!node || typeof IntersectionObserver === "undefined") {
       fetchCovers();

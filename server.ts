@@ -321,33 +321,6 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
 // === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
 
-const getPrerenderPath = (pathname: string) => {
-  if (
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/assets") ||
-    pathname.startsWith("/data") ||
-    pathname.startsWith("/uploads")
-  ) {
-    return null;
-  }
-  if (path.extname(pathname)) return null;
-  const cleanPath = pathname.replace(/\/+$/, "");
-  const relPath = cleanPath ? cleanPath.replace(/^\/+/, "") : "";
-  const prerenderPath = path.join(frontend, relPath, "index.html");
-  return fs.existsSync(prerenderPath) ? prerenderPath : null;
-};
-
-// Serve prerendered HTML when available (react-snap output)
-app.use((req: Request, res: Response, next: express.NextFunction) => {
-  if (req.method !== "GET") return next();
-  const prerenderPath = getPrerenderPath(req.path);
-  if (prerenderPath) {
-    res.setHeader("Cache-Control", "no-cache");
-    return res.sendFile(prerenderPath);
-  }
-  return next();
-});
-
 app.use(express.static(frontend, { redirect: false }));
 
 // Basic allowlist for SPA routes so we can return 404 for unknown URLs (avoid soft-404)
@@ -413,11 +386,6 @@ app.use((req: Request, res: Response, next: express.NextFunction) => {
 app.use((req: Request, res: Response) => {
   const indexPath = path.join(frontend, "index.html");
   if (isSpaRoute(req.path)) {
-    const prerenderPath = getPrerenderPath(req.path);
-    if (prerenderPath) {
-      res.setHeader("Cache-Control", "no-cache");
-      return res.sendFile(prerenderPath);
-    }
     return res.sendFile(indexPath);
   }
   // Unknown route → 404 status but render SPA 404 screen
