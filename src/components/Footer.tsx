@@ -255,33 +255,43 @@ const Footer = () => {
                   <Twitter className="h-4 w-4" />
                 </a>
               </div>
-              <div className="mt-4">Suivez-nous</div>
-              <div className="mt-2 flex items-center gap-3">
-                <a
-                  href="https://www.facebook.com/profile.php?id=61576234322277"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook HN Rénovation"
-                  title="Facebook HN Rénovation"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn HN Rénovation"
-                  title="LinkedIn HN Rénovation"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-                <a
-                  href="https://www.youtube.com/@HN-Renovation"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Chaîne YouTube HN Rénovation"
+                <div className="mt-4">Suivez-nous</div>
+                <div className="mt-2 flex items-center gap-3">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61576234322277"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook HN Rénovation"
+                    title="Facebook HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn HN Rénovation"
+                    title="LinkedIn HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://x.com/HWannesMaryem"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X HN Rénovation"
+                    title="X HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@HN-Renovation"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Chaîne YouTube HN Rénovation"
                   title="YouTube HN Rénovation"
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
                 >

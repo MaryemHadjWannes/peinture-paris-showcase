@@ -52,6 +52,7 @@ const App = () => {
       "https://www.facebook.com/profile.php?id=61576234322277",
       "https://www.youtube.com/@HN-Renovation",
       "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
+      "https://x.com/HWannesMaryem",
     ],
   });
 

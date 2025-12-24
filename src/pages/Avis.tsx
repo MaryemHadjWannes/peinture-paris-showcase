@@ -124,14 +124,19 @@ const Avis: React.FC = () => {
 
                 {googleMapsUrl ? (
                   <Button asChild className="rounded-xl">
-                    <a href={googleMapsUrl} target="_blank" rel="noreferrer">
+                    <a
+                      href={googleMapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Voir HN Rénovation sur Google Maps"
+                    >
                       Voir sur Google Maps <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
                 ) : null}
 
                 <Button asChild variant="outline" className="rounded-xl">
-                  <a href="/#contact">
+                  <a href="/#contact" title="Demander un devis gratuit">
                     Demander un devis <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
                 </Button>

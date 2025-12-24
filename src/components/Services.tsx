@@ -173,7 +173,10 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
 
                       <div className="pt-4 border-t border-border/60 mt-auto space-y-3">
                         <Button className="w-full" variant="outline" asChild>
-                          <Link to={`/${service.slug}/${city.slug}`}>
+                          <Link
+                            to={`/${service.slug}/${city.slug}`}
+                            title={`Voir la page ${service.title} à ${city.name}`}
+                          >
                             Voir la page
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Link>

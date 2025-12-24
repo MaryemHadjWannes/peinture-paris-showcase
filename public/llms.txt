@@ -9,6 +9,12 @@
 ## Summary
 HN Renovation is a local painting and renovation company in the Hauts-de-France region (Cambrai and nearby cities).
 
+## Services
+- Peinture intérieure (murs, plafonds, finitions)
+- Peinture extérieure (façades, protections durables)
+- Enduit professionnel (ratissage, bandes, préparation)
+- Plâtrerie et finitions (reprises, rénovation)
+
 ## Primary Pages
 - https://hn-renovation.fr/
 - https://hn-renovation.fr/realisations
@@ -30,3 +36,9 @@ HN Renovation is a local painting and renovation company in the Hauts-de-France 
 
 ## Notes
 - Use the URLs above as canonical references.
+
+## Social
+- https://www.facebook.com/profile.php?id=61576234322277
+- https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/
+- https://www.youtube.com/@HN-Renovation
+- https://x.com/HWannesMaryem
