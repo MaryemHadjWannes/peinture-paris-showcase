@@ -162,12 +162,12 @@ const Footer = () => {
               </h3>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
-                  <button
-                    onClick={() => scrollToSection('home')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to="/"
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Accueil
-                  </button>
+                  </Link>
                 </li>
                 <li>
                   <button
