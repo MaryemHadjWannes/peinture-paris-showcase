@@ -1,4 +1,7 @@
 User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /upload
 Allow: /
 
 Sitemap: https://hn-renovation.fr/sitemap.xml

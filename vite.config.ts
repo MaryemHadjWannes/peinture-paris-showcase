@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    target: "es2017",
+  },
   plugins: [
     react(),
   ],
@@ -15,8 +18,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  ssr: {
-    noExternal: ["react-helmet-async"],
   },
 }));

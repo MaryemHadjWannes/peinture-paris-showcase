@@ -1,119 +1,91 @@
 // src/App.tsx
-import { Helmet } from 'react-helmet-async';
-import { useEffect } from 'react';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Admin from './pages/Admin';
-import LocationPage from "./pages/LocationPage";
+import Admin from "./pages/Admin";
+import Realisations from "./pages/Realisations";
+import CityPage from "./pages/CityPage";
+import CityServicePage from "./pages/CityServicePage";
+import ScrollToTop from "@/components/ScrollToTop";
+import { CITIES } from "@/data/seo";
+// ✅ pages services
 
-// ✅ IMPORT hero image for preload
-import heroImageWebp from "@/assets/hero-painting.webp";
+import Avis from "./pages/Avis";
 
-const queryClient = new QueryClient();
+const citySlugSet = new Set(CITIES.map((city) => city.slug));
 
 const App = () => {
   useEffect(() => {
-    // Inject JSON-LD structured data (CRITICAL FOR LOCAL SEO)
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'LocalBusiness',
-      name: 'H.N. Rénovation',
-      image: 'https://hn-renovation.fr/assets/hero-painting.jpg',
-      '@id': 'https://hn-renovation.fr/',
-      url: 'https://hn-renovation.fr/',
-      telephone: '+33 6 02 22 80 01',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: '103 rue Saint Ladre',
-        addressLocality: 'Cambrai',
-        postalCode: '59400',
-        addressCountry: 'FR',
-      },
-      description:
-        "H.N. Rénovation : Votre entreprise de peinture, rénovation, enduit, et plâtrerie à Cambrai et dans tout le Nord (59). Devis rapide et gratuit.",
-      areaServed: {
-        '@type': 'GeoCircle',
-        geoMidpoint: {
-          '@type': 'GeoCoordinates',
-          latitude: 50.175,
-          longitude: 3.234,
-        },
-        geoRadius: 50000,
-      },
-      priceRange: '€€',
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '30',
-      },
-    });
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.innerHTML = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://hn-renovation.fr/#localbusiness",
+    name: "H.N. Rénovation",
+    url: "https://hn-renovation.fr/",
+    telephone: "+33 6 02 22 80 01",
+    email: "hn.renovation.fr@gmail.com",
+    image: "https://hn-renovation.fr/hn-logo.png",
+    logo: "https://hn-renovation.fr/hn-logo.png",
+    priceRange: "€€",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "103 rue Saint Ladre",
+      addressLocality: "Cambrai",
+      postalCode: "59400",
+      addressRegion: "Hauts-de-France",
+      addressCountry: "FR",
+    },
+    areaServed: [
+      { "@type": "City", name: "Cambrai" },
+      { "@type": "City", name: "Douai" },
+      { "@type": "City", name: "Valenciennes" },
+      { "@type": "City", name: "Arras" },
+      { "@type": "City", name: "Caudry" },
+    ],
+    openingHours: "Mo-Fr 08:00-18:00",
+    sameAs: [
+      "https://www.facebook.com/profile.php?id=61576234322277",
+      "https://www.youtube.com/@HN-Renovation",
+      "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
+      "https://x.com/HWannesMaryem",
+    ],
+  });
+
+  document.head.appendChild(script);
+
+  return () => {
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  };
+}, []);
+
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Helmet>
-          {/* ✅ MAIN SEO META */}
-          <title>H.N. Rénovation | Peintre professionnel à Cambrai (59) et alentours</title>
-          <meta
-            name="description"
-            content="H.N. Rénovation : entreprise de peinture à Cambrai, Caudry, Le Cateau, Solesmes, Denain, Valenciennes et dans un rayon de 50 km : peinture intérieure, extérieure, rénovation, plâtrerie, enduit, façades. Artisan qualifié, devis gratuit. Interventions rapides sur tout le Nord et Hauts-de-France."
-          />
-          <meta
-            name="keywords"
-            content="peinture cambrai, peintre cambrai, entreprise peinture cambrai, artisan peintre cambrai, rénovation cambrai, peinture nord, peintre nord, enduit, plâtrerie, 59400"
-          />
+    <TooltipProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/realisations" element={<Realisations />} />
 
-          <meta
-            property="og:title"
-            content="H.N. Rénovation | Peintre professionnel à Cambrai (59) et alentours"
-          />
-          <meta
-            property="og:description"
-            content="H.N. Rénovation : entreprise de peinture et rénovation, qualité, rapidité, satisfaction garantie. Devis gratuit !"
-          />
-          <meta
-            property="og:image"
-            content="https://hn-renovation.fr/assets/hero-painting.jpg"
-          />
-          <meta property="og:type" content="website" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="robots" content="index, follow" />
-          <link rel="canonical" href="https://hn-renovation.fr/" />
+            {/* ✅ pages services */}
+            <Route path="/artisan-peintre-cambrai" element={<Navigate to="/artisan-peintre/cambrai-59400" replace />} />
 
-          {/* ✅ PRELOAD HERO IMAGE FOR FASTER LCP */}
-          <link
-            rel="preload"
-            as="image"
-            href={heroImageWebp}
-            type="image/webp"
-          />
-        </Helmet>
-
-        <Toaster />
-        <Sonner />
-
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/peinture" element={<LocationPage />} />
-          <Route path="/peinture/:cityId" element={<LocationPage />} />
-          <Route path="/admin/*" element={<Admin />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* ✅ SEO city routes */}
+            <Route path="/:citySlug" element={<CityPage />} />
+            <Route path="/:serviceSlug/:citySlug" element={<CityServicePage />} />
+            <Route path="/avis" element={<Avis />} />   
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
   );
 };
 

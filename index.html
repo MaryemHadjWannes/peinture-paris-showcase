@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HN Rénovation | Artisan peintre</title>
+    <meta name="author" content="HN Rénovation" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,12 +14,28 @@
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     </noscript>
-    <link rel="icon" type="image/png" href="https://hn-renovation.fr/uploads/1759260663108-nh-logo.png" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/hn-logo.png" />
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTTP4T98J0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YTTP4T98J0');
+    </script>
 
     <!--app-helmet-->
   </head>
   <body>
-    <div id="root"><!--app-html--></div>
+    <div id="root">
+      <noscript>
+        <p>Veuillez activer JavaScript pour afficher le contenu complet du site.</p>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,9 +1,19 @@
-import React from 'react';
-import nhLogo from '@/assets/nh-logo.png';
-import { MapPin, Mail, Phone, Heart } from 'lucide-react';
+import React, { useMemo } from 'react';
+import nhLogoPng147 from '@/assets/nh-logo-147.png';
+import nhLogoPng294 from '@/assets/nh-logo-294.png';
+import nhLogoWebp147 from '@/assets/nh-logo-147.webp';
+import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
+import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { CITIES, DEFAULT_CITY } from '@/data/seo';
 
 const Footer = () => {
+  const location = useLocation();
   const currentYear = new Date().getFullYear();
+  const citySlugs = useMemo(() => new Set(CITIES.map((city) => city.slug)), []);
+  const shareUrl = `https://hn-renovation.fr${location.pathname}${location.search}`;
+  const encodedShareUrl = encodeURIComponent(shareUrl);
+  const encodedShareText = encodeURIComponent("HN Rénovation - Artisan peintre");
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -14,19 +24,45 @@ const Footer = () => {
     }
   };
 
+  const activeCitySlug = (() => {
+    const cleanPath = location.pathname.replace(/\/+$/, "");
+    const parts = cleanPath.split("/").filter(Boolean);
+    if (parts.length >= 2 && citySlugs.has(parts[1])) return parts[1];
+    if (parts.length === 1 && citySlugs.has(parts[0])) return parts[0];
+    return DEFAULT_CITY.slug;
+  })();
+
   return (
     <footer className="bg-primary text-primary-foreground py-8 sm:py-12">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] gap-6 sm:gap-8 mb-6 sm:mb-8">
             {/* Company Info */}
-            <div className="md:col-span-2">
+            <div>
               <div className="flex items-center space-x-2 mb-3 sm:mb-4">
-                <img src={nhLogo} alt="HN Logo" className="h-12 sm:h-14 w-auto" />
+                <picture>
+                  <source
+                    type="image/webp"
+                    srcSet={`${nhLogoWebp147} 147w, ${nhLogoWebp294} 294w`}
+                    sizes="(max-width: 640px) 84px, 98px"
+                  />
+                  <img
+                    src={nhLogoPng147}
+                    srcSet={`${nhLogoPng147} 147w, ${nhLogoPng294} 294w`}
+                    sizes="(max-width: 640px) 84px, 98px"
+                    alt="HN Logo"
+                    title="HN Logo"
+                    className="h-12 w-[84px] sm:h-14 sm:w-[98px]"
+                    width={147}
+                    height={84}
+                    decoding="async"
+                  />
+                </picture>
               </div>
               <p className="text-primary-foreground/80 text-sm sm:text-base mb-4 leading-relaxed">
-                Votre partenaire de confiance pour tous vos projets de peinture.  
-                Excellence, créativité et satisfaction, protégées par l'assurance décennale.
+                <strong className="text-primary-foreground">HN Rénovation</strong> : votre partenaire de confiance
+                pour tous vos projets de peinture. Excellence, créativité et satisfaction, protégées par l'assurance
+                décennale.
               </p>
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center space-x-2">
@@ -59,45 +95,54 @@ const Footer = () => {
                   </a>
                 </div>
               </div>
+
             </div>
 
             {/* Services */}
             <div>
-              <h4 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
+              <h3 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
                 Services
-              </h4>
+              </h3>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/enduit/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Enduit Professionnel
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/peinture-interieure/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Peinture Intérieure
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/peinture-exterieure/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Peinture Extérieure
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to={`/platrerie/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Plâtrerie et Finition
-                  </button>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`/artisan-peintre/${activeCitySlug}`}
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Artisan peintre
+                  </Link>
                 </li>
                 <li>
                   <button
@@ -112,25 +157,17 @@ const Footer = () => {
 
             {/* Company */}
             <div>
-              <h4 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
+              <h3 className="font-heading font-semibold text-base sm:text-lg mb-3 sm:mb-4">
                 Entreprise
-              </h4>
+              </h3>
               <ul className="space-y-2 text-xs sm:text-sm text-primary-foreground/80">
                 <li>
-                  <button
-                    onClick={() => scrollToSection('home')}
-                    className="hover:text-accent underline w-full text-left"
+                  <Link
+                    to="/"
+                    className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Accueil
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => scrollToSection('services')}
-                    className="hover:text-accent underline w-full text-left"
-                  >
-                    Services
-                  </button>
+                  </Link>
                 </li>
                 <li>
                   <button
@@ -141,11 +178,35 @@ const Footer = () => {
                   </button>
                 </li>
                 <li>
+                  <Link
+                    to="/realisations"
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Réalisations
+                  </Link>
+                </li>
+                <li>
                   <button
-                    onClick={() => scrollToSection('portfolio')}
+                    onClick={() => scrollToSection('services')}
                     className="hover:text-accent underline w-full text-left"
                   >
-                    Portfolio
+                    Services
+                  </button>
+                </li>
+                <li>
+                  <Link
+                    to="/avis"
+                    className="hover:text-accent underline w-full text-left inline-block"
+                  >
+                    Avis
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection('faq')}
+                    className="hover:text-accent underline w-full text-left"
+                  >
+                    FAQ
                   </button>
                 </li>
                 <li>
@@ -157,6 +218,86 @@ const Footer = () => {
                   </button>
                 </li>
               </ul>
+            </div>
+
+            {/* Social & Share */}
+            <div className="text-xs sm:text-sm font-semibold">
+              <div>Partager cette page</div>
+              <div className="mt-2 flex items-center gap-3">
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur Facebook"
+                  title="Partager HN Rénovation sur Facebook"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedShareUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur LinkedIn"
+                  title="Partager HN Rénovation sur LinkedIn"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </a>
+                <a
+                  href={`https://x.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareText}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Partager sur X"
+                  title="Partager HN Rénovation sur X"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Twitter className="h-4 w-4" />
+                </a>
+              </div>
+                <div className="mt-4">Suivez-nous</div>
+                <div className="mt-2 flex items-center gap-3">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61576234322277"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook HN Rénovation"
+                    title="Facebook HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Facebook className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn HN Rénovation"
+                    title="LinkedIn HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Linkedin className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://x.com/HWannesMaryem"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X HN Rénovation"
+                    title="X HN Rénovation"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                  >
+                    <Twitter className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@HN-Renovation"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Chaîne YouTube HN Rénovation"
+                  title="YouTube HN Rénovation"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-primary-foreground/30 hover:text-accent hover:border-accent transition"
+                >
+                  <Youtube className="h-4 w-4" />
+                </a>
+              </div>
             </div>
           </div>
 

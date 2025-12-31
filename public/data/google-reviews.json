@@ -1,0 +1,82 @@
+{
+  "source": "google_manual",
+  "businessName": "HN Rénovation",
+  "googleMapsUrl": "https://share.google/vzwlntBY47tXjtdBW",
+  "lastUpdated": "2025-12-22",
+  "summary": { "rating": 5.0, "totalReviews": 6 },
+  "reviews": [
+    {
+      "authorName": "Catherine Taine",
+      "authorMeta": "1 review • 0 photos",
+      "rating": 5,
+      "dateISO": "2025-12-19",
+      "visited": "2025-12",
+      "title": "Hn rénovation un peintre professionnel de cambrai",
+      "text": "Travail propre, détails respectés et finitions parfaite. Entreprise sérieuse",
+      "ownerReply": {
+        "dateISO": "2025-12-19",
+        "text": "Merci beaucoup pour votre retour. Nous sommes ravis que notre travail vous ait satisfait."
+      }
+    },
+    {
+      "authorName": "Abesi Aref",
+      "authorMeta": "0 reviews • 0 photos",
+      "rating": 5,
+      "dateISO": "2025-12-01",
+      "visited": "2025-12",
+      "text": null,
+      "ownerReply": {
+        "dateISO": "2025-12-15",
+        "text": "Merci M. Abesi. Au plaisir de vous accompagner."
+      }
+    },
+    {
+      "authorName": "Romain Delsart",
+      "authorMeta": "1 review • 0 photos",
+      "rating": 5,
+      "dateISO": "2025-12-01",
+      "visited": "2025-12",
+      "text": "Travail impeccable : professionnel, à l’écoute et très soigneux. Je suis vraiment satisfait du résultat. Je recommande vivement !",
+      "ownerReply": {
+        "dateISO": "2025-12-15",
+        "text": "Merci beaucoup M. Delsart pour votre retour. Au plaisir de vous accompagner."
+      }
+    },
+    {
+      "authorName": "Hélène Taine",
+      "authorMeta": "6 reviews • 2 photos",
+      "rating": 5,
+      "dateISO": "2025-12-01",
+      "visited": "2025-12",
+      "text": null,
+      "ownerReply": {
+        "dateISO": "2025-12-15",
+        "text": "Merci Mme Taine. Au plaisir de vous accompagner."
+      }
+    },
+    {
+      "authorName": "Maryem Hadj Wannes",
+      "authorMeta": "0 reviews • 0 photos",
+      "rating": 5,
+      "dateISO": "2025-12-01",
+      "visited": "2025-11",
+      "text": null,
+      "ownerReply": {
+        "dateISO": "2025-12-19",
+        "text": "Merci d’avoir pris le temps de partager votre expérience positive avec nous. Nous sommes ravis que notre service vous ait donné entière satisfaction."
+      }
+    },
+    {
+      "authorName": "amine ben khaled",
+      "authorMeta": "3 reviews • 0 photos",
+      "rating": 5,
+      "dateISO": "2025-09-22",
+      "visited": "2025-09",
+      "text": null,
+      "ownerReply": {
+        "dateISO": "2025-12-19",
+        "text": "Merci beaucoup de votre confiance. A bientôt"
+      }
+    }
+  ]
+}

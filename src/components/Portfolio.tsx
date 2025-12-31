@@ -263,7 +263,7 @@ const Portfolio = () => {
               </span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold mb-3 font-heading">
-              Portfolio de Nos <span className="text-accent">Créations</span>
+              Réalisations de peinture et rénovation
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
               Découvrez nos réalisations : enduits, peintures, escaliers et
@@ -289,12 +289,17 @@ const Portfolio = () => {
                   <div className="relative group aspect-square md:aspect-auto md:h-80 overflow-hidden">
                     <img
                       src={item.images[activeIndexes[idx]] || "/placeholder.svg"}
-                      alt={`${item.title} - réalisation de peinture H.N. Rénovation à Cambrai et alentours`}
+                      alt={item.title}
+                      title={item.title}
                       className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 cursor-zoom-in"
                       onClick={() =>
                         openLightbox(item.images, activeIndexes[idx])
                       }
                       loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
+                      width={1200}
+                      height={1200}
                     />
 
                     {/* Carousel controls */}
@@ -396,8 +401,13 @@ const Portfolio = () => {
                     >
                       <img
                         src={pair.before}
-                        alt={`Avant - ${pair.title} à Cambrai et dans le Nord`}
+                        alt={`Avant - ${pair.title}`}
+                        title={`Avant - ${pair.title}`}
                         loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        width={1280}
+                        height={720}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -415,8 +425,13 @@ const Portfolio = () => {
                     >
                       <img
                         src={pair.after}
-                        alt={`Après - ${pair.title} réalisé par nos peintres à Cambrai`}
+                        alt={`Après - ${pair.title}`}
+                        title={`Après - ${pair.title}`}
                         loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        width={1280}
+                        height={720}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -491,6 +506,7 @@ const Portfolio = () => {
             <img
               src={lightboxState.images[lightboxState.index]}
               alt="Vue agrandie"
+              decoding="async"
               className="max-w-full max-h-screen object-contain rounded-xl shadow-2xl"
             />
             {lightboxState.images.length > 1 && (

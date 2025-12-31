@@ -5,6 +5,7 @@ import cors from "cors";
 import { Resend } from "resend";
 import fs from "fs";
 import googleReviewsApi from "./googleReviewsApi";
+import { CITIES } from "./src/data/seo";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
@@ -57,6 +58,18 @@ const folderMap: Record<string, string> = {
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+app.set("trust proxy", 1);
+
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  const proto = req.headers["x-forwarded-proto"];
+  if (req.secure || proto === "https") {
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload"
+    );
+  }
+  next();
+});
 
 const allowedOrigin = process.env.CORS_ORIGIN;
 const allowedOrigins = [
@@ -319,7 +332,108 @@ app.post("/upload", contactUpload.array("photos"), async (req: Request, res: Res
 
 // === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
-app.use(express.static(frontend));
-app.get(/.*/, (_: Request, res: Response) => res.sendFile(path.join(frontend, "index.html")));
+
+const getPrerenderPath = (pathname: string) => {
+  if (
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/assets") ||
+    pathname.startsWith("/data") ||
+    pathname.startsWith("/uploads")
+  ) {
+    return null;
+  }
+  if (path.extname(pathname)) return null;
+  const cleanPath = pathname.replace(/\/+$/, "");
+  const relPath = cleanPath ? cleanPath.replace(/^\/+/, "") : "";
+  const prerenderPath = path.join(frontend, relPath, "index.html");
+  return fs.existsSync(prerenderPath) ? prerenderPath : null;
+};
+
+// Serve prerendered HTML when available (react-snap output)
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  if (req.method !== "GET") return next();
+  const prerenderPath = getPrerenderPath(req.path);
+  if (prerenderPath) {
+    res.setHeader("Cache-Control", "no-cache");
+    return res.sendFile(prerenderPath);
+  }
+  return next();
+});
+
+app.use(express.static(frontend, { redirect: false }));
+
+// Basic allowlist for SPA routes so we can return 404 for unknown URLs (avoid soft-404)
+const staticSpaRoutes = new Set([
+  "/",
+  "/realisations",
+  "/avis",
+]);
+
+const serviceSlugs = new Set([
+  "enduit",
+  "peinture-interieure",
+  "peinture-exterieure",
+  "platrerie",
+  "artisan-peintre",
+]);
+
+const rootServiceRedirects = new Set([
+  "enduit",
+  "peinture-interieure",
+  "peinture-exterieure",
+  "platrerie",
+  "artisan-peintre",
+]);
+
+const defaultCitySlug = "cambrai-59400";
+const citySlugs = new Set(CITIES.map((city) => city.slug));
+
+const isSpaRoute = (pathname: string) => {
+  const cleanPath = pathname.replace(/\/+$/, "") || "/";
+  if (staticSpaRoutes.has(cleanPath)) return true;
+  if (cleanPath.startsWith("/admin")) return true;
+  // /:serviceSlug/:citySlug
+  const parts = cleanPath.split("/").filter(Boolean);
+  if (parts.length === 2 && serviceSlugs.has(parts[0]) && citySlugs.has(parts[1])) return true;
+  // /:citySlug
+  if (parts.length === 1 && citySlugs.has(parts[0])) return true;
+  return false;
+};
+
+// Legacy URL redirect: /ville/:citySlug/:serviceSlug -> /:serviceSlug/:citySlug
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  const cleanPath = req.path.replace(/\/+$/, "");
+  if (cleanPath === "/index.html") {
+    return res.redirect(301, "/");
+  }
+  if (cleanPath === "/index.php") {
+    return res.status(410).send("Gone");
+  }
+  if (cleanPath === "/artisan-peintre-cambrai") {
+    return res.redirect(301, "/artisan-peintre/cambrai-59400");
+  }
+  const rootMatch = cleanPath.match(/^\/([^/]+)$/);
+  if (rootMatch) {
+    const legacyService = rootMatch[1];
+    if (rootServiceRedirects.has(legacyService)) {
+      return res.redirect(301, `/${legacyService}/${defaultCitySlug}`);
+    }
+  }
+  return next();
+});
+
+app.use((req: Request, res: Response) => {
+  const indexPath = path.join(frontend, "index.html");
+  if (isSpaRoute(req.path)) {
+    const prerenderPath = getPrerenderPath(req.path);
+    if (prerenderPath) {
+      res.setHeader("Cache-Control", "no-cache");
+      return res.sendFile(prerenderPath);
+    }
+    return res.sendFile(indexPath);
+  }
+  // Unknown route → 404 status but render SPA 404 screen
+  return res.status(404).sendFile(indexPath);
+});
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
