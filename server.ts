@@ -59,6 +59,8 @@ const folderMap: Record<string, string> = {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set("trust proxy", 1);
+
 const allowedOrigin = process.env.CORS_ORIGIN;
 const allowedOrigins = [
   ...(allowedOrigin ? [allowedOrigin] : []),
@@ -78,6 +80,34 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
+app.use((req, res, next) => {
+  if (req.secure || req.headers["x-forwarded-proto"] === "https") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  }
+  next();
+});
+
+const cspHeader = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'self'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  `img-src 'self' data: blob: https://www.google.com https://www.gstatic.com https://maps.gstatic.com ${R2_PUBLIC_DOMAIN}`,
+  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://formspree.io",
+  "frame-src 'self' https://www.google.com https://www.google.com/maps",
+  "upgrade-insecure-requests",
+].join("; ");
+
+app.use((req, res, next) => {
+  if (req.secure || req.headers["x-forwarded-proto"] === "https") {
+    res.setHeader("Content-Security-Policy", cspHeader);
+  }
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
