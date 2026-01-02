@@ -179,3 +179,55 @@ section[id] {
     @apply transition-smooth hover:shadow-large;
   }
 }
+
+.seo-fallback {
+  max-width: 68rem;
+  margin: 6rem auto 4rem;
+  padding: 0 1.5rem 2rem;
+  line-height: 1.7;
+}
+
+.seo-fallback h1 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+
+.seo-fallback h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: hsl(var(--primary));
+}
+
+.seo-fallback p {
+  margin-bottom: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.seo-fallback ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.seo-fallback li {
+  margin-bottom: 0.5rem;
+}
+
+.seo-fallback a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .seo-fallback {
+    margin-top: 5rem;
+  }
+
+  .seo-fallback h1 {
+    font-size: 1.75rem;
+  }
+}
