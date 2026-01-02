@@ -1,18 +1,19 @@
 // src/App.tsx
-import { Suspense, lazy, useEffect } from "react";
+import { useEffect } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
+import Realisations from "./pages/Realisations";
+import CityPage from "./pages/CityPage";
+import CityServicePage from "./pages/CityServicePage";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CITIES } from "@/data/seo";
 // ✅ pages services
 
-const Index = lazy(() => import("./pages/Index"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Admin = lazy(() => import("./pages/Admin"));
-const Realisations = lazy(() => import("./pages/Realisations"));
-const CityPage = lazy(() => import("./pages/CityPage"));
-const CityServicePage = lazy(() => import("./pages/CityServicePage"));
-const Avis = lazy(() => import("./pages/Avis"));
+import Avis from "./pages/Avis";
 
 const citySlugSet = new Set(CITIES.map((city) => city.slug));
 
@@ -69,22 +70,20 @@ const App = () => {
     <TooltipProvider>
         <BrowserRouter>
           <ScrollToTop />
-          <Suspense fallback={null}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/admin/*" element={<Admin />} />
-              <Route path="/realisations" element={<Realisations />} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/realisations" element={<Realisations />} />
 
-              {/* ✅ pages services */}
-              <Route path="/artisan-peintre-cambrai" element={<Navigate to="/artisan-peintre/cambrai-59400" replace />} />
+            {/* ✅ pages services */}
+            <Route path="/artisan-peintre-cambrai" element={<Navigate to="/artisan-peintre/cambrai-59400" replace />} />
 
-              {/* ✅ SEO city routes */}
-              <Route path="/:citySlug" element={<CityPage />} />
-              <Route path="/:serviceSlug/:citySlug" element={<CityServicePage />} />
-              <Route path="/avis" element={<Avis />} />   
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+            {/* ✅ SEO city routes */}
+            <Route path="/:citySlug" element={<CityPage />} />
+            <Route path="/:serviceSlug/:citySlug" element={<CityServicePage />} />
+            <Route path="/avis" element={<Avis />} />   
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
   );
