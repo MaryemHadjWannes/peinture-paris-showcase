@@ -53,7 +53,7 @@ const Navigation = () => {
   const navItems: Array<
     { id: string; label: string; type: "section" | "route"; path?: string }
   > = [
-    { id: "home", label: "Accueil", type: "section" },
+    { id: "home", label: "Accueil", type: "route", path: "/" },
     { id: "about", label: "À Propos", type: "section" },
     { id: "realisations", label: "Réalisations", type: "route", path: "/realisations" },
     { id: "services", label: "Services", type: "section" },
@@ -67,9 +67,8 @@ const Navigation = () => {
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <button
-            type="button"
-            onClick={() => navigate("/")}
+          <Link
+            to="/"
             className="flex items-center"
             aria-label="Retour à l'accueil"
           >
@@ -91,7 +90,7 @@ const Navigation = () => {
                 decoding="async"
               />
             </picture>
-          </button>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
