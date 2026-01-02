@@ -51,13 +51,19 @@ const Navigation = () => {
   };
 
   const navItems: Array<
-    { id: string; label: string; type: "section" | "route"; path?: string }
+    { id: string; label: string; type: "section" | "route"; path?: string; srLabel?: string }
   > = [
-    { id: "home", label: "Accueil", type: "route", path: "/" },
+    { id: "home", label: "Accueil", type: "route", path: "/", srLabel: "HN Rénovation à Cambrai" },
     { id: "about", label: "À Propos", type: "section" },
-    { id: "realisations", label: "Réalisations", type: "route", path: "/realisations" },
+    {
+      id: "realisations",
+      label: "Réalisations",
+      type: "route",
+      path: "/realisations",
+      srLabel: "peinture et rénovation",
+    },
     { id: "services", label: "Services", type: "section" },
-    { id: "Avis", label: "Avis", type: "route", path: "/avis" },
+    { id: "Avis", label: "Avis", type: "route", path: "/avis", srLabel: "clients HN Rénovation" },
     { id: "faq", label: "FAQ", type: "section" },
     { id: "contact", label: "Contact", type: "section" },
   ];
@@ -103,6 +109,7 @@ const Navigation = () => {
                   className="text-foreground hover:text-primary text-sm sm:text-base font-medium transition-colors duration-200"
                 >
                   {item.label}
+                  {item.srLabel ? <span className="sr-only"> {item.srLabel}</span> : null}
                 </Link>
               ) : (
                 <button
@@ -161,6 +168,7 @@ const Navigation = () => {
                   className="text-foreground hover:text-primary text-lg font-medium transition-colors duration-200 w-full text-center py-2"
                 >
                   {item.label}
+                  {item.srLabel ? <span className="sr-only"> {item.srLabel}</span> : null}
                 </Link>
               ) : (
                 <button

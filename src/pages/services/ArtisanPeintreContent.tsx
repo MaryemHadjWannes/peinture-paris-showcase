@@ -293,7 +293,7 @@ export default function ArtisanPeintreContent({ city }: Props) {
             </ul>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <a href="/#contact" className="inline-block underline hover:text-accent">
-                Demander un devis gratuit
+                Demander un devis artisan peintre
               </a>
               <a href="/realisations" className="inline-block underline hover:text-accent">
                 Voir nos réalisations

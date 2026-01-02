@@ -145,6 +145,22 @@ const Avis: React.FC = () => {
           </div>
         </section>
 
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto text-center">
+              <p className="text-muted-foreground leading-relaxed">
+                HN Rénovation intervient à Cambrai (59) et dans le Nord pour des travaux de peinture intérieure,
+                extérieure, enduits et finitions. Ces avis clients reflètent notre engagement : préparation sérieuse,
+                chantier protégé et finitions propres.
+              </p>
+              <p className="mt-4 text-muted-foreground leading-relaxed">
+                Vous hésitez encore ? Parcourez les témoignages ci-dessous et découvrez comment nous accompagnons
+                chaque projet, du devis jusqu’à la livraison.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Controls + List */}
         <section className="py-10">
           <div className="container mx-auto px-4">

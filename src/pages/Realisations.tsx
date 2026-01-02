@@ -41,6 +41,11 @@ const Realisations = () => {
             voisines. Chaque projet met en avant une préparation soignée, des enduits de qualité et des finitions
             durables.
           </p>
+          <p className="text-muted-foreground max-w-3xl mb-6">
+            Cette galerie présente des exemples de murs, plafonds, façades et rénovations complètes réalisés par
+            HN Rénovation. Nous intervenons aussi autour de Cambrai, notamment à Douai, Valenciennes, Arras et Caudry,
+            avec un devis gratuit et un chantier propre du début à la fin.
+          </p>
         </div>
         <Portfolio />
       </main>

@@ -4,11 +4,12 @@ import nhLogoPng294 from '@/assets/nh-logo-294.png';
 import nhLogoWebp147 from '@/assets/nh-logo-147.webp';
 import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
 import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CITIES, DEFAULT_CITY } from '@/data/seo';
 
 const Footer = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const citySlugs = useMemo(() => new Set(CITIES.map((city) => city.slug)), []);
   const shareUrl = `https://hn-renovation.fr${location.pathname}${location.search}`;
@@ -16,12 +17,18 @@ const Footer = () => {
   const encodedShareText = encodeURIComponent("HN Rénovation - Artisan peintre");
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.hash = `#${id}`;
+    const doScroll = () => {
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    if (location.pathname !== "/") {
+      navigate(`/#${id}`);
+      setTimeout(doScroll, 250);
+      return;
     }
+
+    doScroll();
   };
 
   const activeCitySlug = (() => {
@@ -56,6 +63,7 @@ const Footer = () => {
                     width={147}
                     height={84}
                     decoding="async"
+                    loading="lazy"
                   />
                 </picture>
               </div>
@@ -167,6 +175,7 @@ const Footer = () => {
                     className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Accueil
+                    <span className="sr-only"> HN Rénovation à Cambrai</span>
                   </Link>
                 </li>
                 <li>
@@ -183,6 +192,7 @@ const Footer = () => {
                     className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Réalisations
+                    <span className="sr-only"> peinture et rénovation</span>
                   </Link>
                 </li>
                 <li>
@@ -199,6 +209,7 @@ const Footer = () => {
                     className="hover:text-accent underline w-full text-left inline-block"
                   >
                     Avis
+                    <span className="sr-only"> clients HN Rénovation</span>
                   </Link>
                 </li>
                 <li>

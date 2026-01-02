@@ -475,7 +475,7 @@ const Admin: React.FC = () => {
                           onDragEnd={onDragEnd}
                           className={`flex items-center gap-3 p-3 border rounded-lg bg-card cursor-grab active:cursor-grabbing ${isDragging === cat.id ? 'opacity-50' : ''}`}
                         >
-                          <img src={img.url} alt="" className="w-16 h-16 object-cover rounded" />
+                          <img src={img.url} alt="" className="w-16 h-16 object-cover rounded" loading="lazy" />
                           <div className="flex-1">
                             <p className="text-sm font-medium truncate">{img.filename}</p>
                             {cat.id === 'avant-apres' && (
