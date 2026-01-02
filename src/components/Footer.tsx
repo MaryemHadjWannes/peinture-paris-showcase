@@ -278,7 +278,7 @@ const Footer = () => {
                     <Linkedin className="h-4 w-4" />
                   </a>
                   <a
-                    href="https://x.com/HWannesMaryem"
+                    href="https://x.com/hn_renovat41548"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X HN Rénovation"
