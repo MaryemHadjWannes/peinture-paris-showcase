@@ -715,19 +715,6 @@ const isAssetRequest = (pathname: string) => {
   return Boolean(ext);
 };
 
-const botUserAgents = [
-  /bot/i,
-  /crawl/i,
-  /spider/i,
-  /slurp/i,
-  /bingpreview/i,
-  /facebookexternalhit/i,
-  /twitterbot/i,
-  /lighthouse/i,
-];
-
-const isLikelyBot = (userAgent: string) => botUserAgents.some((re) => re.test(userAgent));
-
 const isSpaRoute = (pathname: string) => {
   const cleanPath = pathname.replace(/\/+$/, "") || "/";
   if (staticSpaRoutes.has(cleanPath)) return true;
@@ -764,11 +751,6 @@ app.use((req: Request, res: Response, next: express.NextFunction) => {
 
 app.use((req: Request, res: Response, next: express.NextFunction) => {
   if (isAssetRequest(req.path)) return next();
-  const userAgent = req.headers["user-agent"] ?? "";
-  const seoQuery = req.query?.seo;
-  const seoParam = Array.isArray(seoQuery) ? seoQuery[0] : seoQuery;
-  const isSeoPreview = seoParam === "1";
-  if (!isSeoPreview && !isLikelyBot(userAgent)) return next();
   const payload = getSeoPayload(req.path);
   if (!payload) return next();
   const template = getSeoTemplate();
