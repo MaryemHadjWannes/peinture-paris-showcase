@@ -6,9 +6,6 @@ import Footer from "@/components/Footer";
 import LazyRender from "@/components/LazyRender";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
 import { Link } from "react-router-dom";
-import heroImageWebp640 from "@/assets/hero-painting-640.webp";
-import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
-import heroImageWebp1920 from "@/assets/hero-painting.webp";
 
 const About = lazy(() => import("@/components/About"));
 const Services = lazy(() => import("@/components/Services"));
@@ -39,27 +36,6 @@ const Index = () => {
         <meta name="twitter:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
-        <link
-          rel="preload"
-          as="image"
-          href={heroImageWebp640}
-          type="image/webp"
-          media="(max-width: 640px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href={heroImageWebp1280}
-          type="image/webp"
-          media="(min-width: 641px) and (max-width: 1280px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href={heroImageWebp1920}
-          type="image/webp"
-          media="(min-width: 1281px)"
-        />
       </Helmet>
       <Navigation />
       <br/>
@@ -70,6 +46,16 @@ const Index = () => {
           priority
           titleOverride="Entreprise de peinture à Cambrai (Nord) et alentours"
         />
+        <LazyRender minHeight="560px">
+          <Suspense fallback={null}>
+            <PortfolioPreview city={city} />
+          </Suspense>
+        </LazyRender>
+        <LazyRender minHeight="420px">
+          <Suspense fallback={null}>
+            <GoogleReviews />
+          </Suspense>
+        </LazyRender>
         <section className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-heading font-semibold text-primary mb-4">
@@ -100,16 +86,6 @@ const Index = () => {
         <LazyRender minHeight="520px">
           <Suspense fallback={null}>
             <Services city={city} />
-          </Suspense>
-        </LazyRender>
-        <LazyRender minHeight="560px">
-          <Suspense fallback={null}>
-            <PortfolioPreview city={city} />
-          </Suspense>
-        </LazyRender>
-        <LazyRender minHeight="420px">
-          <Suspense fallback={null}>
-            <GoogleReviews />
           </Suspense>
         </LazyRender>
         <LazyRender minHeight="360px">

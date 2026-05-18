@@ -3,7 +3,7 @@
   "businessName": "HN Rénovation",
   "googleMapsUrl": "https://share.google/vzwlntBY47tXjtdBW",
   "lastUpdated": "2025-12-22",
-  "summary": { "rating": 5.0, "totalReviews": 6 },
+  "summary": { "rating": 5.0, "totalReviews": 7 },
   "reviews": [
     {
       "authorName": "Catherine Taine",
@@ -76,6 +76,19 @@
       "ownerReply": {
         "dateISO": "2025-12-19",
         "text": "Merci beaucoup de votre confiance. A bientôt"
+      }
+    },
+    {
+      "authorName": "Kouiek Kamel",
+      "authorMeta": "1 review • 0 photos",
+      "rating": 5,
+      "dateISO": "2026-05-18",
+      "visited": "2026-05",
+      "title": "Un travail de haute qualité",
+      "text": "Un grand merci pour le travail réalisé, un professionnel très méticuleux et soucieux du travail bien fait. Nous sommes plus que satisfait. En plus d’être professionnel, Habib est sérieux, respectueux et discret. Nous repasserons par vos services rapidement pour un autre chantier. Merci pour le travail de haute qualité. Je recommande les yeux fermés.",
+      "ownerReply": {
+        "dateISO": "2026-05-18",
+        "text": "Merci pour votre confiance et votre recommandation. Au plaisir de vous accompagner sur votre prochain chantier."
       }
     }
   ]

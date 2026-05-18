@@ -86,6 +86,25 @@ export default function CityPage() {
         </LazyRender>
 
         <section className="container mx-auto px-4 pb-12">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl font-bold mb-4">Intervention autour de {city.name}</h2>
+            <p className="text-muted-foreground mb-4">
+              Nous intervenons aussi dans les communes proches : {city.nearby?.join(", ")}.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {city.nearby?.map((name) => (
+                <div
+                  key={name}
+                  className="rounded-xl border border-border/60 bg-card/60 p-4 shadow-sm"
+                >
+                  <p className="font-semibold text-primary">{name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="container mx-auto px-4 pb-12">
           <h2 className="text-2xl font-bold mb-4">Autres zones d’intervention près de {city.name}</h2>
           <p className="text-muted-foreground mb-4">Découvrez aussi nos pages locales :</p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

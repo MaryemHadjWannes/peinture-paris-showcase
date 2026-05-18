@@ -48,11 +48,11 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
   return (
     <section
       id="home"
-      className="relative min-h-[95vh] sm:min-h-[110vh] flex items-center justify-center overflow-hidden select-none px-4 sm:px-6"
+      className="relative pt-[7rem] min-h-screen flex items-center justify-center overflow-hidden select-none px-4 sm:px-6"
       aria-label={`HN Rénovation - ${serviceLabel ? serviceLabel : "Peinture et rénovation"} à ${city.name} (${city.postalCode})`}
     >
       {/* Background (no motion) */}
-      <div className="absolute inset-0 min-h-[95vh] sm:min-h-[110vh]">
+      <div className="absolute inset-0">
         <picture>
           <source
             type="image/webp"
@@ -64,7 +64,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
             srcSet={`${heroImageJpg640} 640w, ${heroImageJpg960} 960w, ${heroImageJpg1280} 1280w, ${heroImageJpg1920} 1920w`}
             alt={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             title={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
-            className="w-full h-full min-h-[95vh] sm:min-h-[110vh] object-cover object-center sm:object-top"
+            className="w-full h-full object-cover object-center sm:object-top"
             width="1920"
             height="1080"
             decoding="async"
@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
         </picture>
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30 min-h-[95vh] sm:min-h-[110vh]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30" />
       </div>
 
       {/* Main Content */}
@@ -89,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
         </p>
 
         <div className="flex justify-center items-center mb-6">
-          <p className="text-accent font-semibold text-base sm:text-lg bg-white/90 px-4 py-1 rounded shadow-sm">
+          <p className="text-accent-foreground font-semibold text-base sm:text-lg bg-accent px-4 py-2 rounded-full shadow-lg shadow-black/15">
             Protégé par l&apos;assurance décennale
           </p>
         </div>
@@ -116,6 +116,13 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
               {satisfaction}%
             </div>
             <div className="text-xs sm:text-sm text-white/80">Satisfaction</div>
+          </div>
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-black/10">
+            <span className="text-accent">5.0 / 5</span>
+            <span className="text-muted-foreground">• 7 avis Google authentiques</span>
           </div>
         </div>
 
