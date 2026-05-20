@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, Building, Palette, Brush, Clock, Shield, ArrowRight, CheckCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import type { City } from "@/data/seo";
+import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
 
 type ServicesProps = {
   city: City;
@@ -13,21 +13,18 @@ type ServicesProps = {
 };
 
 const PaintSplash = ({ color, className = "" }: { color: string; className?: string }) => (
-  <motion.svg
+  <svg
     width="50"
     height="50"
     viewBox="0 0 100 100"
     fill="none"
     className={`absolute -top-6 -right-6 opacity-40 z-0 pointer-events-none ${className}`}
-    initial={{ scale: 0.8, rotate: 0, opacity: 0.25 }}
-    animate={{ scale: [0.8, 1.05, 0.95, 1], rotate: [0, 15, -10, 0], opacity: [0.3, 0.5, 0.25, 0.4] }}
-    transition={{ duration: 4, repeat: Infinity, repeatType: "reverse", delay: Math.random() }}
   >
     <path
       d="M31 17C37 7 61 8 67 17C73 27 95 33 86 47C77 61 62 70 50 68C38 66 18 60 14 47C10 34 25 27 31 17Z"
       fill={color}
     />
-  </motion.svg>
+  </svg>
 );
 
 const baseServices = [
@@ -73,9 +70,82 @@ const baseServices = [
   },
 ];
 
-const cardVariants = {
-  offscreen: { opacity: 0, y: 40 },
-  onscreen: { opacity: 1, y: 0 },
+// Service card component with animation
+const ServiceCard: React.FC<{ service: any; city: City; index: number; onScrollToSection: (id: string) => void }> = ({ service, city, index, onScrollToSection }) => {
+  const { ref, isVisible } = useIntersectionAnimation();
+  const IconComponent = service.icon;
+  
+  return (
+    <div
+      ref={ref}
+      className={`relative h-full ${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <Card
+        className={`relative hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border-border/50 overflow-visible h-full w-full flex flex-col ${
+          service.popular ? "bg-gradient-to-b from-accent/10 to-white border-accent/70 shadow-lg" : "border-border/50"
+        }`}
+      >
+        {service.popular && (
+          <div className="z-20">
+            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground shadow-md animate-pulse-bounce text-sm px-3 py-1">
+              Populaire
+            </Badge>
+          </div>
+        )}
+
+        <PaintSplash color={service.splash} className={service.popular ? "opacity-60 scale-110" : ""} />
+
+        <CardHeader className="text-center pb-4 relative z-10">
+          <div
+            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow transition-transform duration-300 hover:scale-110 cursor-pointer ${
+              service.popular ? "bg-accent/30" : "bg-accent/20"
+            }`}
+          >
+            <IconComponent className={`h-8 w-8 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
+          </div>
+
+          <CardTitle className="text-xl font-heading text-primary">
+            {service.title} à {city.name}
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-4 relative z-10 flex flex-col flex-grow">
+          <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>
+
+          <div className="space-y-2 flex-grow">
+            {service.features.map((feature: string, featureIndex: number) => (
+              <div key={featureIndex} className="flex items-center space-x-2 text-sm">
+                <CheckCircle className={`h-4 w-4 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-4 border-t border-border/60 mt-auto space-y-3">
+            <Button className="w-full" variant="outline" asChild>
+              <Link
+                to={`/${service.slug}/${city.slug}`}
+                title={`Voir la page ${service.title} à ${city.name}`}
+              >
+                Voir la page
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+
+            <Button
+              className="w-full group relative overflow-hidden hover:bg-accent/20"
+              variant={service.popular ? "default" : "outline"}
+              onClick={() => onScrollToSection("contact")}
+            >
+              <span className="relative z-10">Demander un Devis</span>
+              <ArrowRight className="ml-2 h-4 w-4 relative z-10" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
@@ -109,99 +179,15 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 relative">
-            {services.map((service, index) => {
-              const IconComponent = service.icon;
-
-              return (
-                <motion.div
-                  key={service.slug}
-                  className="relative h-full"
-                  initial="offscreen"
-                  whileInView="onscreen"
-                  viewport={{ once: true, amount: 0.22 }}
-                  variants={cardVariants}
-                  custom={index}
-                >
-                  <Card
-                    className={`relative hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border-border/50 overflow-visible h-full w-full flex flex-col ${
-                      service.popular ? "bg-gradient-to-b from-accent/10 to-white border-accent/70 shadow-lg" : "border-border/50"
-                    }`}
-                  >
-                    {service.popular && (
-                      <motion.div
-                        initial={{ scale: 0.7, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
-                        className="z-20"
-                      >
-                        <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground shadow-md animate-bounce text-sm px-3 py-1">
-                          Populaire
-                        </Badge>
-                      </motion.div>
-                    )}
-
-                    <PaintSplash color={service.splash} className={service.popular ? "opacity-60 scale-110" : ""} />
-
-                    <CardHeader className="text-center pb-4 relative z-10">
-                      <motion.div
-                        whileHover={{ scale: 1.15, rotate: [0, 12, -12, 0] }}
-                        transition={{ duration: 0.45 }}
-                        className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow ${
-                          service.popular ? "bg-accent/30" : "bg-accent/20"
-                        }`}
-                      >
-                        <IconComponent className={`h-8 w-8 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
-                      </motion.div>
-
-                      {/* ✅ Seul changement : ajout "à {city.name}" */}
-                      <CardTitle className="text-xl font-heading text-primary">
-                        {service.title} à {city.name}
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-4 relative z-10 flex flex-col flex-grow">
-                      <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>
-
-                      <div className="space-y-2 flex-grow">
-                        {service.features.map((feature, featureIndex) => (
-                          <div key={featureIndex} className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className={`h-4 w-4 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="pt-4 border-t border-border/60 mt-auto space-y-3">
-                        <Button className="w-full" variant="outline" asChild>
-                          <Link
-                            to={`/${service.slug}/${city.slug}`}
-                            title={`Voir la page ${service.title} à ${city.name}`}
-                          >
-                            Voir la page
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Link>
-                        </Button>
-
-                        <Button
-                          className="w-full group relative overflow-hidden"
-                          variant={service.popular ? "default" : "outline"}
-                          onClick={() => scrollToSection("contact")}
-                        >
-                          <span className="relative z-10">Demander un Devis</span>
-                          <ArrowRight className="ml-2 h-4 w-4 relative z-10" />
-                          <motion.span
-                            className="absolute inset-0 bg-accent/10 group-hover:bg-accent/20 rounded transition-all duration-300 z-0"
-                            initial={{ opacity: 0 }}
-                            whileHover={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                          />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+            {services.map((service, index) => (
+              <ServiceCard
+                key={service.slug}
+                service={service}
+                city={city}
+                index={index}
+                onScrollToSection={scrollToSection}
+              />
+            ))}
           </div>
 
           <div className="flex justify-center gap-3 text-sm text-muted-foreground">

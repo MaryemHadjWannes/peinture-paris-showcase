@@ -1,7 +1,7 @@
 import React, { useId, useState } from "react";
 import { CheckCircle, Award, Palette, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
 import type { City } from "@/data/seo";
+import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
 
 type AboutProps = {
   city: City;
@@ -10,6 +10,9 @@ type AboutProps = {
 const About: React.FC<AboutProps> = ({ city }) => {
   const [expanded, setExpanded] = useState(false);
   const descId = useId();
+  const { ref: headerRef, isVisible: headerVisible } = useIntersectionAnimation();
+  const { ref: featuresRef, isVisible: featuresVisible } = useIntersectionAnimation();
+  const { ref: commitmentRef, isVisible: commitmentVisible } = useIntersectionAnimation();
 
   const features = [
     {
@@ -34,56 +37,26 @@ const About: React.FC<AboutProps> = ({ city }) => {
     },
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-  };
-
   return (
     <section id="about" className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 bg-accent/20 rounded-full px-4 py-2 mb-6 mx-auto"
-          >
+        <div ref={headerRef} className={`max-w-6xl mx-auto text-center mb-16 ${headerVisible ? 'animate-fade-up' : 'opacity-0'}`}>
+          <div className="inline-flex items-center gap-2 bg-accent/20 rounded-full px-4 py-2 mb-6 mx-auto">
             <Award className="h-5 w-5 text-accent" />
             <span className="text-accent font-medium">Notre Expertise</span>
-          </motion.div>
+          </div>
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-4xl md:text-5xl font-heading font-bold mb-6"
-        >
-          Entreprise de peinture à {city.name} : notre savoir-faire
-        </motion.h2>
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
+            Entreprise de peinture à {city.name} : notre savoir-faire
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-xl md:text-2xl font-normal text-muted-foreground max-w-4xl mx-auto leading-relaxed"
-          >
+          <p className="text-xl md:text-2xl font-normal text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             HN Rénovation, artisan peintre intervenant à {city.name} ({city.postalCode}), vous accompagne pour
-            la peinture intérieure, la peinture extérieure, l’enduit, la plâtrerie et la rénovation, avec
+            la peinture intérieure, la peinture extérieure, l'enduit, la plâtrerie et la rénovation, avec
             préparation soignée, finitions durables et devis gratuit.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.55 }}
-            className="mt-8 max-w-4xl mx-auto text-left bg-card/60 backdrop-blur rounded-2xl p-6 md:p-8 border border-border/60 shadow-soft"
-          >
+          <div className="mt-8 max-w-4xl mx-auto text-left bg-card/60 backdrop-blur rounded-2xl p-6 md:p-8 border border-border/60 shadow-soft">
             <div
               id={descId}
               className={[
@@ -102,7 +75,7 @@ const About: React.FC<AboutProps> = ({ city }) => {
                 <strong className="text-primary">
                   {city.name} ({city.postalCode})
                 </strong>
-                . Nous accompagnons particuliers et professionnels avec un haut niveau d’exigence sur la préparation
+                . Nous accompagnons particuliers et professionnels avec un haut niveau d'exigence sur la préparation
                 des supports, les finitions et la durabilité des matériaux.
               </p>
 
@@ -148,20 +121,14 @@ const About: React.FC<AboutProps> = ({ city }) => {
                 <span aria-hidden="true">{expanded ? "▲" : "▼"}</span>
               </button>
             </div>
-          </motion.div>
+          </div>
         </div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="grid md:grid-cols-4 gap-8 mb-16"
-        >
+        <div ref={featuresRef} className={`grid md:grid-cols-4 gap-8 mb-16 ${featuresVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
-              <motion.div key={i} variants={item} className="bg-card p-6 rounded-xl shadow-soft border border-border/50">
+              <div key={i} className="bg-card p-6 rounded-xl shadow-soft border border-border/50" style={{ animationDelay: `${i * 50}ms` }}>
                 <div className="flex flex-col items-center text-center">
                   <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mb-4">
                     <Icon className="h-6 w-6 text-accent" />
@@ -169,23 +136,17 @@ const About: React.FC<AboutProps> = ({ city }) => {
                   <h3 className="font-heading font-semibold mb-2 text-primary">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8 }}
-          className="bg-primary/5 rounded-2xl p-8 border border-primary/20 text-center"
-        >
+        <div ref={commitmentRef} className={`bg-primary/5 rounded-2xl p-8 border border-primary/20 text-center ${commitmentVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           <h3 className="text-2xl font-heading font-semibold mb-4 text-primary">Notre Engagement</h3>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Respect des délais, budget maîtrisé, chantier propre et suivi personnalisé, avec une garantie de satisfaction.
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

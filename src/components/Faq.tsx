@@ -1,6 +1,5 @@
 import React from "react";
 import { HelpCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import {
   Accordion,
   AccordionItem,
@@ -9,12 +8,14 @@ import {
 } from "@/components/ui/accordion";
 import { Helmet } from "react-helmet-async";
 import type { City } from "@/data/seo";
+import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
 
 type FaqProps = {
   city: City;
 };
 
 const Faq: React.FC<FaqProps> = ({ city }) => {
+  const { ref, isVisible } = useIntersectionAnimation();
   const nearbyText =
     city.nearby && city.nearby.length > 0 ? city.nearby.slice(0, 6).join(", ") : "les villes voisines";
 
@@ -79,12 +80,7 @@ const Faq: React.FC<FaqProps> = ({ city }) => {
           </p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.4 }}
-        >
+        <div ref={ref} className={`${isVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           <Accordion type="single" collapsible className="w-full space-y-2 sm:space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
@@ -101,7 +97,7 @@ const Faq: React.FC<FaqProps> = ({ city }) => {
               </AccordionItem>
             ))}
           </Accordion>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

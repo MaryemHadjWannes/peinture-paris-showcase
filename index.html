@@ -15,21 +15,29 @@
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     </noscript>
 
-    <link rel="preload" as="image" href="./src/assets/hero-painting-640.webp" type="image/webp" media="(max-width: 640px)">
-    <link rel="preload" as="image" href="./src/assets/hero-painting-1280.webp" type="image/webp" media="(min-width: 641px) and (max-width: 1280px)">
-    <link rel="preload" as="image" href="./src/assets/hero-painting.webp" type="image/webp" media="(min-width: 1281px)">
+    <link rel="preload" as="image" href="/src/assets/hero-painting-640.webp" type="image/webp" media="(max-width: 640px)">
+    <link rel="preload" as="image" href="/src/assets/hero-painting-1280.webp" type="image/webp" media="(min-width: 641px) and (max-width: 1280px)">
+    <link rel="preload" as="image" href="/src/assets/hero-painting.webp" type="image/webp" media="(min-width: 1281px)">
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/hn-logo.png" />
 
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YTTP4T98J0"></script>
+    <!-- Google tag (gtag.js) - Delayed by 3 seconds for performance -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YTTP4T98J0');
+      
+      // Delay GA script loading by 3 seconds to not block critical rendering
+      setTimeout(function() {
+        var gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-YTTP4T98J0';
+        document.head.appendChild(gtagScript);
+        
+        gtag('js', new Date());
+        gtag('config', 'G-YTTP4T98J0');
+      }, 3000);
     </script>
     <script type="application/ld+json">
       {

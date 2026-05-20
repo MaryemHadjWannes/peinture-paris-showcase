@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Star, ExternalLink, MessageSquareQuote, ArrowRight } from "lucide-react";
 import { GoogleReview, useGoogleReviews } from "@/hooks/useGoogleReviews";
+import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
 
 type Review = GoogleReview;
 
@@ -220,65 +220,71 @@ const ReviewsGrid: React.FC<{ items: Review[] }> = ({ items }) => {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {items.map((r, idx) => (
-        <motion.div
-          key={`${r.authorName}-${idx}`}
-          initial={{ opacity: 0, y: 26 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.35 }}
-        >
-          <Card className="h-full border-border/50 bg-white/70 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <CardTitle className="text-lg font-heading text-primary truncate">
-                    {r.authorName}
-                  </CardTitle>
-                  {r.authorMeta ? (
-                    <div className="text-xs text-muted-foreground">{r.authorMeta}</div>
-                  ) : null}
-                  <div className="mt-2 flex items-center gap-2">
-                    <Stars value={r.rating} />
-                    {r.relativeDate ? (
-                      <span className="text-xs text-muted-foreground">{r.relativeDate}</span>
-                    ) : null}
-                  </div>
-                </div>
-
-                <Badge className="bg-accent/15 text-accent shadow-none">Google</Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-3">
-              {r.title ? <div className="font-medium text-primary">{r.title}</div> : null}
-
-              {r.text ? (
-                <p className="text-sm text-muted-foreground leading-relaxed">{r.text}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground">Avis sans commentaire.</p>
-              )}
-
-              {r.visited ? (
-                <div className="text-xs text-muted-foreground">
-                  Visité: <span className="font-medium">{r.visited}</span>
-                </div>
-              ) : null}
-
-              {r.ownerReply?.text ? (
-                <div className="rounded-xl border border-border/60 bg-background/50 p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-semibold">Réponse du propriétaire</div>
-                    {r.ownerReply.relativeDate ? (
-                      <div className="text-xs text-muted-foreground">{r.ownerReply.relativeDate}</div>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">{r.ownerReply.text}</p>
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <ReviewItem key={`${r.authorName}-${idx}`} review={r} index={idx} />
       ))}
+    </div>
+  );
+};
+
+const ReviewItem: React.FC<{ review: Review; index: number }> = ({ review: r, index }) => {
+  const { ref, isVisible } = useIntersectionAnimation();
+  
+  return (
+    <div
+      ref={ref}
+      className={`${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <Card className="h-full border-border/50 bg-white/70 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="text-lg font-heading text-primary truncate">
+                {r.authorName}
+              </CardTitle>
+              {r.authorMeta ? (
+                <div className="text-xs text-muted-foreground">{r.authorMeta}</div>
+              ) : null}
+              <div className="mt-2 flex items-center gap-2">
+                <Stars value={r.rating} />
+                {r.relativeDate ? (
+                  <span className="text-xs text-muted-foreground">{r.relativeDate}</span>
+                ) : null}
+              </div>
+            </div>
+
+            <Badge className="bg-accent/15 text-accent shadow-none">Google</Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3">
+          {r.title ? <div className="font-medium text-primary">{r.title}</div> : null}
+
+          {r.text ? (
+            <p className="text-sm text-muted-foreground leading-relaxed">{r.text}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">Avis sans commentaire.</p>
+          )}
+
+          {r.visited ? (
+            <div className="text-xs text-muted-foreground">
+              Visité: <span className="font-medium">{r.visited}</span>
+            </div>
+          ) : null}
+
+          {r.ownerReply?.text ? (
+            <div className="rounded-xl border border-border/60 bg-background/50 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-xs font-semibold">Réponse du propriétaire</div>
+                {r.ownerReply.relativeDate ? (
+                  <div className="text-xs text-muted-foreground">{r.ownerReply.relativeDate}</div>
+                ) : null}
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">{r.ownerReply.text}</p>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
     </div>
   );
 };

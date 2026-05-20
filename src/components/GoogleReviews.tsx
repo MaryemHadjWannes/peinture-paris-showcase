@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ExternalLink } from "lucide-react";
 import { GoogleReview, useGoogleReviews } from "@/hooks/useGoogleReviews";
+import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
 
 type Review = GoogleReview;
 
@@ -26,9 +26,45 @@ const Stars = ({ value }: { value: number }) => {
 const clamp = (s: string, max = 140) =>
   s.length > max ? s.slice(0, max - 1).trim() + "…" : s;
 
-const itemVariants = {
-  offscreen: { opacity: 0, y: 16 },
-  onscreen: { opacity: 1, y: 0 },
+// Review card with animation wrapper
+const ReviewCard: React.FC<{ review: Review; index: number }> = ({ review: r, index }) => {
+  const { ref, isVisible } = useIntersectionAnimation();
+  
+  return (
+    <div
+      ref={ref}
+      className={`${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <Card className="h-full border-border/50 bg-white/70 hover:shadow-md transition">
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-base font-heading text-primary truncate">
+              {r.authorName}
+            </CardTitle>
+            <Badge className="bg-accent/12 text-accent shadow-none">
+              <span className="text-xs">Google</span>
+            </Badge>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <Stars value={r.rating} />
+            {r.relativeDate ? (
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {r.relativeDate}
+              </span>
+            ) : null}
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-0">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {r.text ? clamp(r.text, 150) : "Avis sans commentaire."}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 const GoogleReviews: React.FC<{ max?: number }> = ({ max = 4 }) => {
@@ -95,41 +131,7 @@ const GoogleReviews: React.FC<{ max?: number }> = ({ max = 4 }) => {
           {/* Grid compact */}
           <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {preview.map((r, idx) => (
-              <motion.div
-                key={`${r.authorName}-${idx}`}
-                initial="offscreen"
-                whileInView="onscreen"
-                viewport={{ once: true, amount: 0.25 }}
-                variants={itemVariants}
-              >
-                <Card className="h-full border-border/50 bg-white/70 hover:shadow-md transition">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-base font-heading text-primary truncate">
-                        {r.authorName}
-                      </CardTitle>
-                      <Badge className="bg-accent/12 text-accent shadow-none">
-                        <span className="text-xs">Google</span>
-                      </Badge>
-                    </div>
-
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <Stars value={r.rating} />
-                      {r.relativeDate ? (
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {r.relativeDate}
-                        </span>
-                      ) : null}
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {r.text ? clamp(r.text, 150) : "Avis sans commentaire."}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <ReviewCard key={`${r.authorName}-${idx}`} review={r} index={idx} />
             ))}
           </div>
 
