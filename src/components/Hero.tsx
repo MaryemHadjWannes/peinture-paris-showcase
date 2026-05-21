@@ -1,0 +1,152 @@
+import React, { useCallback } from "react";
+import type { City } from "@/data/seo";
+import { useNavigate } from "react-router-dom";
+
+// Public hero images with stable URLs (no hashing) for optimal preload
+const heroImageWebp640 = "/hero-640.webp";
+const heroImageWebp960 = "/hero-960.webp";
+const heroImageWebp1280 = "/hero-1280.webp";
+const heroImageWebp1920 = "/hero-1920.webp";
+const heroImageJpg640 = "/hero-640.jpg";
+const heroImageJpg960 = "/hero-960.jpg";
+const heroImageJpg1280 = "/hero-1280.jpg";
+const heroImageJpg1920 = "/hero-1920.jpg";
+
+type HeroProps = {
+  city: City;
+  serviceLabel?: string; // optional for /:serviceSlug/:citySlug
+  priority?: boolean;
+  titleOverride?: string;
+};
+
+const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, titleOverride }) => {
+  const navigate = useNavigate();
+
+  const projects = 50;
+  const clients = 48;
+  const satisfaction = 96;
+
+  const scrollToSection = useCallback((id: string) => {
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const goToRealisations = useCallback(() => {
+    navigate("/realisations");
+  }, [navigate]);
+
+  const title =
+    titleOverride ??
+    (serviceLabel
+      ? `${serviceLabel} à ${city.name}`
+      : `Entreprise de peinture et rénovation à ${city.name}`);
+
+  const subtitle = serviceLabel
+    ? `Interventions à ${city.name} (${city.postalCode}) et alentours. Devis gratuit.`
+    : "Peinture intérieure, extérieure, enduit et plâtrerie.";
+
+  return (
+    <section
+      id="home"
+      className="relative pt-[7rem] min-h-screen flex items-center justify-center overflow-hidden select-none px-4 sm:px-6"
+      aria-label={`HN Rénovation - ${serviceLabel ? serviceLabel : "Peinture et rénovation"} à ${city.name} (${city.postalCode})`}
+    >
+      {/* Background (no motion) */}
+      <div className="absolute inset-0">
+        <picture>
+          <source
+            type="image/webp"
+            srcSet={`${heroImageWebp640} 640w, ${heroImageWebp960} 960w, ${heroImageWebp1280} 1280w, ${heroImageWebp1920} 1920w`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+          />
+          <img
+            src={heroImageJpg1280}
+            srcSet={`${heroImageJpg640} 640w, ${heroImageJpg960} 960w, ${heroImageJpg1280} 1280w, ${heroImageJpg1920} 1920w`}
+            alt={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
+            title={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
+            className="w-full h-full object-cover object-center sm:object-top"
+            width="1920"
+            height="1080"
+            decoding="async"
+            fetchPriority={priority ? "high" : "auto"}
+            loading={priority ? "eager" : "lazy"}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+          />
+        </picture>
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30" />
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-heading font-bold mb-4 leading-tight drop-shadow-2xl">
+          {titleOverride ? title : `${title} (${city.postalCode})`}
+        </h1>
+
+        <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-white/90 leading-relaxed max-w-xl mx-auto mb-8">
+          {subtitle}
+        </p>
+
+        <div className="flex justify-center items-center mb-6">
+          <p className="text-accent-foreground font-semibold text-base sm:text-lg bg-accent px-4 py-2 rounded-full shadow-lg shadow-black/15">
+            Protégé par l&apos;assurance décennale
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 sm:mb-12 max-w-md mx-auto">
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {projects}
+              <span aria-hidden="true">+</span>
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Projets Réalisés</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {clients}
+              <span aria-hidden="true">+</span>
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Clients Satisfaits</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-accent mb-1 drop-shadow">
+              {satisfaction}%
+            </div>
+            <div className="text-xs sm:text-sm text-white/80">Satisfaction</div>
+          </div>
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-black/10">
+            <span className="text-accent">5.0 / 5</span>
+            <span className="text-muted-foreground">• 7 avis Google authentiques</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            type="button"
+            className="inline-flex w-full items-center justify-center gap-2 bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-xl transition-transform duration-200 hover:scale-105 hover:bg-accent/90 sm:w-auto sm:px-8"
+            onClick={goToRealisations}
+          >
+            Voir Nos Réalisations
+            <span aria-hidden="true" className="text-lg leading-none">→</span>
+          </button>
+
+          <button
+            type="button"
+            className="w-full border border-white/40 bg-white/90 px-6 py-3 font-semibold text-slate-950 shadow transition-transform duration-200 hover:scale-105 hover:bg-white sm:w-auto sm:px-8"
+            onClick={() => scrollToSection("contact")}
+          >
+            Devis Gratuit
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;

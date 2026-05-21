@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hn-renovation
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "10000"   # Render ignores this; it overrides with dynamic port
+      - key: GOOGLE_API_KEY
+        from: env
+      - key: EMAIL_USER
+        from: env
+      - key: EMAIL_PASS
+        from: env

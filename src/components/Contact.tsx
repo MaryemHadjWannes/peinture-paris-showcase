@@ -1,0 +1,156 @@
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/hooks/use-toast";
+import type { City } from "@/data/seo";
+
+type ContactProps = {
+  city: City;
+};
+
+const Contact: React.FC<ContactProps> = ({ city }) => {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    project: "",
+    message: "",
+    photos: [] as File[],
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xdkwzzlz";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("phone", formData.phone);
+    data.append("project", formData.project);
+    data.append("message", formData.message);
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        toast({ title: "Message envoyé !", description: "Nous vous recontacterons dans les plus brefs délais." });
+        setFormData({ name: "", email: "", phone: "", project: "", message: "", photos: [] });
+      } else {
+        toast({ title: "Erreur", description: "Impossible d’envoyer le message. Veuillez réessayer." });
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Impossible d’envoyer le message. Veuillez réessayer." });
+    }
+  };
+
+  const contactInfo = [
+    { icon: Phone, title: "Téléphone", content: "+33 06 02 22 80 01", subtitle: "Lun-Ven 8h-18h" },
+    { icon: Mail, title: "Email", content: "hn.renovation.fr@gmail.com", subtitle: "Réponse sous 24h" },
+    { icon: MapPin, title: "Adresse", content: "103 rue Saint Ladre", subtitle: "59400 Cambrai, France" },
+    { icon: Clock, title: "Horaires", content: "Lundi - Vendredi", subtitle: "8h00 - 18h00" },
+  ];
+
+
+  return (
+    <section id="contact" className="py-12 sm:py-16 bg-background">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10 sm:mb-12">
+          <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-6">
+            <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+            <span className="text-accent font-medium text-sm sm:text-base">Contactez-Nous</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 sm:mb-6">
+            Devis peinture à {city.name} : parlons de votre projet
+          </h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Intervention à {city.name} ({city.postalCode}) et alentours. Contactez-nous pour un devis gratuit et personnalisé.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12">
+            <Card className="shadow-medium border-border/50">
+              <CardHeader>
+                <CardTitle className="text-xl sm:text-2xl font-heading text-primary">Demande de Devis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nom complet *</Label>
+                      <Input id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="Votre nom" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="votre@email.com" />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Téléphone</Label>
+                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+33 06 02 22 80 01" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="project">Type de projet</Label>
+                      <Input id="project" name="project" value={formData.project} onChange={handleChange} placeholder="Ex: Peinture intérieure" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Description du projet *</Label>
+                    <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required placeholder="Décrivez votre projet en détail..." rows={4} />
+                  </div>
+
+                  <Button type="submit" size="lg" className="w-full sm:w-auto hover-lift px-6 sm:px-8">
+                    Envoyer la Demande <Send className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-6 sm:space-y-8">
+              <div className="grid gap-4 sm:gap-6">
+                {contactInfo.map((info, index) => {
+                  const IconComponent = info.icon;
+                  return (
+                    <Card key={index} className="hover-lift border-border/50">
+                      <CardContent className="flex items-center space-x-4 p-4 sm:p-6">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/20 rounded-full flex items-center justify-center">
+                          <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                        </div>
+                        <div>
+                          <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-1">{info.title}</h3>
+                          <p className="text-foreground text-sm sm:text-base">{info.content}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">{info.subtitle}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <Toaster />
+    </section>
+  );
+};
+
+export default Contact;
