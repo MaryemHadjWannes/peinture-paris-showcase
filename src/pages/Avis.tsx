@@ -46,7 +46,7 @@ const Avis: React.FC = () => {
   const reviews: Review[] = data?.reviews ?? [];
   const summary = data?.summary ?? {};
   const googleMapsUrl: string | undefined = data?.googleMapsUrl;
-  const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
+  const ogImage = "https://hn-renovation.fr/hero-1920.jpg";
 
   const [sort, setSort] = React.useState<SortKey>("withTextFirst");
 

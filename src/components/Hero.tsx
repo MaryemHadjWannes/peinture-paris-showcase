@@ -1,16 +1,18 @@
 import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import heroImageJpg640 from "@/assets/hero-painting-640.jpg";
-import heroImageJpg960 from "@/assets/hero-painting-960.jpg";
-import heroImageJpg1280 from "@/assets/hero-painting-1280.jpg";
-import heroImageJpg1920 from "@/assets/hero-painting.jpg";
-import heroImageWebp640 from "@/assets/hero-painting-640.webp";
-import heroImageWebp960 from "@/assets/hero-painting-960.webp";
-import heroImageWebp1280 from "@/assets/hero-painting-1280.webp";
-import heroImageWebp1920 from "@/assets/hero-painting.webp";
 import type { City } from "@/data/seo";
 import { useNavigate } from "react-router-dom";
+
+// Public hero images with stable URLs (no hashing) for optimal preload
+const heroImageWebp640 = "/hero-640.webp";
+const heroImageWebp960 = "/hero-960.webp";
+const heroImageWebp1280 = "/hero-1280.webp";
+const heroImageWebp1920 = "/hero-1920.webp";
+const heroImageJpg640 = "/hero-640.jpg";
+const heroImageJpg960 = "/hero-960.jpg";
+const heroImageJpg1280 = "/hero-1280.jpg";
+const heroImageJpg1920 = "/hero-1920.jpg";
 
 type HeroProps = {
   city: City;

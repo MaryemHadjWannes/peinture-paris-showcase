@@ -29,13 +29,13 @@ const Index = () => {
         <link rel="canonical" href="https://hn-renovation.fr/" />
         <meta property="og:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
+        <meta property="og:image" content="https://hn-renovation.fr/hero-1920.jpg" />
         <meta property="og:url" content="https://hn-renovation.fr/" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
+        <meta name="twitter:image" content="https://hn-renovation.fr/hero-1920.jpg" />
       </Helmet>
       <Navigation />
       <br/>
