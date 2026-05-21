@@ -1,6 +1,5 @@
 // src/App.tsx
 import { Suspense, lazy } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -14,11 +13,10 @@ import ScrollToTop from "@/components/ScrollToTop";
 
 const App = () => {
   return (
-    <TooltipProvider>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <Routes>
+    <BrowserRouter>
+      <ScrollToTop />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/realisations" element={<Realisations />} />
@@ -34,7 +32,6 @@ const App = () => {
           </Routes>
         </Suspense>
       </BrowserRouter>
-    </TooltipProvider>
   );
 };
 

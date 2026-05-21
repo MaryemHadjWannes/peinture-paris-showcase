@@ -1,11 +1,5 @@
 import React from "react";
 import { HelpCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
 import { Helmet } from "react-helmet-async";
 import type { City } from "@/data/seo";
 import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
@@ -81,22 +75,22 @@ const Faq: React.FC<FaqProps> = ({ city }) => {
         </div>
 
         <div ref={ref} className={`${isVisible ? 'animate-fade-up' : 'opacity-0'}`}>
-          <Accordion type="single" collapsible className="w-full space-y-2 sm:space-y-3">
+          <div className="w-full space-y-2 sm:space-y-3">
             {faqs.map((faq, index) => (
-              <AccordionItem
+              <details
                 key={index}
-                value={`faq-${index}`}
-                className="border border-border/60 rounded-xl bg-card px-3 sm:px-4"
+                className="group border border-border/60 rounded-xl bg-card px-3 sm:px-4"
               >
-                <AccordionTrigger className="text-left text-sm sm:text-base md:text-[15px] font-semibold py-3 sm:py-4">
+                <summary className="flex cursor-pointer items-center justify-between py-3 sm:py-4 text-left text-sm sm:text-base md:text-[15px] font-semibold transition-all hover:underline">
                   {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="pb-4 sm:pb-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
+                  <span className="text-muted-foreground transition-transform duration-200 group-open:rotate-180">▾</span>
+                </summary>
+                <div className="pb-4 sm:pb-5 text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </details>
             ))}
-          </Accordion>
+          </div>
         </div>
       </div>
     </section>
