@@ -3,8 +3,6 @@ import nhLogoPng147 from "@/assets/nh-logo-147.png";
 import nhLogoPng294 from "@/assets/nh-logo-294.png";
 import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
 import nhLogoWebp294 from "@/assets/nh-logo-294.webp";
-import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, Mail } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
@@ -155,24 +153,31 @@ const Navigation = () => {
             </div>
 
             {/* Desktop CTA */}
-            <Button
-              size="sm"
-              className="hidden sm:flex rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition font-semibold"
+            <button
+              type="button"
+              className="hidden sm:flex items-center justify-center rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent/90"
               onClick={() => handleNavClick({ id: "contact", label: "Devis Gratuit", type: "section" })}
             >
               Devis Gratuit
-            </Button>
+            </button>
 
             {/* Mobile Menu Toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="md:hidden p-2"
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md border border-input bg-background p-2 shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
               onClick={() => setIsMobileMenuOpen((v) => !v)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+              {isMobileMenuOpen ? (
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                  <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                  <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* Mobile Menu */}
@@ -208,16 +213,16 @@ const Navigation = () => {
                   </button>
                 )
               )}
-              <Button
-                size="sm"
-                className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 mx-4 mt-2 font-semibold"
+              <button
+                type="button"
+                className="mx-4 mt-2 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent/90"
                 onClick={() => {
                   handleNavClick({ id: "contact", label: "Devis Gratuit", type: "section" });
                   closeMobileMenu();
                 }}
               >
                 Devis Gratuit
-              </Button>
+              </button>
             </div>
           </div>
         </div>

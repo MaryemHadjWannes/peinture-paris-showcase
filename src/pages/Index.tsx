@@ -2,7 +2,6 @@ import { Suspense, lazy } from "react";
 import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import Footer from "@/components/Footer";
 import LazyRender from "@/components/LazyRender";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
 import { Link } from "react-router-dom";
@@ -14,6 +13,7 @@ const GoogleReviews = lazy(() => import("@/components/GoogleReviews"));
 const Faq = lazy(() => import("@/components/Faq"));
 const Contact = lazy(() => import("@/components/Contact"));
 const Map = lazy(() => import("@/components/Map"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const city = DEFAULT_CITY;
@@ -129,7 +129,11 @@ const Index = () => {
           </div>
         </section>
       </main>
-      <Footer />
+      <LazyRender minHeight="480px" rootMargin="200px">
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
+      </LazyRender>
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import React, { useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import type { City } from "@/data/seo";
 import { useNavigate } from "react-router-dom";
 
@@ -129,23 +127,22 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button
-            size="lg"
-            className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 shadow-xl hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+          <button
+            type="button"
+            className="inline-flex w-full items-center justify-center gap-2 bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-xl transition-transform duration-200 hover:scale-105 hover:bg-accent/90 sm:w-auto sm:px-8"
             onClick={goToRealisations}
           >
             Voir Nos Réalisations
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+            <span aria-hidden="true" className="text-lg leading-none">→</span>
+          </button>
 
-          <Button
-            variant="outline"
-            size="lg"
-            className="border-white/40 text-black hover:bg-white/10 font-semibold px-6 sm:px-8 py-3 shadow hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+          <button
+            type="button"
+            className="w-full border border-white/40 bg-white/90 px-6 py-3 font-semibold text-slate-950 shadow transition-transform duration-200 hover:scale-105 hover:bg-white sm:w-auto sm:px-8"
             onClick={() => scrollToSection("contact")}
           >
             Devis Gratuit
-          </Button>
+          </button>
         </div>
       </div>
     </section>
