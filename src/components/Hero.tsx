@@ -1,16 +1,18 @@
 import React, { useCallback } from "react";
 import type { City } from "@/data/seo";
 import { useNavigate } from "react-router-dom";
+import { scrollToSection } from "@/lib/scroll";
 
-// Public hero images with stable URLs (no hashing) for optimal preload
+// Public hero images with stable URLs (no hashing) for optimal preload.
+// The srcset widths are the real pixel widths: hero-1920.* is only 1000px wide,
+// so it is not listed (1280 is the largest real variant). Keep the preload in
+// index.html in sync with these candidates.
 const heroImageWebp640 = "/hero-640.webp";
 const heroImageWebp960 = "/hero-960.webp";
 const heroImageWebp1280 = "/hero-1280.webp";
-const heroImageWebp1920 = "/hero-1920.webp";
 const heroImageJpg640 = "/hero-640.jpg";
 const heroImageJpg960 = "/hero-960.jpg";
 const heroImageJpg1280 = "/hero-1280.jpg";
-const heroImageJpg1920 = "/hero-1920.jpg";
 
 type HeroProps = {
   city: City;
@@ -25,11 +27,6 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
   const projects = 50;
   const clients = 48;
   const satisfaction = 96;
-
-  const scrollToSection = useCallback((id: string) => {
-    const element = document.getElementById(id);
-    element?.scrollIntoView({ behavior: "smooth" });
-  }, []);
 
   const goToRealisations = useCallback(() => {
     navigate("/realisations");
@@ -56,12 +53,12 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
         <picture>
           <source
             type="image/webp"
-            srcSet={`${heroImageWebp640} 640w, ${heroImageWebp960} 960w, ${heroImageWebp1280} 1280w, ${heroImageWebp1920} 1920w`}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+            srcSet={`${heroImageWebp640} 640w, ${heroImageWebp960} 960w, ${heroImageWebp1280} 1280w`}
+            sizes="100vw"
           />
           <img
             src={heroImageJpg1280}
-            srcSet={`${heroImageJpg640} 640w, ${heroImageJpg960} 960w, ${heroImageJpg1280} 1280w, ${heroImageJpg1920} 1920w`}
+            srcSet={`${heroImageJpg640} 640w, ${heroImageJpg960} 960w, ${heroImageJpg1280} 1280w`}
             alt={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             title={`Travaux de peinture et rénovation à ${city.name} (${city.postalCode}).`}
             className="w-full h-full object-cover object-center sm:object-top"
@@ -70,7 +67,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
             decoding="async"
             fetchPriority={priority ? "high" : "auto"}
             loading={priority ? "eager" : "lazy"}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1920px"
+            sizes="100vw"
           />
         </picture>
 
@@ -132,7 +129,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
             className="inline-flex w-full items-center justify-center gap-2 bg-accent px-6 py-3 font-semibold text-accent-foreground shadow-xl transition-transform duration-200 hover:scale-105 hover:bg-accent/90 sm:w-auto sm:px-8"
             onClick={goToRealisations}
           >
-            Voir Nos Réalisations
+            Voir nos réalisations
             <span aria-hidden="true" className="text-lg leading-none">→</span>
           </button>
 
@@ -141,7 +138,7 @@ const Hero: React.FC<HeroProps> = ({ city, serviceLabel, priority = false, title
             className="w-full border border-white/40 bg-white/90 px-6 py-3 font-semibold text-slate-950 shadow transition-transform duration-200 hover:scale-105 hover:bg-white sm:w-auto sm:px-8"
             onClick={() => scrollToSection("contact")}
           >
-            Devis Gratuit
+            Demander un devis
           </button>
         </div>
       </div>

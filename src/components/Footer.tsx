@@ -6,6 +6,8 @@ import nhLogoWebp294 from '@/assets/nh-logo-294.webp';
 import { MapPin, Mail, Phone, Heart, Facebook, Linkedin, Twitter, Youtube } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CITIES, DEFAULT_CITY } from '@/data/seo';
+import { scrollToSection as scrollToHomeSection } from '@/lib/scroll';
+import { openCookieSettings } from '@/lib/consent';
 
 const Footer = () => {
   const location = useLocation();
@@ -16,19 +18,13 @@ const Footer = () => {
   const encodedShareUrl = encodeURIComponent(shareUrl);
   const encodedShareText = encodeURIComponent("HN Rénovation - Artisan peintre");
 
+  // Home sections are lazily mounted; from another page ScrollToTop handles /#id.
   const scrollToSection = (id: string) => {
-    const doScroll = () => {
-      const element = document.getElementById(id);
-      if (element) element.scrollIntoView({ behavior: 'smooth' });
-    };
-
     if (location.pathname !== "/") {
       navigate(`/#${id}`);
-      setTimeout(doScroll, 250);
       return;
     }
-
-    doScroll();
+    scrollToHomeSection(id);
   };
 
   const activeCitySlug = (() => {
@@ -87,16 +83,16 @@ const Footer = () => {
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                   <a
-                    href="tel:+330602228001"
+                    href="tel:+33602228001"
                     className="text-xs sm:text-sm underline hover:text-accent"
                   >
-                    +33 06 02 22 80 01
+                    06 02 22 80 01
                   </a>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                   <a
-                    href="mailto:contact@hn-renovation.fr"
+                    href="mailto:hn.renovation.fr@gmail.com"
                     className="text-xs sm:text-sm underline hover:text-accent"
                   >
                     hn.renovation.fr@gmail.com
@@ -154,6 +150,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
+                    type="button"
                     onClick={() => scrollToSection('contact')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -180,6 +177,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
+                    type="button"
                     onClick={() => scrollToSection('about')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -197,6 +195,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
+                    type="button"
                     onClick={() => scrollToSection('services')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -214,6 +213,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
+                    type="button"
                     onClick={() => scrollToSection('faq')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -222,6 +222,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
+                    type="button"
                     onClick={() => scrollToSection('contact')}
                     className="hover:text-accent underline w-full text-left"
                   >
@@ -315,8 +316,11 @@ const Footer = () => {
           {/* Bottom Bar */}
           <div className="pt-6 sm:pt-8 border-t border-primary-foreground/20">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 text-xs sm:text-sm">
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
                 <span>© {currentYear} HN Renovation. Tous droits réservés.</span>
+                <button type="button" onClick={openCookieSettings} className="underline hover:text-accent">
+                  Gestion des cookies
+                </button>
               </div>
               <div className="flex items-center space-x-2">
                 <span>Fait avec</span>

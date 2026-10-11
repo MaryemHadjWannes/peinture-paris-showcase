@@ -1,5 +1,6 @@
 import React from "react";
-import { Helmet } from "react-helmet-async";
+import SeoHead from "@/components/SeoHead";
+import { AVIS_META } from "@/data/routeMeta";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,6 @@ const Avis: React.FC = () => {
   const reviews: Review[] = data?.reviews ?? [];
   const summary = data?.summary ?? {};
   const googleMapsUrl: string | undefined = data?.googleMapsUrl;
-  const ogImage = "https://hn-renovation.fr/hero-1920.jpg";
 
   const [sort, setSort] = React.useState<SortKey>("withTextFirst");
 
@@ -58,29 +58,7 @@ const Avis: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <Helmet>
-        <title>Avis clients peintre à Cambrai (59) | HN Rénovation</title>
-        <meta
-          name="description"
-          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure, la propreté du chantier et le sérieux de l’équipe."
-        />
-        <link rel="canonical" href="https://hn-renovation.fr/avis" />
-        <meta property="og:title" content="Avis clients peintre à Cambrai (59) | HN Rénovation" />
-        <meta
-          property="og:description"
-          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure."
-        />
-        <meta property="og:url" content="https://hn-renovation.fr/avis" />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content={ogImage} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Avis clients peintre à Cambrai (59) | HN Rénovation" />
-        <meta
-          name="twitter:description"
-          content="Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure."
-        />
-        <meta name="twitter:image" content={ogImage} />
-      </Helmet>
+      <SeoHead meta={AVIS_META} />
       <Navigation />
       <br />
       <br />

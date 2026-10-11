@@ -1,7 +1,6 @@
 // src/pages/services/PlatrerieFinitionContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
-import SeoPhrasesAccordion from "@/components/SeoPhrasesAccordion";
 
 type Props = { city: CitySeo };
 
@@ -122,8 +121,6 @@ const PriceFactor = ({ title, desc }: { title: string; desc: string }) => (
 );
 
 export default function PlatrerieFinitionContent({ city }: Props) {
-  const cityLower = city.name.toLowerCase();
-  const deptLower = city.department.toLowerCase();
 
   return (
     <>
@@ -361,48 +358,6 @@ export default function PlatrerieFinitionContent({ city }: Props) {
             a="On respecte le séchage, puis on ponce et dépoussière. Ensuite, une sous-couche est recommandée avant la peinture de finition."
           />
         </div>
-      </section>
-
-      {/* SEO Phrases */}
-      <section className="container mx-auto px-4 pb-10 max-w-5xl">
-        <SeoPhrasesAccordion
-          title={`Recherches fréquentes – Plâtrerie et finitions (${city.name} / ${city.department})`}
-          groups={[
-            {
-              id: "pf-1",
-              label: `Plâtrerie (${city.name} / ${city.department})`,
-              phrases: [
-                `plâtrerie ${cityLower}`,
-                `artisan plâtrier ${cityLower}`,
-                `entreprise plâtrerie ${cityLower}`,
-                `travaux plâtrerie ${cityLower}`,
-                `plâtrerie ${deptLower}`,
-              ],
-            },
-            {
-              id: "pf-2",
-              label: "Joints placo / bandes / finitions",
-              phrases: [
-                `joints placo ${cityLower}`,
-                `bandes placo ${cityLower}`,
-                `bandes calicot ${cityLower}`,
-                `enduit joints placo ${cityLower}`,
-                `finitions intérieures ${cityLower}`,
-                `reprise angles placo ${cityLower}`,
-              ],
-            },
-            {
-              id: "pf-3",
-              label: "Devis",
-              phrases: [
-                `devis plâtrerie ${cityLower}`,
-                `devis joints placo ${cityLower}`,
-                `devis gratuit plâtrerie ${cityLower}`,
-                `prix joints placo ${cityLower}`,
-              ],
-            },
-          ]}
-        />
       </section>
     </>
   );

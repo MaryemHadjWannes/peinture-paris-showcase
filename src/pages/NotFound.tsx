@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Helmet } from "react-helmet-async";
+import SeoHead from "@/components/SeoHead";
+import { NOT_FOUND_META } from "@/data/routeMeta";
 
 const NotFound = () => {
   const location = useLocation();
@@ -11,17 +12,13 @@ const NotFound = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Page introuvable | HN Rénovation</title>
-        <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href={`https://hn-renovation.fr${location.pathname}`} />
-      </Helmet>
+      <SeoHead meta={NOT_FOUND_META} />
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="text-center">
           <h1 className="mb-4 text-4xl font-bold">404</h1>
-          <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
+          <p className="mb-4 text-xl text-gray-600">Oups ! Cette page est introuvable.</p>
           <a href="/" className="text-blue-500 underline hover:text-blue-700">
-            Return to Home
+            Retour à l’accueil
           </a>
         </div>
       </div>

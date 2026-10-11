@@ -1,7 +1,6 @@
 // src/pages/services/PeintureExterieureContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
-import SeoPhrasesAccordion from "@/components/SeoPhrasesAccordion";
 
 type Props = { city: CitySeo };
 
@@ -91,8 +90,6 @@ const PriceFactor = ({ title, desc }: { title: string; desc: string }) => (
 );
 
 export default function PeintureExterieureContent({ city }: Props) {
-  const cityLower = city.name.toLowerCase();
-  const deptLower = city.department.toLowerCase();
 
   return (
     <>
@@ -355,58 +352,6 @@ export default function PeintureExterieureContent({ city }: Props) {
             a="Oui. Nous réalisons le nettoyage de façade et, si nécessaire, un traitement anti-mousse avant la mise en peinture."
           />
         </div>
-      </section>
-
-      {/* SEO Phrases (merged: Peinture extérieure + Ravalement façade keywords) */}
-      <section className="container mx-auto px-4 pb-10 max-w-5xl">
-        <SeoPhrasesAccordion
-          title={`Recherches fréquentes – Peinture extérieure & ravalement de façade (${city.name} / ${city.department})`}
-          groups={[
-            {
-              id: "pe-1",
-              label: `Peinture extérieure (${city.name} / ${city.department})`,
-              phrases: [
-                `peinture extérieure ${cityLower}`,
-                `peintre extérieur ${cityLower}`,
-                `entreprise peinture extérieure ${cityLower}`,
-                `peinture façade maison ${cityLower}`,
-                `peinture murs extérieurs ${cityLower}`,
-                `peinture extérieure ${deptLower}`,
-              ],
-            },
-            {
-              id: "rf-1",
-              label: `Ravalement de façade (${city.name} / ${city.department})`,
-              phrases: [
-                `ravalement façade ${cityLower}`,
-                `entreprise ravalement façade ${cityLower}`,
-                `artisan ravalement façade ${deptLower}`,
-                `rénovation façade maison ${cityLower}`,
-                `ravalement maison ${deptLower}`,
-              ],
-            },
-            {
-              id: "rf-2",
-              label: "Nettoyage / anti-mousse / fissures",
-              phrases: [
-                `nettoyage façade haute pression ${cityLower}`,
-                `traitement anti-mousse façade ${cityLower}`,
-                `réparation fissures façade ${cityLower}`,
-                `remise en état façade ${cityLower}`,
-              ],
-            },
-            {
-              id: "rf-3",
-              label: "Devis",
-              phrases: [
-                `devis ravalement façade ${cityLower}`,
-                `prix ravalement façade ${cityLower}`,
-                `devis gratuit façade ${deptLower}`,
-                `devis peinture façade ${cityLower}`,
-              ],
-            },
-          ]}
-        />
       </section>
     </>
   );

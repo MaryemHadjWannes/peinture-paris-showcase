@@ -8,6 +8,7 @@ const Realisations = lazy(() => import("./pages/Realisations"));
 const CityPage = lazy(() => import("./pages/CityPage"));
 const CityServicePage = lazy(() => import("./pages/CityServicePage"));
 const Avis = lazy(() => import("./pages/Avis"));
+const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 import ScrollToTop from "@/components/ScrollToTop";
 // ✅ pages services
 
@@ -30,6 +31,9 @@ const App = () => {
             <Route path="/avis" element={<Avis />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </Suspense>
+        <Suspense fallback={null}>
+          <CookieConsent />
         </Suspense>
       </BrowserRouter>
   );

@@ -1,7 +1,6 @@
 // src/pages/services/ArtisanPeintreContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
-import SeoPhrasesAccordion from "@/components/SeoPhrasesAccordion";
 
 type Props = { city: CitySeo };
 
@@ -115,8 +114,6 @@ const PriceFactor = ({ title, desc }: { title: string; desc: string }) => (
 );
 
 export default function ArtisanPeintreContent({ city }: Props) {
-  const cityLower = city.name.toLowerCase();
-  const deptLower = city.department.toLowerCase();
 
   return (
     <>
@@ -326,58 +323,6 @@ export default function ArtisanPeintreContent({ city }: Props) {
             a="Nous utilisons des peintures professionnelles adaptées aux pièces (mates, satinées, lessivables, etc.)."
           />
         </div>
-      </section>
-
-      <section className="container mx-auto px-4 pb-10 max-w-5xl">
-        <SeoPhrasesAccordion
-          title={`Recherches fréquentes – Artisan peintre à ${city.name}`}
-          groups={[
-            {
-              id: "ap-1",
-              label: `Artisan / peintre (${city.name} / ${city.department})`,
-              phrases: [
-                `artisan peintre ${cityLower}`,
-                `peintre ${cityLower}`,
-                `entreprise de peinture ${cityLower}`,
-                `peintre professionnel ${cityLower}`,
-                `peintre ${deptLower}`,
-                `artisan peintre ${deptLower}`,
-              ],
-            },
-            {
-              id: "ap-2",
-              label: "Peinture intérieure / extérieure",
-              phrases: [
-                `peinture intérieure ${cityLower}`,
-                `peinture extérieure ${cityLower}`,
-                `peinture façade ${cityLower}`,
-                `peinture murs ${cityLower}`,
-                `peinture maison ${deptLower}`,
-              ],
-            },
-            {
-              id: "ap-3",
-              label: "Enduit / plâtrerie",
-              phrases: [
-                `enduit ${cityLower}`,
-                `ratissage ${cityLower}`,
-                `plâtrerie ${cityLower}`,
-                `finitions ${cityLower}`,
-                `bandes calicot ${cityLower}`,
-              ],
-            },
-            {
-              id: "ap-4",
-              label: "Devis",
-              phrases: [
-                `devis peinture ${cityLower}`,
-                `devis gratuit peintre ${cityLower}`,
-                `prix peintre ${cityLower}`,
-                `artisan peintre ${cityLower} devis`,
-              ],
-            },
-          ]}
-        />
       </section>
     </>
   );

@@ -63,7 +63,7 @@ const Portfolio = () => {
             const res = await fetch(`${API_BASE}/api/public/images/${cat}`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const { files } = await res.json();
-            fetchedMap[cat] = files.map((f: any) => ({
+            fetchedMap[cat] = files.map((f: ImageFile) => ({
               url: f.url,
               filename: f.filename,
             }));
@@ -122,7 +122,7 @@ const Portfolio = () => {
       const avantMap = new Map<string, string>();
       const apresMap = new Map<string, string>();
 
-      files.forEach((img: any) => {
+      files.forEach((img: ImageFile) => {
         if (img.filename.startsWith("avant-"))
           avantMap.set(getId(img.filename), img.url);
         else if (img.filename.startsWith("apres-"))

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, DragEvent } from 'react';
-import { Helmet } from "react-helmet-async";
+import SeoHead from "@/components/SeoHead";
+import { ADMIN_META } from "@/data/routeMeta";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +10,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown, Check } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
+// Same origin in production (the Express server serves the site and the API).
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
 interface Category {
   name: string;
@@ -137,6 +139,10 @@ const Admin: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+      if (res.status === 429) {
+        toast({ title: 'Trop de tentatives', description: 'Réessayez dans 15 minutes.', variant: 'destructive' });
+        return;
+      }
       if (!res.ok) throw new Error();
       const { token } = await res.json();
       localStorage.setItem('token', token);
@@ -212,7 +218,7 @@ const Admin: React.FC = () => {
       } else {
         toastSuccess('Uploadé !', forcedFilename);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Upload failed:', err);
       toastError('Échec upload', fileToSend.name);
     }
@@ -342,13 +348,7 @@ const Admin: React.FC = () => {
   };
   const onDragEnd = () => setIsDragging(null);
 
-  const adminHelmet = (
-    <Helmet>
-      <title>Administration | HN Rénovation</title>
-      <meta name="robots" content="noindex, nofollow" />
-      <link rel="canonical" href="https://hn-renovation.fr/admin" />
-    </Helmet>
-  );
+  const adminHelmet = <SeoHead meta={ADMIN_META} />;
 
   if (!token) {
     return (
@@ -376,7 +376,7 @@ const Admin: React.FC = () => {
       <div className="min-h-screen p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-[#0A2543]">Admin – Portfolio</h1>
-        <Button variant="outline" onClick={() => { localStorage.clear(); setToken(''); setImagesByCat({}); toast({ title: 'Déconnecté' }); }}>
+        <Button variant="outline" onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('portfolioImageOrder'); setToken(''); setImagesByCat({}); toast({ title: 'Déconnecté' }); }}>
           Déconnexion
         </Button>
       </div>
