@@ -1,5 +1,6 @@
 // src/pages/Realisations.tsx
-import { Helmet } from "react-helmet-async";
+import SeoHead from "@/components/SeoHead";
+import { REALISATIONS_META } from "@/data/routeMeta";
 import Navigation from "@/components/Navigation";
 import Portfolio from "@/components/Portfolio";
 import Footer from "@/components/Footer";
@@ -7,28 +8,7 @@ import Footer from "@/components/Footer";
 const Realisations = () => {
   return (
     <div className="min-h-screen">
-      <Helmet>
-        <title>Réalisations peinture à Cambrai (59) | HN Rénovation</title>
-        <meta
-          name="description"
-          content="Découvrez les réalisations HN Rénovation : peinture intérieure et extérieure, enduits et ravalement de façade à Cambrai (59) et dans le Nord."
-        />
-        <link rel="canonical" href="https://hn-renovation.fr/realisations" />
-        <meta property="og:title" content="Réalisations peinture à Cambrai (59) | HN Rénovation" />
-        <meta
-          property="og:description"
-          content="Sélection de chantiers : peinture intérieure/extérieure, enduits, façades. Artisan peintre à Cambrai."
-        />
-        <meta property="og:url" content="https://hn-renovation.fr/realisations" />
-        <meta property="og:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Réalisations peinture à Cambrai (59) | HN Rénovation" />
-        <meta
-          name="twitter:description"
-          content="Sélection de chantiers : peinture intérieure/extérieure, enduits, façades. Artisan peintre à Cambrai."
-        />
-        <meta name="twitter:image" content="https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg" />
-      </Helmet>
+      <SeoHead meta={REALISATIONS_META} />
       <Navigation />
       <br />
       <br />

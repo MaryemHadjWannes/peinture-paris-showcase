@@ -1,11 +1,12 @@
 import { Suspense, lazy, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import LazyRender from "@/components/LazyRender";
 import { CITIES } from "@/data/seo";
+import { getCityMeta } from "@/data/routeMeta";
+import SeoHead from "@/components/SeoHead";
 import NotFound from "@/pages/NotFound";
 
 const About = lazy(() => import("@/components/About"));
@@ -23,27 +24,9 @@ export default function CityPage() {
     return <NotFound />;
   }
 
-  const canonical = `https://hn-renovation.fr/${city.slug}`;
-  const ogImage = "https://hn-renovation.fr/uploads/1759262842539-hero-painting.jpg";
-  const title = `Peintre à ${city.name} (${city.postalCode}) | HN Rénovation - peinture`;
-  const description = `HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) dans le ${city.department} : peinture intérieure et extérieure, enduits, plâtrerie. Devis gratuit.`;
-
   return (
     <div className="min-h-screen">
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonical} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={canonical} />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content={ogImage} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={ogImage} />
-      </Helmet>
+      <SeoHead meta={getCityMeta(city)} />
 
       <Navigation />
         <br/>

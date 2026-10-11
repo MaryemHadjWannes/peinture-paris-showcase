@@ -1,7 +1,6 @@
 // src/pages/services/EnduitContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
-import SeoPhrasesAccordion from "@/components/SeoPhrasesAccordion";
 
 type Props = { city: CitySeo };
 
@@ -122,8 +121,6 @@ const PriceFactor = ({ title, desc }: { title: string; desc: string }) => (
 );
 
 export default function EnduitContent({ city }: Props) {
-  const cityLower = city.name.toLowerCase();
-  const deptLower = city.department.toLowerCase();
 
   return (
     <>
@@ -360,49 +357,6 @@ export default function EnduitContent({ city }: Props) {
             a="Oui, le ponçage est généralement indispensable pour obtenir un rendu homogène. Il est suivi d’un dépoussiérage soigné avant sous-couche/peinture."
           />
         </div>
-      </section>
-
-      {/* SEO Phrases */}
-      <section className="container mx-auto px-4 pb-10 max-w-5xl">
-        <SeoPhrasesAccordion
-          title={`Recherches fréquentes – Enduit intérieur (${city.name} / ${city.department})`}
-          groups={[
-            {
-              id: "en-1",
-              label: `Enduit intérieur (${city.name} / ${city.department})`,
-              phrases: [
-                `enduit intérieur ${cityLower}`,
-                `artisan enduit ${cityLower}`,
-                `entreprise enduit ${cityLower}`,
-                `enduit murs ${cityLower}`,
-                `enduit de finition ${cityLower}`,
-                `enduit intérieur ${deptLower}`,
-              ],
-            },
-            {
-              id: "en-2",
-              label: "Ratissage / fissures / bandes",
-              phrases: [
-                `ratissage murs ${cityLower}`,
-                `rebouchage trous murs ${cityLower}`,
-                `réparation fissures murs ${cityLower}`,
-                `bandes calicot ${cityLower}`,
-                `bandes armées ${cityLower}`,
-                `murs lisses avant peinture ${cityLower}`,
-              ],
-            },
-            {
-              id: "en-3",
-              label: "Devis",
-              phrases: [
-                `devis enduit ${cityLower}`,
-                `devis enduit intérieur ${cityLower}`,
-                `devis gratuit enduit ${cityLower}`,
-                `prix ratissage ${cityLower}`,
-              ],
-            },
-          ]}
-        />
       </section>
     </>
   );

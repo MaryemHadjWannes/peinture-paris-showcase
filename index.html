@@ -9,29 +9,39 @@
     <link rel="preload" as="font" href="/fonts/Inter-300-600.woff2" type="font/woff2" crossorigin>
     <link rel="preload" as="font" href="/fonts/PlayfairDisplay-400-700.woff2" type="font/woff2" crossorigin>
 
-    <link rel="preload" as="image" href="/hero-640.webp" type="image/webp" media="(max-width: 640px)">
-    <link rel="preload" as="image" href="/hero-1280.webp" type="image/webp" media="(min-width: 641px) and (max-width: 1280px)">
-    <link rel="preload" as="image" href="/hero-1920.webp" type="image/webp" media="(min-width: 1281px)">
+    <!-- Same candidates/sizes as the hero <picture> (src/components/Hero.tsx) so the browser preloads the exact file it will use -->
+    <link rel="preload" as="image" type="image/webp" imagesrcset="/hero-640.webp 640w, /hero-960.webp 960w, /hero-1280.webp 1280w" imagesizes="100vw" fetchpriority="high">
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/hn-logo.png" />
 
 
-    <!-- Google tag (gtag.js) - Delayed by 3 seconds for performance -->
+    <!-- Google tag (gtag.js): loaded only after the visitor accepts audience
+         measurement in the cookie banner (src/components/CookieConsent.tsx).
+         A returning visitor who accepted gets it after 3 s, for performance. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      
-      // Delay GA script loading by 3 seconds to not block critical rendering
-      setTimeout(function() {
+
+      window.hnLoadAnalytics = function() {
+        if (window.hnAnalyticsLoaded) return;
+        window.hnAnalyticsLoaded = true;
         var gtagScript = document.createElement('script');
         gtagScript.async = true;
         gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-YTTP4T98J0';
         document.head.appendChild(gtagScript);
-        
+
         gtag('js', new Date());
         gtag('config', 'G-YTTP4T98J0');
-      }, 3000);
+      };
+
+      try {
+        var hnConsent = JSON.parse(localStorage.getItem('hn-analytics-consent') || 'null');
+        var sixMonths = 1000 * 60 * 60 * 24 * 182;
+        if (hnConsent && hnConsent.value === 'granted' && Date.now() - hnConsent.date < sixMonths) {
+          setTimeout(window.hnLoadAnalytics, 3000);
+        }
+      } catch (e) {}
     </script>
     <script type="application/ld+json">
       {
@@ -66,65 +76,6 @@
           "https://www.youtube.com/@HN-Renovation",
           "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
           "https://x.com/hn_renovat41548"
-        ],
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "5.0",
-          "reviewCount": "7"
-        },
-        "review": [
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Catherine Taine" },
-            "datePublished": "2025-12-19",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Hn rénovation un peintre professionnel de cambrai",
-            "reviewBody": "Travail propre, détails respectés et finitions parfaite. Entreprise sérieuse"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Abesi Aref" },
-            "datePublished": "2025-12-01",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Avis Google"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Romain Delsart" },
-            "datePublished": "2025-12-01",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Travail impeccable : professionnel, à l’écoute et très soigneux.",
-            "reviewBody": "Travail impeccable : professionnel, à l’écoute et très soigneux. Je suis vraiment satisfait du résultat. Je recommande vivement !"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Hélène Taine" },
-            "datePublished": "2025-12-01",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Avis Google"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Maryem Hadj Wannes" },
-            "datePublished": "2025-12-01",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Avis Google"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "amine ben khaled" },
-            "datePublished": "2025-09-22",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Avis Google"
-          },
-          {
-            "@type": "Review",
-            "author": { "@type": "Person", "name": "Kouiek Kamel" },
-            "datePublished": "2026-05-18",
-            "reviewRating": { "@type": "Rating", "ratingValue": "5" },
-            "name": "Un travail de haute qualité",
-            "reviewBody": "Un grand merci pour le travail réalisé, un professionnel très méticuleux et soucieux du travail bien fait. Nous sommes plus que satisfait. En plus d’être professionnel, Habib est sérieux, respectueux et discret. Nous repasserons par vos services rapidement pour un autre chantier. Merci pour le travail de haute qualité. Je recommande les yeux fermés."
-          }
         ]
       }
     </script>
@@ -160,8 +111,8 @@
           </ul>
           <h2>Contact</h2>
           <p>103 rue Saint Ladre, 59400 Cambrai</p>
-          <p>Téléphone : +33 06 02 22 80 01</p>
-          <p>Email : hn.renovation.fr@gmail.com</p>
+          <p>Téléphone : <a href="tel:+33602228001">06 02 22 80 01</a></p>
+          <p>Email : <a href="mailto:hn.renovation.fr@gmail.com">hn.renovation.fr@gmail.com</a></p>
         </section>
       </noscript>
     </div>

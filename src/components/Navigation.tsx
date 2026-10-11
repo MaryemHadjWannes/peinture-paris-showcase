@@ -4,6 +4,7 @@ import nhLogoPng294 from "@/assets/nh-logo-294.png";
 import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
 import nhLogoWebp294 from "@/assets/nh-logo-294.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { scrollToSection } from "@/lib/scroll";
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -12,33 +13,14 @@ const Navigation = () => {
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const scrollToSectionWithOffset = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return false;
-    const navOffset = 88;
-    const top = el.getBoundingClientRect().top + window.pageYOffset - navOffset;
-    window.scrollTo({ top, behavior: "smooth" });
-    window.history.replaceState(null, "", `#${id}`);
-    return true;
-  };
-
+  // Home page sections are lazily mounted: scrollToSection() mounts them first.
+  // From another page, ScrollToTop handles the /#id navigation.
   const goToHomeSection = (id: string) => {
-    const tryScroll = () => scrollToSectionWithOffset(id);
-
     if (location.pathname !== "/") {
       navigate(`/#${id}`);
-      let attempts = 0;
-      const poll = () => {
-        if (tryScroll() || ++attempts > 20) return;
-        requestAnimationFrame(poll);
-      };
-      setTimeout(poll, 100);
       return;
     }
-
-    if (!tryScroll()) {
-      setTimeout(tryScroll, 100);
-    }
+    scrollToSection(id);
   };
 
   const handleNavClick = (item: { id: string; label: string; type: "section" | "route"; path?: string }) => {
@@ -84,8 +66,8 @@ const Navigation = () => {
         <div className="container mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 py-2 text-xs sm:text-sm">
           <div className="flex flex-wrap items-center gap-4">
             <span className="font-semibold">Devis gratuit sous 24h</span>
-            <a href="tel:+330602228001" className="hover:text-white font-medium">
-              +33 06 02 22 80 01
+            <a href="tel:+33602228001" className="hover:text-white font-medium" aria-label="Appeler HN Rénovation au 06 02 22 80 01">
+              06 02 22 80 01
             </a>
             <a href="mailto:hn.renovation.fr@gmail.com" className="hover:text-white font-medium hidden sm:inline">
               hn.renovation.fr@gmail.com
@@ -135,7 +117,7 @@ const Navigation = () => {
                     key={item.id}
                     to={item.path}
                     onClick={(event) => handleRouteClick(event, item.path)}
-                    className="px-2 lg:px-3 py-2 text-foreground hover:text-primary text-sm font-medium transition-colors duration-200"
+                    className="px-2 lg:px-3 py-2 whitespace-nowrap text-foreground hover:text-primary text-sm font-medium transition-colors duration-200"
                   >
                     {item.label}
                     {item.srLabel ? <span className="sr-only"> {item.srLabel}</span> : null}
@@ -143,8 +125,9 @@ const Navigation = () => {
                 ) : (
                   <button
                     key={item.id}
+                    type="button"
                     onClick={() => handleNavClick(item)}
-                    className="px-2 lg:px-3 py-2 text-foreground hover:text-primary text-sm font-medium transition-colors duration-200"
+                    className="px-2 lg:px-3 py-2 whitespace-nowrap text-foreground hover:text-primary text-sm font-medium transition-colors duration-200"
                   >
                     {item.label}
                   </button>
@@ -152,13 +135,14 @@ const Navigation = () => {
               )}
             </div>
 
-            {/* Desktop CTA */}
+            {/* Quote CTA (always visible, short label below lg so the bar fits at 768px) */}
             <button
               type="button"
-              className="hidden sm:flex items-center justify-center rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent/90"
+              className="ml-auto md:ml-0 flex items-center justify-center whitespace-nowrap rounded-full bg-accent px-3 sm:px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent/90"
               onClick={() => handleNavClick({ id: "contact", label: "Devis Gratuit", type: "section" })}
             >
-              Devis Gratuit
+              <span className="lg:hidden">Devis</span>
+              <span className="hidden lg:inline">Devis Gratuit</span>
             </button>
 
             {/* Mobile Menu Toggle */}
@@ -167,6 +151,8 @@ const Navigation = () => {
               className="inline-flex items-center justify-center rounded-md border border-input bg-background p-2 shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
               onClick={() => setIsMobileMenuOpen((v) => !v)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {isMobileMenuOpen ? (
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
@@ -182,6 +168,7 @@ const Navigation = () => {
 
           {/* Mobile Menu */}
           <div
+            id="mobile-menu"
             className={`md:hidden bg-background/95 backdrop-blur-sm border-t border-border overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
               isMobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
             }`}
@@ -197,6 +184,7 @@ const Navigation = () => {
                   <Link
                     key={item.id}
                     to={item.path}
+                    tabIndex={isMobileMenuOpen ? undefined : -1}
                     onClick={(event) => handleRouteClick(event, item.path)}
                     className="text-foreground hover:text-primary hover:bg-secondary/40 px-4 py-2 text-base font-medium transition-colors duration-200"
                   >
@@ -206,6 +194,8 @@ const Navigation = () => {
                 ) : (
                   <button
                     key={item.id}
+                    type="button"
+                    tabIndex={isMobileMenuOpen ? undefined : -1}
                     onClick={() => handleNavClick(item)}
                     className="text-foreground hover:text-primary hover:bg-secondary/40 px-4 py-2 text-base font-medium transition-colors duration-200 text-left"
                   >
@@ -215,6 +205,7 @@ const Navigation = () => {
               )}
               <button
                 type="button"
+                tabIndex={isMobileMenuOpen ? undefined : -1}
                 className="mx-4 mt-2 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:bg-accent/90"
                 onClick={() => {
                   handleNavClick({ id: "contact", label: "Devis Gratuit", type: "section" });

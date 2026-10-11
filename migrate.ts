@@ -59,8 +59,9 @@ async function uploadFile(localPath: string, cloudinarySubFolder: string) {
         
         console.log(`  -> SUCCESS: ${result.secure_url}`);
         return result;
-    } catch (error: any) {
-        if (error.http_code === 400 && error.message.includes('already exists')) {
+    } catch (err) {
+        const error = err as { http_code?: number; message?: string };
+        if (error.http_code === 400 && error.message?.includes('already exists')) {
             console.warn(`  -> WARNING: File already exists with public ID ${filename}. Skipping.`);
             return null;
         }

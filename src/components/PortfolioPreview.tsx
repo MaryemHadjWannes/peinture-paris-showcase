@@ -50,7 +50,7 @@ const PortfolioPreview = ({ city }: { city: City }) => {
           const { files } = await res.json();
           if (Array.isArray(files) && files.length > 0) {
             if (category.id === "avant-apres") {
-              const after = files.find((file: any) => file.filename?.startsWith("apres-"));
+              const after = files.find((file: { filename?: string }) => file.filename?.startsWith("apres-"));
               next[category.id] = (after || files[0]).url;
               return;
             }

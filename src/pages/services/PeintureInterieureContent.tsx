@@ -1,7 +1,6 @@
 // src/pages/services/PeintureInterieureContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
-import SeoPhrasesAccordion from "@/components/SeoPhrasesAccordion";
 
 type Props = { city: CitySeo };
 
@@ -116,8 +115,6 @@ const PriceFactor = ({ title, desc }: { title: string; desc: string }) => (
 );
 
 export default function PeintureInterieureContent({ city }: Props) {
-  const cityLower = city.name.toLowerCase();
-  const deptLower = city.department.toLowerCase();
 
   return (
     <>
@@ -400,67 +397,6 @@ export default function PeintureInterieureContent({ city }: Props) {
             a="Oui. Pour les pièces humides, nous privilégions des produits adaptés (résistance à l’humidité/condensation et entretien simplifié) selon la situation observée sur place."
           />
         </div>
-      </section>
-
-      {/* SEO Phrases (merged: Peinture intérieure + Rénovation intérieure keywords) */}
-      <section className="container mx-auto px-4 pb-10 max-w-5xl">
-        <SeoPhrasesAccordion
-          title={`Recherches fréquentes – Peinture & rénovation intérieure (${city.name} / ${city.department})`}
-          groups={[
-            {
-              id: "pi-1",
-              label: `Peinture intérieure (${city.name} / ${city.department})`,
-              phrases: [
-                `peinture intérieure ${cityLower}`,
-                `peintre intérieur ${cityLower}`,
-                `entreprise peinture intérieure ${cityLower}`,
-                `artisan peintre intérieur ${cityLower}`,
-                `peinture salon ${cityLower}`,
-                `peinture chambre ${cityLower}`,
-                `peinture cuisine ${cityLower}`,
-                `peinture salle de bain ${cityLower}`,
-                `peinture murs plafonds ${cityLower}`,
-                `peintre ${deptLower} peinture intérieure`,
-              ],
-            },
-            {
-              id: "ri-1",
-              label: `Rénovation intérieure (${city.name} / ${city.department})`,
-              phrases: [
-                `rénovation intérieure ${cityLower}`,
-                `rénovation maison ${cityLower}`,
-                `rénovation appartement ${cityLower}`,
-                `artisan rénovation intérieure ${cityLower}`,
-                `entreprise rénovation intérieure ${deptLower}`,
-              ],
-            },
-            {
-              id: "ri-2",
-              label: "Enduits / plâtrerie / placo / finitions",
-              phrases: [
-                `enduit intérieur ${cityLower}`,
-                `enduit professionnel ${cityLower}`,
-                `ratissage murs ${cityLower}`,
-                `bandes calicot ${cityLower}`,
-                `bandes armées ${cityLower}`,
-                `réparation fissures murs intérieurs ${cityLower}`,
-                `plâtrerie ${cityLower}`,
-                `pose placo ${cityLower}`,
-                `finitions rénovation intérieure ${cityLower}`,
-              ],
-            },
-            {
-              id: "ri-3",
-              label: "Devis",
-              phrases: [
-                `devis peinture intérieure ${cityLower}`,
-                `devis rénovation intérieure ${cityLower}`,
-                `devis gratuit rénovation ${cityLower}`,
-                `artisan peintre ${cityLower} devis gratuit`,
-              ],
-            },
-          ]}
-        />
       </section>
     </>
   );

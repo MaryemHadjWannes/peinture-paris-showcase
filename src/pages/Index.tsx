@@ -1,9 +1,10 @@
 import { Suspense, lazy } from "react";
-import { Helmet } from "react-helmet-async";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import LazyRender from "@/components/LazyRender";
 import { CITIES, DEFAULT_CITY } from "@/data/seo";
+import { HOME_META } from "@/data/routeMeta";
+import SeoHead from "@/components/SeoHead";
 import { Link } from "react-router-dom";
 
 const About = lazy(() => import("@/components/About"));
@@ -17,26 +18,9 @@ const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const city = DEFAULT_CITY;
-  const description =
-    "HN Rénovation, artisan peintre à Cambrai (59) dans le Nord : peinture intérieure et extérieure, enduits, plâtrerie, façades. Devis gratuit.";
-
   return (
     <div className="min-h-screen">
-      <Helmet>
-        <title>HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure</title>
-        <meta name="description" content={description} />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://hn-renovation.fr/" />
-        <meta property="og:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
-        <meta property="og:description" content={description} />
-        <meta property="og:image" content="https://hn-renovation.fr/hero-1920.jpg" />
-        <meta property="og:url" content="https://hn-renovation.fr/" />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="HN Rénovation | Peintre à Cambrai (59) - Peinture intérieure" />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content="https://hn-renovation.fr/hero-1920.jpg" />
-      </Helmet>
+      <SeoHead meta={HOME_META} />
       <Navigation />
       <br/>
       <br/>

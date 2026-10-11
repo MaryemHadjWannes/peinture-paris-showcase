@@ -6,6 +6,7 @@ import { Home, Building, Palette, Brush, Clock, Shield, ArrowRight, CheckCircle 
 import { Link } from "react-router-dom";
 import type { City } from "@/data/seo";
 import { useIntersectionAnimation } from "@/hooks/useIntersectionAnimation";
+import { scrollToSection } from "@/lib/scroll";
 
 type ServicesProps = {
   city: City;
@@ -71,7 +72,7 @@ const baseServices = [
 ];
 
 // Service card component with animation
-const ServiceCard: React.FC<{ service: any; city: City; index: number; onScrollToSection: (id: string) => void }> = ({ service, city, index, onScrollToSection }) => {
+const ServiceCard: React.FC<{ service: (typeof baseServices)[number]; city: City; index: number; onScrollToSection: (id: string) => void }> = ({ service, city, index, onScrollToSection }) => {
   const { ref, isVisible } = useIntersectionAnimation();
   const IconComponent = service.icon;
   
@@ -149,11 +150,6 @@ const ServiceCard: React.FC<{ service: any; city: City; index: number; onScrollT
 };
 
 const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    element?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const services = React.useMemo(() => {
     if (!serviceFocus) return baseServices;
     const focused = baseServices.find((s) => s.slug === serviceFocus);

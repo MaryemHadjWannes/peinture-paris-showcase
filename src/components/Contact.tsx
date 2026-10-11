@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, Loader2 } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import type { City } from "@/data/seo";
@@ -13,32 +13,50 @@ type ContactProps = {
   city: City;
 };
 
+// Single active channel for quote requests: Formspree (forwards to the company email).
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xdkwzzlz";
+const CONTACT_EMAIL = "hn.renovation.fr@gmail.com";
+
+const PROJECT_TYPES = [
+  "Peinture intérieure",
+  "Peinture extérieure / façade",
+  "Enduit / ratissage",
+  "Plâtrerie / finitions",
+  "Autre",
+];
+
+const EMPTY_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  project: "",
+  city: "",
+  surface: "",
+  message: "",
+};
+
+type Status = "idle" | "sending" | "success" | "error";
+
+const selectClassName =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+
 const Contact: React.FC<ContactProps> = ({ city }) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    project: "",
-    message: "",
-    photos: [] as File[],
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [status, setStatus] = useState<Status>("idle");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xdkwzzlz";
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("phone", formData.phone);
-    data.append("project", formData.project);
-    data.append("message", formData.message);
+    if (status === "sending") return; // no double submission
 
+    const data = new FormData(e.currentTarget);
+    data.append("_subject", `Demande de devis${formData.project ? ` – ${formData.project}` : ""}`);
+
+    setStatus("sending");
     try {
       const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
@@ -47,23 +65,33 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
       });
 
       if (res.ok) {
+        setStatus("success");
         toast({ title: "Message envoyé !", description: "Nous vous recontacterons dans les plus brefs délais." });
-        setFormData({ name: "", email: "", phone: "", project: "", message: "", photos: [] });
+        setFormData(EMPTY_FORM);
       } else {
+        setStatus("error");
         toast({ title: "Erreur", description: "Impossible d’envoyer le message. Veuillez réessayer." });
       }
     } catch {
+      setStatus("error");
       toast({ title: "Erreur", description: "Impossible d’envoyer le message. Veuillez réessayer." });
     }
   };
 
   const contactInfo = [
-    { icon: Phone, title: "Téléphone", content: "+33 06 02 22 80 01", subtitle: "Lun-Ven 8h-18h" },
-    { icon: Mail, title: "Email", content: "hn.renovation.fr@gmail.com", subtitle: "Réponse sous 24h" },
-    { icon: MapPin, title: "Adresse", content: "103 rue Saint Ladre", subtitle: "59400 Cambrai, France" },
+    { icon: Phone, title: "Téléphone", content: "06 02 22 80 01", subtitle: "Lun-Ven 8h-18h", href: "tel:+33602228001" },
+    { icon: Mail, title: "Email", content: CONTACT_EMAIL, subtitle: "Réponse sous 24h", href: `mailto:${CONTACT_EMAIL}` },
+    {
+      icon: MapPin,
+      title: "Adresse",
+      content: "103 rue Saint Ladre",
+      subtitle: "59400 Cambrai, France",
+      href: "https://maps.google.com/?q=103+rue+saint+ladre,+59400+cambrai",
+    },
     { icon: Clock, title: "Horaires", content: "Lundi - Vendredi", subtitle: "8h00 - 18h00" },
   ];
 
+  const isSending = status === "sending";
 
   return (
     <section id="contact" className="py-12 sm:py-16 bg-background">
@@ -88,37 +116,89 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
                 <CardTitle className="text-xl sm:text-2xl font-heading text-primary">Demande de Devis</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" aria-busy={isSending}>
+                  {/* Honeypot (spam protection, ignored by Formspree when empty) */}
+                  <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Nom complet *</Label>
-                      <Input id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="Votre nom" />
+                      <Input id="name" name="name" autoComplete="name" value={formData.name} onChange={handleChange} required placeholder="Votre nom" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email *</Label>
-                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="votre@email.com" />
+                      <Input id="email" name="email" type="email" autoComplete="email" value={formData.email} onChange={handleChange} required placeholder="votre@email.com" />
                     </div>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Téléphone</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+33 06 02 22 80 01" />
+                      <Input id="phone" name="phone" type="tel" autoComplete="tel" value={formData.phone} onChange={handleChange} placeholder="Ex : 06 12 34 56 78" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="project">Type de projet</Label>
-                      <Input id="project" name="project" value={formData.project} onChange={handleChange} placeholder="Ex: Peinture intérieure" />
+                      <Label htmlFor="project">Type de prestation</Label>
+                      <select id="project" name="project" value={formData.project} onChange={handleChange} className={selectClassName}>
+                        <option value="">Choisir…</option>
+                        {PROJECT_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">Commune ou code postal</Label>
+                      <Input id="city" name="city" autoComplete="address-level2" value={formData.city} onChange={handleChange} placeholder={`Ex : ${city.name} (${city.postalCode})`} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="surface">Surface (facultatif)</Label>
+                      <Input id="surface" name="surface" inputMode="decimal" value={formData.surface} onChange={handleChange} placeholder="Ex : 40 m²" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="message">Description du projet *</Label>
-                    <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required placeholder="Décrivez votre projet en détail..." rows={4} />
+                    <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required placeholder="Pièces concernées, état des murs, délais souhaités..." rows={4} aria-describedby="message-hint" />
+                    <p id="message-hint" className="text-xs text-muted-foreground">
+                      Des photos aident à estimer le chantier : vous pouvez les envoyer à{" "}
+                      <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent">{CONTACT_EMAIL}</a> après votre demande.
+                    </p>
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full sm:w-auto hover-lift px-6 sm:px-8">
-                    Envoyer la Demande <Send className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Les informations de ce formulaire servent uniquement à traiter votre demande de devis et à vous
+                    recontacter. Elles sont transmises par e-mail à HN Rénovation via le service Formspree et ne sont ni
+                    vendues ni cédées. Pour y accéder ou les faire supprimer, écrivez à{" "}
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent">{CONTACT_EMAIL}</a>.
+                  </p>
+
+                  <Button type="submit" size="lg" className="w-full sm:w-auto hover-lift px-6 sm:px-8" disabled={isSending}>
+                    {isSending ? (
+                      <>
+                        Envoi en cours… <Loader2 className="ml-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        Envoyer la Demande <Send className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      </>
+                    )}
                   </Button>
+
+                  <div role="status" aria-live="polite" className="text-sm">
+                    {status === "success" && (
+                      <p className="text-green-700">Merci, votre demande a bien été envoyée. Nous vous recontactons rapidement.</p>
+                    )}
+                    {status === "error" && (
+                      <p className="text-destructive">
+                        L’envoi a échoué. Réessayez ou contactez-nous au{" "}
+                        <a href="tel:+33602228001" className="underline">06 02 22 80 01</a>.
+                      </p>
+                    )}
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -127,6 +207,7 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
               <div className="grid gap-4 sm:gap-6">
                 {contactInfo.map((info, index) => {
                   const IconComponent = info.icon;
+                  const external = info.href?.startsWith("http");
                   return (
                     <Card key={index} className="hover-lift border-border/50">
                       <CardContent className="flex items-center space-x-4 p-4 sm:p-6">
@@ -135,7 +216,17 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
                         </div>
                         <div>
                           <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-1">{info.title}</h3>
-                          <p className="text-foreground text-sm sm:text-base">{info.content}</p>
+                          {info.href ? (
+                            <a
+                              href={info.href}
+                              className="text-foreground text-sm sm:text-base underline-offset-2 hover:underline hover:text-accent break-all"
+                              {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                            >
+                              {info.content}
+                            </a>
+                          ) : (
+                            <p className="text-foreground text-sm sm:text-base">{info.content}</p>
+                          )}
                           <p className="text-xs sm:text-sm text-muted-foreground">{info.subtitle}</p>
                         </div>
                       </CardContent>

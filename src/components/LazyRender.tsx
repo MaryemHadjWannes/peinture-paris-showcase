@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { isRevealRequested, onRevealRequest } from "@/lib/scroll";
 
 type LazyRenderProps = {
   children: ReactNode;
@@ -16,8 +17,14 @@ const LazyRender = ({
   className,
   threshold = 0.2,
 }: LazyRenderProps) => {
-  const [isVisible, setIsVisible] = useState(false);
+  // Mounted right away when a link asked to scroll to a section (#contact...).
+  const [isVisible, setIsVisible] = useState(isRevealRequested);
   const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isVisible) return;
+    return onRevealRequest(() => setIsVisible(true));
+  }, [isVisible]);
 
   useEffect(() => {
     if (isVisible) return;
@@ -39,7 +46,7 @@ const LazyRender = ({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [isVisible, rootMargin]);
+  }, [isVisible, rootMargin, threshold]);
 
   const style = !isVisible ? { minHeight } : undefined;
 
