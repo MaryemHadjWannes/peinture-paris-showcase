@@ -53,8 +53,8 @@ const Footer = () => {
                     src={nhLogoPng147}
                     srcSet={`${nhLogoPng147} 147w, ${nhLogoPng294} 294w`}
                     sizes="(max-width: 640px) 84px, 98px"
-                    alt="HN Logo"
-                    title="HN Logo"
+                    alt="HN Rénovation"
+                    title="HN Rénovation"
                     className="h-12 w-[84px] sm:h-14 sm:w-[98px]"
                     width={147}
                     height={84}
@@ -317,7 +317,7 @@ const Footer = () => {
           <div className="pt-6 sm:pt-8 border-t border-primary-foreground/20">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 text-xs sm:text-sm">
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-                <span>© {currentYear} HN Renovation. Tous droits réservés.</span>
+                <span>© {currentYear} HN Rénovation. Tous droits réservés.</span>
                 <button type="button" onClick={openCookieSettings} className="underline hover:text-accent">
                   Gestion des cookies
                 </button>

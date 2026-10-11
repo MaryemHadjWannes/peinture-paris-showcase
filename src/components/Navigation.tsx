@@ -93,15 +93,15 @@ const Navigation = () => {
                 <source
                   type="image/webp"
                   srcSet={`${nhLogoWebp147} 147w, ${nhLogoWebp294} 294w`}
-                  sizes="(max-width: 640px) 70px, 90px"
+                  sizes="(max-width: 640px) 70px, 84px"
                 />
                 <img
                   src={nhLogoPng147}
                   srcSet={`${nhLogoPng147} 147w, ${nhLogoPng294} 294w`}
-                  sizes="(max-width: 640px) 70px, 90px"
+                  sizes="(max-width: 640px) 70px, 84px"
                   alt="HN Rénovation"
                   title="HN Rénovation"
-                  className="h-10 w-[70px] sm:h-12 sm:w-[90px]"
+                  className="h-10 w-[70px] sm:h-12 sm:w-[84px]"
                   width={147}
                   height={84}
                   decoding="async"

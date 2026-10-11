@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ServiceLayout, { CitySeo } from "@/pages/services/ServiceLayout";
-import { CITIES } from "@/data/seo";
+import { CITIES, cityPath } from "@/data/seo";
 import { getServiceMeta } from "@/data/routeMeta";
 import NotFound from "@/pages/NotFound";
 
@@ -32,7 +32,7 @@ function renderServiceContent(serviceSlug: string, city: CitySeo) {
             Ce service n’est pas encore disponible pour cette ville.
           </p>
           <div className="mt-6">
-            <Link to={`/${city.slug}`} className="underline hover:text-accent">
+            <Link to={cityPath(city)} className="underline hover:text-accent-strong">
               ← Retour à {city.name}
             </Link>
           </div>
@@ -65,7 +65,7 @@ export default function CityServicePage() {
       {city.nearby?.length ? (
         <section className="container mx-auto px-4 pb-12">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Intervention autour de {city.name}</h2>
+            <h2 className="subsection-title mb-4">Intervention autour de {city.name}</h2>
             <p className="text-muted-foreground mb-4">
               Nous intervenons également dans les communes proches : {city.nearby.join(", ")}.
             </p>

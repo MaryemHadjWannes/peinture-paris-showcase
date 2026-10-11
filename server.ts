@@ -6,7 +6,14 @@ import crypto from "crypto";
 import fs from "fs";
 import googleReviewsApi from "./googleReviewsApi";
 import { CITIES } from "./src/data/seo";
-import { SERVICE_SLUGS, NOT_FOUND_META, getHeadTags, getRouteMeta, type RouteMeta } from "./src/data/routeMeta";
+import {
+  SERVICE_SLUGS,
+  NOT_FOUND_META,
+  getBreadcrumbJsonLd,
+  getHeadTags,
+  getRouteMeta,
+  type RouteMeta,
+} from "./src/data/routeMeta";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from 'url';
@@ -436,6 +443,24 @@ const isSpaRoute = (pathname: string) => {
   return false;
 };
 
+// One URL per page for search engines: www → apex domain, and no trailing slash
+// (/realisations/ → /realisations). Leading slashes are collapsed so that
+// "//other-site.com/" cannot turn into an open redirect.
+const CANONICAL_HOST = "hn-renovation.fr";
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  if (req.method !== "GET" && req.method !== "HEAD") return next();
+  if (req.get("host") === `www.${CANONICAL_HOST}`) {
+    return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
+  }
+  if (req.path.length > 1 && req.path.endsWith("/") && !req.path.startsWith("/api/")) {
+    const queryIndex = req.originalUrl.indexOf("?");
+    const query = queryIndex === -1 ? "" : req.originalUrl.slice(queryIndex);
+    const cleanPath = "/" + req.path.replace(/^\/+/, "").replace(/\/+$/, "");
+    return res.redirect(301, cleanPath + query);
+  }
+  return next();
+});
+
 // Legacy URL redirect: /ville/:citySlug/:serviceSlug -> /:serviceSlug/:citySlug
 app.use((req: Request, res: Response, next: express.NextFunction) => {
   const cleanPath = req.path.replace(/\/+$/, "");
@@ -483,9 +508,19 @@ const renderIndex = (meta: RouteMeta): string | null => {
       return `<${tag} ${attributes} data-rh="true">`;
     })
     .join("\n    ");
+  const breadcrumbJsonLd = getBreadcrumbJsonLd(meta);
+  const jsonLd = breadcrumbJsonLd
+    ? `\n    <script type="application/ld+json" data-rh="true">${breadcrumbJsonLd.replace(/</g, "\\u003c")}</script>`
+    : "";
+  const preload = meta.preloadImage
+    ? `<link rel="preload" as="image" fetchpriority="high" ${Object.entries(meta.preloadImage)
+        .map(([key, value]) => `${key}="${escapeHtml(value)}"`)
+        .join(" ")}>`
+    : "";
   return indexTemplate
+    .replace(/<!-- route-preload:[^>]*-->/, () => preload)
     .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escapeHtml(meta.title)}</title>`)
-    .replace("</head>", () => `    ${tags}\n  </head>`);
+    .replace("</head>", () => `    ${tags}${jsonLd}\n  </head>`);
 };
 
 app.use((req: Request, res: Response) => {

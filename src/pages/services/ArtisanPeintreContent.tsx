@@ -1,6 +1,7 @@
 // src/pages/services/ArtisanPeintreContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
+import { ctaPrimary, ctaSecondary } from "@/pages/services/cta";
 
 type Props = { city: CitySeo };
 
@@ -122,7 +123,7 @@ export default function ArtisanPeintreContent({ city }: Props) {
           Artisan peintre à {city.name} ({city.postalCode})
         </h1>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-stretch">
+        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
           <div className="rounded-2xl border bg-white/60 p-6 shadow-sm flex flex-col">
             <div className="space-y-4">
               <p className="text-muted-foreground leading-relaxed">
@@ -141,10 +142,10 @@ export default function ArtisanPeintreContent({ city }: Props) {
               </p>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <a href="/#contact" className="inline-block underline hover:text-accent">
+                <a href="/#contact" className={ctaPrimary}>
                   Demander un devis gratuit
                 </a>
-                <a href="/realisations" className="inline-block underline hover:text-accent">
+                <a href="/realisations" className={ctaSecondary}>
                   Voir des réalisations (photos)
                 </a>
               </div>
@@ -170,7 +171,7 @@ export default function ArtisanPeintreContent({ city }: Props) {
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-white/60 p-6 shadow-sm">
+          <div className="rounded-2xl border bg-white/60 p-6 shadow-sm lg:sticky lg:top-36">
             <ServicePhotos city={city} />
           </div>
         </div>
@@ -289,10 +290,10 @@ export default function ArtisanPeintreContent({ city }: Props) {
               <li>Chantier propre et finitions soignées</li>
             </ul>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <a href="/#contact" className="inline-block underline hover:text-accent">
+              <a href="/#contact" className={ctaPrimary}>
                 Demander un devis artisan peintre
               </a>
-              <a href="/realisations" className="inline-block underline hover:text-accent">
+              <a href="/realisations" className={ctaSecondary}>
                 Voir nos réalisations
               </a>
             </div>

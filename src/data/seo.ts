@@ -47,6 +47,12 @@ export const CITIES: City[] = [
 
 export const DEFAULT_CITY: City = CITIES[0];
 
+/** Public URL path of a city page. Cambrai is the home page (its /cambrai-59400
+ *  page is a near duplicate, canonicalised to "/"), so links point to "/". */
+export function cityPath(city: City): string {
+  return city.slug === DEFAULT_CITY.slug ? "/" : `/${city.slug}`;
+}
+
 export type Service = {
   slug: string;   // "peinture-interieure"
   label: string;  // "Peinture intérieure"

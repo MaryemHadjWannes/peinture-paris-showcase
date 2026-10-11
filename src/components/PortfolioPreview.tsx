@@ -98,13 +98,13 @@ const PortfolioPreview = ({ city }: { city: City }) => {
       <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
         <div className="text-center mb-10 sm:mb-12">
           <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-5">
-            <Image className="h-5 w-5 text-accent" />
-            <span className="text-accent font-medium text-sm sm:text-base">
+            <Image className="h-5 w-5 text-accent-strong" />
+            <span className="text-accent-strong font-medium text-sm sm:text-base">
               Réalisations & Chantiers
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4">
+          <h2 className="section-title mb-3 sm:mb-4">
             Nos réalisations à {city.name}
           </h2>
 
@@ -122,7 +122,7 @@ const PortfolioPreview = ({ city }: { city: City }) => {
                 key={category.id}
                 className="rounded-2xl border border-border/60 bg-card/60 shadow-sm overflow-hidden"
               >
-                <div className="aspect-[4/3] overflow-hidden">
+                <div className="aspect-[4/3] overflow-hidden bg-muted">
                   <img
                     src={image}
                     alt={`${category.title} - réalisations à ${cityLabel}`}

@@ -257,12 +257,12 @@ const Portfolio = () => {
           {/* HEADER */}
           <div className="text-center mb-10 md:mb-12">
             <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4">
-              <Palette className="h-5 w-5 text-accent" />
-              <span className="text-accent font-medium text-sm md:text-base">
+              <Palette className="h-5 w-5 text-accent-strong" />
+              <span className="text-accent-strong font-medium text-sm md:text-base">
                 Nos Réalisations
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-3 font-heading">
+            <h2 className="section-title mb-3">
               Réalisations de peinture et rénovation
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
@@ -274,7 +274,7 @@ const Portfolio = () => {
           {/* PROJETS NORMAUX */}
           {isLoadingProjects ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="h-10 w-10 animate-spin text-accent" />
+              <Loader2 className="h-10 w-10 animate-spin text-accent-strong" />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -365,13 +365,13 @@ const Portfolio = () => {
 
           {/* AVANT / APRÈS */}
           <div ref={avantApresRef} className="mt-16 md:mt-24">
-            <h3 className="text-3xl md:text-4xl font-bold text-center mb-10 text-accent">
+            <h3 className="text-3xl md:text-4xl font-bold text-center mb-10 text-accent-strong">
               Avant / Après
             </h3>
 
             {isLoadingAvantApres ? (
               <div className="flex flex-col items-center py-16">
-                <Loader2 className="h-10 w-10 animate-spin text-accent mb-3" />
+                <Loader2 className="h-10 w-10 animate-spin text-accent-strong mb-3" />
                 <p className="text-muted-foreground">
                   Chargement des transformations...
                 </p>

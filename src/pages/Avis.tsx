@@ -23,9 +23,9 @@ type Review = GoogleReview;
 const Stars = ({ value }: { value: number }) => {
   const v = Math.max(0, Math.min(5, Math.round(value)));
   return (
-    <div className="inline-flex items-center gap-1" aria-label={`Note ${v} sur 5`}>
+    <div className="inline-flex items-center gap-1" role="img" aria-label={`Note ${v} sur 5`}>
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className={`h-4 w-4 ${i < v ? "text-accent" : "text-muted-foreground/40"}`} />
+        <Star key={i} aria-hidden="true" className={`h-4 w-4 ${i < v ? "text-accent fill-current" : "text-muted-foreground/40"}`} />
       ))}
     </div>
   );
@@ -60,17 +60,16 @@ const Avis: React.FC = () => {
     <div className="min-h-screen">
       <SeoHead meta={AVIS_META} />
       <Navigation />
-      <br />
-      <br />
 
-      <main>
+      {/* Top padding = height of the fixed navigation bar */}
+      <main className="pt-20 sm:pt-24">
         {/* Header / Hero-like */}
         <section className="py-16 bg-gradient-to-b from-secondary/35 via-white/70 to-secondary/20">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 bg-accent/20 rounded-full px-4 py-2 mb-6">
-                <MessageSquareQuote className="h-5 w-5 text-accent" />
-                <span className="text-accent font-medium">Avis clients</span>
+                <MessageSquareQuote className="h-5 w-5 text-accent-strong" />
+                <span className="text-accent-strong font-medium">Avis clients</span>
               </div>
 
               <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">
@@ -87,7 +86,7 @@ const Avis: React.FC = () => {
                 <Card className="border-border/50 bg-white/70 shadow-sm">
                   <CardContent className="py-3 px-4 flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-accent/15 flex items-center justify-center">
-                      <Star className="h-5 w-5 text-accent" />
+                      <Star className="h-5 w-5 text-accent-strong" />
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-primary">
@@ -156,7 +155,7 @@ const Avis: React.FC = () => {
                   {/* Tri */}
                   <div className="mt-4 md:mt-0 md:ml-4 inline-block">
                     <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-                      <SelectTrigger className="w-[240px] rounded-xl">
+                      <SelectTrigger className="w-[240px] rounded-xl" aria-label="Trier les avis">
                         <SelectValue placeholder="Trier..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -231,7 +230,7 @@ const ReviewItem: React.FC<{ review: Review; index: number }> = ({ review: r, in
               </div>
             </div>
 
-            <Badge className="bg-accent/15 text-accent shadow-none">Google</Badge>
+            <Badge className="bg-accent/15 text-accent-strong shadow-none">Google</Badge>
           </div>
         </CardHeader>
 
