@@ -1,4 +1,3 @@
-# HN Rénovation – site vitrine
 
 Site de HN Rénovation, artisan peintre à Cambrai : React + Vite + Tailwind côté
 navigateur, serveur Express (`server.ts`) qui sert le site, l'API de la galerie
