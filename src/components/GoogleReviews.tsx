@@ -12,11 +12,12 @@ type Review = GoogleReview;
 const Stars = ({ value }: { value: number }) => {
   const v = Math.max(0, Math.min(5, Math.round(value)));
   return (
-    <div className="inline-flex items-center gap-1" aria-label={`Note ${v} sur 5`}>
+    <div className="inline-flex items-center gap-1" role="img" aria-label={`Note ${v} sur 5`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i < v ? "text-accent" : "text-muted-foreground/35"}`}
+          aria-hidden="true"
+          className={`h-4 w-4 ${i < v ? "text-accent fill-current" : "text-muted-foreground/35"}`}
         />
       ))}
     </div>
@@ -42,7 +43,7 @@ const ReviewCard: React.FC<{ review: Review; index: number }> = ({ review: r, in
             <CardTitle className="text-base font-heading text-primary truncate">
               {r.authorName}
             </CardTitle>
-            <Badge className="bg-accent/12 text-accent shadow-none">
+            <Badge className="bg-accent/12 text-accent-strong shadow-none">
               <span className="text-xs">Google</span>
             </Badge>
           </div>
@@ -65,6 +66,14 @@ const ReviewCard: React.FC<{ review: Review; index: number }> = ({ review: r, in
       </Card>
     </div>
   );
+};
+
+// Centered grid whatever the number of reviews shown (full class names for Tailwind).
+const REVIEW_GRID: Record<number, string> = {
+  1: "md:grid-cols-1 max-w-md mx-auto",
+  2: "max-w-3xl mx-auto",
+  3: "lg:grid-cols-3 max-w-5xl mx-auto",
+  4: "lg:grid-cols-4",
 };
 
 const GoogleReviews: React.FC<{ max?: number }> = ({ max = 4 }) => {
@@ -90,13 +99,13 @@ const GoogleReviews: React.FC<{ max?: number }> = ({ max = 4 }) => {
           {/* Header centered like FAQ */}
             <div className="text-center mb-8 sm:mb-10">
             <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-5">
-                <Star className="h-5 w-5 text-accent" />
-                <span className="text-accent font-medium text-sm sm:text-base">
+                <Star className="h-5 w-5 text-accent-strong" />
+                <span className="text-accent-strong font-medium text-sm sm:text-base">
                 Avis Google
                 </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4">
+            <h2 className="section-title mb-3 sm:mb-4">
                 Ce que disent nos clients
             </h2>
 
@@ -129,7 +138,7 @@ const GoogleReviews: React.FC<{ max?: number }> = ({ max = 4 }) => {
 
 
           {/* Grid compact */}
-          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className={`mt-6 grid gap-4 md:grid-cols-2 ${REVIEW_GRID[preview.length] ?? "lg:grid-cols-4"}`}>
             {preview.map((r, idx) => (
               <ReviewCard key={`${r.authorName}-${idx}`} review={r} index={idx} />
             ))}

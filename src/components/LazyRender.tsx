@@ -23,6 +23,11 @@ const LazyRender = ({
 
   useEffect(() => {
     if (isVisible) return;
+    // The request may have been made before this effect ran (same commit).
+    if (isRevealRequested()) {
+      setIsVisible(true);
+      return;
+    }
     return onRevealRequest(() => setIsVisible(true));
   }, [isVisible]);
 

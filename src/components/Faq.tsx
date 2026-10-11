@@ -63,10 +63,10 @@ const Faq: React.FC<FaqProps> = ({ city }) => {
       <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
         <div className="text-center mb-8 sm:mb-10">
           <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-5">
-            <HelpCircle className="h-5 w-5 text-accent" />
-            <span className="text-accent font-medium text-sm sm:text-base">FAQ – Questions fréquentes</span>
+            <HelpCircle className="h-5 w-5 text-accent-strong" />
+            <span className="text-accent-strong font-medium text-sm sm:text-base">FAQ – Questions fréquentes</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-3 sm:mb-4">
+          <h2 className="section-title mb-3 sm:mb-4">
             FAQ peinture et rénovation à {city.name}
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">

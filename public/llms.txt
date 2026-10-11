@@ -1,44 +1,40 @@
-# llms.txt
+# HN Rénovation
 
-## Site
-- Name: HN Renovation
-- URL: https://hn-renovation.fr
-- Language: fr
-- Contact: hn.renovation.fr@gmail.com
+> HN Rénovation est une entreprise de peinture et de rénovation basée à Cambrai (59400, Nord, Hauts-de-France). Elle réalise la peinture intérieure et extérieure, les enduits, la plâtrerie et les finitions pour les particuliers et les professionnels, avec devis gratuit.
 
-## Summary
-HN Renovation is a local painting and renovation company in the Hauts-de-France region (Cambrai and nearby cities).
+- Adresse : 103 rue Saint Ladre, 59400 Cambrai, France
+- Téléphone : +33 6 02 22 80 01
+- E-mail : hn.renovation.fr@gmail.com
+- Horaires : du lundi au vendredi, de 8 h à 18 h
+- Zones d'intervention : Cambrai et alentours, Douai, Valenciennes, Arras, Caudry
+- Langue du site : français
 
-## Services
-- Peinture intérieure (murs, plafonds, finitions)
-- Peinture extérieure (façades, protections durables)
-- Enduit professionnel (ratissage, bandes, préparation)
-- Plâtrerie et finitions (reprises, rénovation)
+## Pages principales
 
-## Primary Pages
-- https://hn-renovation.fr/
-- https://hn-renovation.fr/realisations
-- https://hn-renovation.fr/avis
+- [Accueil](https://hn-renovation.fr/): présentation de l'entreprise, prestations, avis, questions fréquentes et formulaire de devis
+- [Réalisations](https://hn-renovation.fr/realisations): photos de chantiers (enduit, peinture intérieure, escaliers, avant/après)
+- [Avis clients](https://hn-renovation.fr/avis): avis Google laissés par les clients
+- [Demande de devis](https://hn-renovation.fr/#contact): formulaire de contact pour un devis gratuit
 
-## Service Pages
-- https://hn-renovation.fr/artisan-peintre/cambrai-59400
-- https://hn-renovation.fr/peinture-interieure/cambrai-59400
-- https://hn-renovation.fr/peinture-exterieure/cambrai-59400
-- https://hn-renovation.fr/enduit/cambrai-59400
-- https://hn-renovation.fr/platrerie/cambrai-59400
+## Prestations à Cambrai
 
-## Cities
-- https://hn-renovation.fr/cambrai-59400
-- https://hn-renovation.fr/douai-59500
-- https://hn-renovation.fr/valenciennes-59300
-- https://hn-renovation.fr/arras-62000
-- https://hn-renovation.fr/caudry-59540
+- [Artisan peintre à Cambrai](https://hn-renovation.fr/artisan-peintre/cambrai-59400): peinture intérieure et extérieure, enduits, plâtrerie et finitions
+- [Peinture intérieure à Cambrai](https://hn-renovation.fr/peinture-interieure/cambrai-59400): murs, plafonds, boiseries, préparation et finitions
+- [Peinture extérieure à Cambrai](https://hn-renovation.fr/peinture-exterieure/cambrai-59400): façades, murs extérieurs et protection contre les intempéries
+- [Enduit professionnel à Cambrai](https://hn-renovation.fr/enduit/cambrai-59400): ratissage, bandes, rebouchage et murs lisses avant peinture
+- [Plâtrerie et finitions à Cambrai](https://hn-renovation.fr/platrerie/cambrai-59400): cloisons, plafonds, reprises et préparation avant peinture
 
-## Notes
-- Use the URLs above as canonical references.
+## Zones d'intervention
 
-## Social
-- https://www.facebook.com/profile.php?id=61576234322277
-- https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/
-- https://www.youtube.com/@HN-Renovation
-- https://x.com/HWannesMaryem
+- [Peintre à Douai](https://hn-renovation.fr/douai-59500): interventions à Douai (59500) et communes voisines
+- [Peintre à Valenciennes](https://hn-renovation.fr/valenciennes-59300): interventions à Valenciennes (59300) et communes voisines
+- [Peintre à Arras](https://hn-renovation.fr/arras-62000): interventions à Arras (62000) et communes voisines
+- [Peintre à Caudry](https://hn-renovation.fr/caudry-59540): interventions à Caudry (59540) et communes voisines
+
+## Optional
+
+- [Facebook](https://www.facebook.com/profile.php?id=61576234322277): actualités et chantiers
+- [YouTube](https://www.youtube.com/@HN-Renovation): vidéos de chantiers
+- [LinkedIn](https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/): profil professionnel
+- [X](https://x.com/hn_renovat41548): actualités
+- [Plan du site](https://hn-renovation.fr/sitemap.xml): liste de toutes les pages

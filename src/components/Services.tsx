@@ -13,21 +13,6 @@ type ServicesProps = {
   serviceFocus?: string; // slug, optional (e.g. "enduit")
 };
 
-const PaintSplash = ({ color, className = "" }: { color: string; className?: string }) => (
-  <svg
-    width="50"
-    height="50"
-    viewBox="0 0 100 100"
-    fill="none"
-    className={`absolute -top-6 -right-6 opacity-40 z-0 pointer-events-none ${className}`}
-  >
-    <path
-      d="M31 17C37 7 61 8 67 17C73 27 95 33 86 47C77 61 62 70 50 68C38 66 18 60 14 47C10 34 25 27 31 17Z"
-      fill={color}
-    />
-  </svg>
-);
-
 const baseServices = [
   {
     slug: "enduit",
@@ -39,7 +24,6 @@ const baseServices = [
       "Ratissage précis pour une surface uniforme",
       "Rattrapage des irrégularités et finitions parfaites",
     ],
-    splash: "#10b981",
     popular: true,
   },
   {
@@ -48,7 +32,6 @@ const baseServices = [
     title: "Peinture Intérieure",
     description: "Revitalisez vos espaces intérieurs avec des finitions soignées et durables",
     features: ["Préparation des surfaces", "Application de peintures écologiques", "Finitions personnalisées"],
-    splash: "#fbbf24",
     popular: false,
   },
   {
@@ -57,7 +40,6 @@ const baseServices = [
     title: "Peinture Extérieure",
     description: "Protégez et embellissez vos façades avec des revêtements résistants aux intempéries",
     features: ["Nettoyage haute pression", "Traitement anti-mousse longue durée", "Réparation des fissures et remise en état"],
-    splash: "#3b82f6",
     popular: false,
   },
   {
@@ -66,7 +48,6 @@ const baseServices = [
     title: "Plâtrerie et Finition",
     description: "Solutions complètes pour plâtrerie et aménagements décoratifs",
     features: ["Plâtrerie traditionnelle et placo décoratif", "Pose de parquet professionnel", "Finition esthétique sur mesure"],
-    splash: "#a21caf",
     popular: false,
   },
 ];
@@ -89,21 +70,19 @@ const ServiceCard: React.FC<{ service: (typeof baseServices)[number]; city: City
       >
         {service.popular && (
           <div className="z-20">
-            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground shadow-md animate-pulse-bounce text-sm px-3 py-1">
+            <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground shadow-md text-sm px-3 py-1">
               Populaire
             </Badge>
           </div>
         )}
 
-        <PaintSplash color={service.splash} className={service.popular ? "opacity-60 scale-110" : ""} />
-
         <CardHeader className="text-center pb-4 relative z-10">
           <div
-            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow transition-transform duration-300 hover:scale-110 cursor-pointer ${
+            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow ${
               service.popular ? "bg-accent/30" : "bg-accent/20"
             }`}
           >
-            <IconComponent className={`h-8 w-8 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
+            <IconComponent className={`h-8 w-8 ${service.popular ? "text-accent-foreground" : "text-accent-strong"}`} />
           </div>
 
           <CardTitle className="text-xl font-heading text-primary">
@@ -117,7 +96,7 @@ const ServiceCard: React.FC<{ service: (typeof baseServices)[number]; city: City
           <div className="space-y-2 flex-grow">
             {service.features.map((feature: string, featureIndex: number) => (
               <div key={featureIndex} className="flex items-center space-x-2 text-sm">
-                <CheckCircle className={`h-4 w-4 ${service.popular ? "text-accent-foreground" : "text-accent"}`} />
+                <CheckCircle className={`h-4 w-4 ${service.popular ? "text-accent-foreground" : "text-accent-strong"}`} />
                 <span>{feature}</span>
               </div>
             ))}
@@ -163,13 +142,13 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-6">
-              <Brush className="h-5 w-5 text-accent" />
-              <span className="text-accent font-medium">Nos Services</span>
+              <Brush className="h-5 w-5 text-accent-strong" />
+              <span className="text-accent-strong font-medium">Nos Services</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
+            <h2 className="section-title mb-6">
               Services de peinture à {city.name}
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Peinture, enduit et plâtrerie à {city.name} ({city.postalCode}) pour particuliers et professionnels.
             </p>
           </div>
@@ -188,13 +167,13 @@ const Services: React.FC<ServicesProps> = ({ city, serviceFocus }) => {
 
           <div className="flex justify-center gap-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-2">
-              <Clock className="h-4 w-4 text-accent" /> Intervention rapide
+              <Clock className="h-4 w-4 text-accent-strong" /> Intervention rapide
             </span>
             <span className="inline-flex items-center gap-2">
-              <Shield className="h-4 w-4 text-accent" /> Garantie satisfaction
+              <Shield className="h-4 w-4 text-accent-strong" /> Garantie satisfaction
             </span>
             <span className="inline-flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-accent" /> Devis gratuit
+              <CheckCircle className="h-4 w-4 text-accent-strong" /> Devis gratuit
             </span>
           </div>
         </div>

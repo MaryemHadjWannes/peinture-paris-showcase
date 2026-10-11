@@ -1,7 +1,9 @@
 User-agent: *
 Disallow: /admin
-Disallow: /api
-Disallow: /upload
+Disallow: /api/
+# The gallery photos are loaded from this public API: allow it so search
+# engines can render the Réalisations page completely.
+Allow: /api/public/
 Allow: /
 
 Sitemap: https://hn-renovation.fr/sitemap.xml

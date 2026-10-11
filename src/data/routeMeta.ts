@@ -3,9 +3,10 @@
 // the same tags into the initial HTML so crawlers and social networks (which do
 // not run JavaScript) get a unique title, description, canonical and Open Graph
 // preview for each URL. Keep imports relative: server.ts runs this file with tsx.
-import { CITIES, type City } from "./seo";
+import { CITIES, DEFAULT_CITY, SERVICES, cityPath, type City } from "./seo";
 
 export const SITE_URL = "https://hn-renovation.fr";
+export const SITE_NAME = "HN Rénovation";
 
 const HERO_OG_IMAGE = `${SITE_URL}/hero-1920.jpg`;
 const PAINTING_OG_IMAGE = `${SITE_URL}/uploads/1759262842539-hero-painting.jpg`;
@@ -18,6 +19,8 @@ export const SERVICE_SLUGS = [
   "artisan-peintre",
 ] as const;
 
+export type Breadcrumb = { name: string; url: string };
+
 export type RouteMeta = {
   title: string;
   robots: string;
@@ -25,11 +28,33 @@ export type RouteMeta = {
   canonical?: string;
   ogImage?: string;
   ogDescription?: string;
+  /** Rendered as BreadcrumbList structured data (search result breadcrumbs). */
+  breadcrumbs?: Breadcrumb[];
+  /** Attributes of the <link rel="preload" as="image"> the server adds for the
+   *  page's largest above-the-fold image (LCP). Server-side only. */
+  preloadImage?: Record<string, string>;
 };
 
 export type HeadTag = {
   tag: "meta" | "link";
   attrs: Record<string, string>;
+};
+
+// Same candidates and sizes as the <picture> in src/components/Hero.tsx, so the
+// browser preloads exactly the file it will display.
+const HERO_PRELOAD = {
+  type: "image/webp",
+  imagesrcset: "/hero-640.webp 640w, /hero-960.webp 960w, /hero-1280.webp 1280w",
+  imagesizes: "100vw",
+};
+
+// First image of each service page (src/pages/services/*Content.tsx).
+const SERVICE_IMAGES: Record<string, string> = {
+  "peinture-exterieure": "/exterieur1.webp",
+  "peinture-interieure": "/interieur3.webp",
+  enduit: "/enduit2.webp",
+  platrerie: "/enduit2.webp",
+  "artisan-peintre": "/exterieur1.webp",
 };
 
 const INDEX = "index, follow";
@@ -42,6 +67,7 @@ export const HOME_META: RouteMeta = {
   canonical: `${SITE_URL}/`,
   robots: INDEX,
   ogImage: HERO_OG_IMAGE,
+  preloadImage: HERO_PRELOAD,
 };
 
 export const REALISATIONS_META: RouteMeta = {
@@ -58,7 +84,7 @@ export const REALISATIONS_META: RouteMeta = {
 export const AVIS_META: RouteMeta = {
   title: "Avis clients peintre à Cambrai (59) | HN Rénovation",
   description:
-    "Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure, la propreté du chantier et le sérieux de l’équipe.",
+    "Avis clients de HN Rénovation, peintre à Cambrai (59) : qualité des travaux de peinture, propreté du chantier et sérieux de l’équipe.",
   ogDescription:
     "Avis clients HN Rénovation à Cambrai (59) : retours sur la qualité des travaux de peinture intérieure et extérieure.",
   canonical: `${SITE_URL}/avis`,
@@ -76,21 +102,42 @@ export const NOT_FOUND_META: RouteMeta = {
   robots: NOINDEX,
 };
 
+const HOME_CRUMB: Breadcrumb = { name: "Accueil", url: `${SITE_URL}/` };
+
 export function getCityMeta(city: City): RouteMeta {
+  const isHomeCity = city.slug === DEFAULT_CITY.slug;
   return {
     title: `Peintre à ${city.name} (${city.postalCode}) | HN Rénovation - peinture`,
     description: `HN Rénovation, artisan peintre à ${city.name} (${city.postalCode}) dans le ${city.department} : peinture intérieure et extérieure, enduits, plâtrerie. Devis gratuit.`,
-    canonical: `${SITE_URL}/${city.slug}`,
+    // The Cambrai page repeats the home page: point search engines to "/".
+    canonical: `${SITE_URL}${cityPath(city)}`,
     robots: INDEX,
     ogImage: PAINTING_OG_IMAGE,
+    preloadImage: HERO_PRELOAD,
+    breadcrumbs: isHomeCity
+      ? undefined
+      : [HOME_CRUMB, { name: `Peintre à ${city.name}`, url: `${SITE_URL}/${city.slug}` }],
   };
 }
 
 export function getServiceMeta(serviceSlug: string, city: City): RouteMeta | null {
+  const canonical = `${SITE_URL}/${serviceSlug}/${city.slug}`;
+  const service = SERVICES.find((s) => s.slug === serviceSlug);
+  const image = SERVICE_IMAGES[serviceSlug];
   const base = {
-    canonical: `${SITE_URL}/${serviceSlug}/${city.slug}`,
+    canonical,
     robots: INDEX,
     ogImage: PAINTING_OG_IMAGE,
+    preloadImage: image ? { type: "image/webp", href: image } : undefined,
+    breadcrumbs: service
+      ? [
+          HOME_CRUMB,
+          ...(city.slug === DEFAULT_CITY.slug
+            ? []
+            : [{ name: `Peintre à ${city.name}`, url: `${SITE_URL}/${city.slug}` }]),
+          { name: `${service.label} à ${city.name}`, url: canonical },
+        ]
+      : undefined,
   };
 
   switch (serviceSlug) {
@@ -149,6 +196,21 @@ export function getRouteMeta(pathname: string): RouteMeta | null {
   return null;
 }
 
+/** BreadcrumbList JSON-LD for a route, or null. */
+export function getBreadcrumbJsonLd(meta: RouteMeta): string | null {
+  if (!meta.breadcrumbs?.length) return null;
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: meta.breadcrumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.url,
+    })),
+  });
+}
+
 /** The <meta>/<link> tags for a route (the <title> is handled separately). */
 export function getHeadTags(meta: RouteMeta): HeadTag[] {
   const tags: HeadTag[] = [{ tag: "meta", attrs: { name: "robots", content: meta.robots } }];
@@ -162,6 +224,7 @@ export function getHeadTags(meta: RouteMeta): HeadTag[] {
       { tag: "meta", attrs: { property: "og:title", content: meta.title } },
       { tag: "meta", attrs: { property: "og:description", content: ogDescription } },
       { tag: "meta", attrs: { property: "og:type", content: "website" } },
+      { tag: "meta", attrs: { property: "og:site_name", content: SITE_NAME } },
       { tag: "meta", attrs: { property: "og:locale", content: "fr_FR" } },
       { tag: "meta", attrs: { name: "twitter:card", content: "summary_large_image" } },
       { tag: "meta", attrs: { name: "twitter:title", content: meta.title } },

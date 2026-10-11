@@ -99,13 +99,13 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
         <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10 sm:mb-12">
           <div className="inline-flex items-center space-x-2 bg-accent/20 rounded-full px-4 py-2 mb-4 sm:mb-6">
-            <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-            <span className="text-accent font-medium text-sm sm:text-base">Contactez-Nous</span>
+            <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-accent-strong" />
+            <span className="text-accent-strong font-medium text-sm sm:text-base">Contactez-Nous</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 sm:mb-6">
+          <h2 className="section-title mb-4 sm:mb-6">
             Devis peinture à {city.name} : parlons de votre projet
           </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Intervention à {city.name} ({city.postalCode}) et alentours. Contactez-nous pour un devis gratuit et personnalisé.
             </p>
           </div>
@@ -165,7 +165,7 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
                     <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required placeholder="Pièces concernées, état des murs, délais souhaités..." rows={4} aria-describedby="message-hint" />
                     <p id="message-hint" className="text-xs text-muted-foreground">
                       Des photos aident à estimer le chantier : vous pouvez les envoyer à{" "}
-                      <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent">{CONTACT_EMAIL}</a> après votre demande.
+                      <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent-strong">{CONTACT_EMAIL}</a> après votre demande.
                     </p>
                   </div>
 
@@ -173,7 +173,7 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
                     Les informations de ce formulaire servent uniquement à traiter votre demande de devis et à vous
                     recontacter. Elles sont transmises par e-mail à HN Rénovation via le service Formspree et ne sont ni
                     vendues ni cédées. Pour y accéder ou les faire supprimer, écrivez à{" "}
-                    <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent">{CONTACT_EMAIL}</a>.
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-accent-strong">{CONTACT_EMAIL}</a>.
                   </p>
 
                   <Button type="submit" size="lg" className="w-full sm:w-auto hover-lift px-6 sm:px-8" disabled={isSending}>
@@ -212,14 +212,14 @@ const Contact: React.FC<ContactProps> = ({ city }) => {
                     <Card key={index} className="hover-lift border-border/50">
                       <CardContent className="flex items-center space-x-4 p-4 sm:p-6">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/20 rounded-full flex items-center justify-center">
-                          <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+                          <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-accent-strong" />
                         </div>
                         <div>
                           <h3 className="font-heading font-semibold text-primary text-base sm:text-lg mb-1">{info.title}</h3>
                           {info.href ? (
                             <a
                               href={info.href}
-                              className="text-foreground text-sm sm:text-base underline-offset-2 hover:underline hover:text-accent break-all"
+                              className="text-foreground text-sm sm:text-base underline-offset-2 hover:underline hover:text-accent-strong break-all"
                               {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                             >
                               {info.content}

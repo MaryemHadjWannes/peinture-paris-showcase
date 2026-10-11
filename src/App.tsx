@@ -1,7 +1,9 @@
 // src/App.tsx
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-const Index = lazy(() => import("./pages/Index"));
+// The home page is the main landing page: bundled with the app (no extra
+// request before the hero can render). Other pages stay lazy-loaded.
+import Index from "./pages/Index";
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Realisations = lazy(() => import("./pages/Realisations"));

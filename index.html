@@ -9,8 +9,7 @@
     <link rel="preload" as="font" href="/fonts/Inter-300-600.woff2" type="font/woff2" crossorigin>
     <link rel="preload" as="font" href="/fonts/PlayfairDisplay-400-700.woff2" type="font/woff2" crossorigin>
 
-    <!-- Same candidates/sizes as the hero <picture> (src/components/Hero.tsx) so the browser preloads the exact file it will use -->
-    <link rel="preload" as="image" type="image/webp" imagesrcset="/hero-640.webp 640w, /hero-960.webp 960w, /hero-1280.webp 1280w" imagesizes="100vw" fetchpriority="high">
+    <!-- route-preload: server.ts inserts here the preload of the page's main image (see preloadImage in src/data/routeMeta.ts) -->
 
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/hn-logo.png" />
@@ -46,36 +45,65 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "@id": "https://hn-renovation.fr/#localbusiness",
-        "name": "H.N. Rénovation",
-        "url": "https://hn-renovation.fr/",
-        "telephone": "+33 6 02 22 80 01",
-        "email": "hn.renovation.fr@gmail.com",
-        "image": "https://hn-renovation.fr/hn-logo.png",
-        "logo": "https://hn-renovation.fr/hn-logo.png",
-        "priceRange": "€€",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "103 rue Saint Ladre",
-          "addressLocality": "Cambrai",
-          "postalCode": "59400",
-          "addressRegion": "Hauts-de-France",
-          "addressCountry": "FR"
-        },
-        "areaServed": [
-          { "@type": "City", "name": "Cambrai" },
-          { "@type": "City", "name": "Douai" },
-          { "@type": "City", "name": "Valenciennes" },
-          { "@type": "City", "name": "Arras" },
-          { "@type": "City", "name": "Caudry" }
-        ],
-        "openingHours": "Mo-Fr 08:00-18:00",
-        "sameAs": [
-          "https://www.facebook.com/profile.php?id=61576234322277",
-          "https://www.youtube.com/@HN-Renovation",
-          "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
-          "https://x.com/hn_renovat41548"
+        "@graph": [
+          {
+            "@type": "HousePainter",
+            "@id": "https://hn-renovation.fr/#localbusiness",
+            "name": "HN Rénovation",
+            "url": "https://hn-renovation.fr/",
+            "telephone": "+33 6 02 22 80 01",
+            "email": "hn.renovation.fr@gmail.com",
+            "image": "https://hn-renovation.fr/hn-logo.png",
+            "logo": "https://hn-renovation.fr/hn-logo.png",
+            "priceRange": "€€",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "103 rue Saint Ladre",
+              "addressLocality": "Cambrai",
+              "postalCode": "59400",
+              "addressRegion": "Hauts-de-France",
+              "addressCountry": "FR"
+            },
+            "areaServed": [
+              {
+                "@type": "City",
+                "name": "Cambrai"
+              },
+              {
+                "@type": "City",
+                "name": "Douai"
+              },
+              {
+                "@type": "City",
+                "name": "Valenciennes"
+              },
+              {
+                "@type": "City",
+                "name": "Arras"
+              },
+              {
+                "@type": "City",
+                "name": "Caudry"
+              }
+            ],
+            "openingHours": "Mo-Fr 08:00-18:00",
+            "sameAs": [
+              "https://www.facebook.com/profile.php?id=61576234322277",
+              "https://www.youtube.com/@HN-Renovation",
+              "https://www.linkedin.com/in/hn-r%C3%A9novation-6947663a1/",
+              "https://x.com/hn_renovat41548"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://hn-renovation.fr/#website",
+            "name": "HN Rénovation",
+            "url": "https://hn-renovation.fr/",
+            "inLanguage": "fr-FR",
+            "publisher": {
+              "@id": "https://hn-renovation.fr/#localbusiness"
+            }
+          }
         ]
       }
     </script>

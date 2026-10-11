@@ -24,7 +24,7 @@ export default function ServiceLayout({ meta, children }: Props) {
       <SeoHead meta={meta} />
 
       <Navigation />
-      <main className="pt-24">{children}</main>
+      <main className="pt-24 sm:pt-28">{children}</main>
       <Footer />
     </div>
   );

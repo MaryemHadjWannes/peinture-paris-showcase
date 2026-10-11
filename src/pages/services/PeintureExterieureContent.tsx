@@ -1,6 +1,7 @@
 // src/pages/services/PeintureExterieureContent.tsx
 import React from "react";
 import type { CitySeo } from "@/pages/services/ServiceLayout";
+import { ctaPrimary, ctaSecondary } from "@/pages/services/cta";
 
 type Props = { city: CitySeo };
 
@@ -99,7 +100,7 @@ export default function PeintureExterieureContent({ city }: Props) {
           Peinture extérieure à {city.name} ({city.postalCode})
         </h1>
 
-        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-stretch">
+        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
           {/* LEFT */}
           <div className="rounded-2xl border bg-white/60 p-6 shadow-sm flex flex-col">
             <div className="space-y-4">
@@ -124,10 +125,10 @@ export default function PeintureExterieureContent({ city }: Props) {
               </p>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <a href="/#contact" className="inline-block underline hover:text-accent">
+                <a href="/#contact" className={ctaPrimary}>
                   Demander un devis gratuit
                 </a>
-                <a href="/realisations" className="inline-block underline hover:text-accent">
+                <a href="/realisations" className={ctaSecondary}>
                   Voir des réalisations (photos)
                 </a>
               </div>
@@ -154,7 +155,7 @@ export default function PeintureExterieureContent({ city }: Props) {
           </div>
 
           {/* RIGHT */}
-          <div className="rounded-2xl border bg-white/60 p-6 shadow-sm">
+          <div className="rounded-2xl border bg-white/60 p-6 shadow-sm lg:sticky lg:top-36">
             <ServicePhotos city={city} />
           </div>
         </div>
@@ -288,7 +289,7 @@ export default function PeintureExterieureContent({ city }: Props) {
         </div>
 
         <div className="mt-6">
-          <a href="/#contact" className="inline-block underline hover:text-accent">
+          <a href="/#contact" className={ctaPrimary}>
             Demander un devis gratuit après visite
           </a>
         </div>
@@ -316,10 +317,10 @@ export default function PeintureExterieureContent({ city }: Props) {
             </ul>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <a href="/#contact" className="inline-block underline hover:text-accent">
+              <a href="/#contact" className={ctaPrimary}>
                 Demander un devis gratuit peinture extérieure / façade
               </a>
-              <a href="/realisations" className="inline-block underline hover:text-accent">
+              <a href="/realisations" className={ctaSecondary}>
                 Photos avant / après
               </a>
             </div>

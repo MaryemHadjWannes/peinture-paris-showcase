@@ -95,6 +95,9 @@ section[id] {
 
     --accent: 43 74% 66%;
     --accent-foreground: 215 25% 15%;
+    /* Darker gold for text and icons on light backgrounds (contrast >= 4.5:1).
+       The light --accent stays for backgrounds and for text on dark sections. */
+    --accent-strong: 36 75% 30%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -192,9 +195,36 @@ section[id] {
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
+
+  /* Visible keyboard focus everywhere (components with their own ring keep it). */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Respect the system "reduce motion" setting. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
+  /* Heading scale shared by all page sections. */
+  .section-title {
+    @apply font-heading font-bold text-3xl sm:text-4xl leading-tight;
+  }
+
+  .subsection-title {
+    @apply font-heading font-bold text-2xl sm:text-3xl leading-tight;
+  }
+
   .gradient-primary {
     background: var(--primary-gradient);
   }

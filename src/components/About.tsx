@@ -42,15 +42,15 @@ const About: React.FC<AboutProps> = ({ city }) => {
       <div className="container mx-auto px-4">
         <div ref={headerRef} className={`max-w-6xl mx-auto text-center mb-16 ${headerVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 bg-accent/20 rounded-full px-4 py-2 mb-6 mx-auto">
-            <Award className="h-5 w-5 text-accent" />
-            <span className="text-accent font-medium">Notre Expertise</span>
+            <Award className="h-5 w-5 text-accent-strong" />
+            <span className="text-accent-strong font-medium">Notre Expertise</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
+          <h2 className="section-title mb-6">
             Entreprise de peinture à {city.name} : notre savoir-faire
           </h2>
 
-          <p className="text-xl md:text-2xl font-normal text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl font-normal text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             HN Rénovation, artisan peintre intervenant à {city.name} ({city.postalCode}), vous accompagne pour
             la peinture intérieure, la peinture extérieure, l'enduit, la plâtrerie et la rénovation, avec
             préparation soignée, finitions durables et devis gratuit.
@@ -115,7 +115,7 @@ const About: React.FC<AboutProps> = ({ city }) => {
                 onClick={() => setExpanded((v) => !v)}
                 aria-expanded={expanded}
                 aria-controls={descId}
-                className="inline-flex items-center gap-2 text-accent font-semibold px-4 py-2 rounded-full border border-accent/30 bg-accent/10 hover:bg-accent/15 transition"
+                className="inline-flex items-center gap-2 text-accent-strong font-semibold px-4 py-2 rounded-full border border-accent/30 bg-accent/10 hover:bg-accent/15 transition"
               >
                 {expanded ? "Voir moins" : "Voir plus"}
                 <span aria-hidden="true">{expanded ? "▲" : "▼"}</span>
@@ -124,14 +124,14 @@ const About: React.FC<AboutProps> = ({ city }) => {
           </div>
         </div>
 
-        <div ref={featuresRef} className={`grid md:grid-cols-4 gap-8 mb-16 ${featuresVisible ? 'animate-fade-up' : 'opacity-0'}`}>
+        <div ref={featuresRef} className={`grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-16 max-w-6xl mx-auto ${featuresVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
               <div key={i} className="bg-card p-6 rounded-xl shadow-soft border border-border/50" style={{ animationDelay: `${i * 50}ms` }}>
                 <div className="flex flex-col items-center text-center">
                   <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center mb-4">
-                    <Icon className="h-6 w-6 text-accent" />
+                    <Icon className="h-6 w-6 text-accent-strong" />
                   </div>
                   <h3 className="font-heading font-semibold mb-2 text-primary">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -141,7 +141,7 @@ const About: React.FC<AboutProps> = ({ city }) => {
           })}
         </div>
 
-        <div ref={commitmentRef} className={`bg-primary/5 rounded-2xl p-8 border border-primary/20 text-center ${commitmentVisible ? 'animate-fade-up' : 'opacity-0'}`}>
+        <div ref={commitmentRef} className={`max-w-6xl mx-auto bg-primary/5 rounded-2xl p-8 border border-primary/20 text-center ${commitmentVisible ? 'animate-fade-up' : 'opacity-0'}`}>
           <h3 className="text-2xl font-heading font-semibold mb-4 text-primary">Notre Engagement</h3>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Respect des délais, budget maîtrisé, chantier propre et suivi personnalisé, avec une garantie de satisfaction.

@@ -19,15 +19,12 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
+        // Only the React runtime gets its own long-cached chunk. Everything else
+        // follows the import graph, so libraries used by lazy sections (icons,
+        // Radix, toasts…) are not downloaded before the first render.
         manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react-dom") || id.includes("react-router-dom") || id.includes("react-helmet-async")) {
-              return "vendor-react";
-            }
-            if (id.includes("@radix-ui") || id.includes("lucide-react") || id.includes("framer-motion") || id.includes("recharts") || id.includes("sonner")) {
-              return "vendor-ui";
-            }
-            return "vendor";
+          if (/node_modules\/(react|react-dom|scheduler|react-router|react-router-dom|@remix-run\/router|react-helmet-async)\//.test(id)) {
+            return "vendor-react";
           }
         },
       },
