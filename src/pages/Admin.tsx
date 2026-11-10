@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash, Upload, MoveUp, MoveDown, Check } from 'lucide-react';
 
 // Same origin in production (the Express server serves the site and the API).
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+import { API_BASE } from "@/lib/api";
 
 interface Category {
   name: string;

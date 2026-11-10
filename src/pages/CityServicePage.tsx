@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import ServiceLayout, { CitySeo } from "@/pages/services/ServiceLayout";
-import { CITIES, cityPath } from "@/data/seo";
+import { CITIES, SERVICES, cityPath } from "@/data/seo";
 import { getServiceMeta } from "@/data/routeMeta";
 import NotFound from "@/pages/NotFound";
 
@@ -61,7 +61,20 @@ export default function CityServicePage() {
 
   return (
     <ServiceLayout meta={meta}>
+      <nav aria-label="Fil d’Ariane" className="container mx-auto px-4 pt-6 text-sm">
+        <Link to="/" className="underline">Accueil</Link>
+        {city.slug !== CITIES[0].slug && <> / <Link to={cityPath(city)} className="underline">{city.name}</Link></>}
+        <span aria-current="page"> / {SERVICES.find((service) => service.slug === slug)?.label}</span>
+      </nav>
       {renderServiceContent(slug, city)}
+      <section className="container mx-auto px-4 py-10 max-w-6xl">
+        <h2 className="subsection-title mb-4">Autres prestations à {city.name}</h2>
+        <ul className="flex flex-wrap gap-4">
+          {SERVICES.filter((service) => service.slug !== slug).map((service) => (
+            <li key={service.slug}><Link className="underline hover:text-accent-strong" to={`/${service.slug}/${city.slug}`}>{service.label} à {city.name}</Link></li>
+          ))}
+        </ul>
+      </section>
       {city.nearby?.length ? (
         <section className="container mx-auto px-4 pb-12">
           <div className="max-w-6xl mx-auto">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import nhLogoPng147 from "@/assets/nh-logo-147.png";
 import nhLogoPng294 from "@/assets/nh-logo-294.png";
 import nhLogoWebp147 from "@/assets/nh-logo-147.webp";
@@ -10,6 +10,14 @@ const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, []);
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -60,7 +68,7 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 nav-translate">
+    <nav data-site-navigation className="fixed top-0 left-0 right-0 z-50 nav-translate">
       {/* Top Contact Bar */}
       <div className="bg-slate-950/95 text-white/90 border-b border-slate-800 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 py-2 text-xs sm:text-sm">

@@ -11,6 +11,7 @@ const CityPage = lazy(() => import("./pages/CityPage"));
 const CityServicePage = lazy(() => import("./pages/CityServicePage"));
 const Avis = lazy(() => import("./pages/Avis"));
 const CookieConsent = lazy(() => import("@/components/CookieConsent"));
+import { DEFAULT_CITY, SERVICES } from "./data/seo";
 import ScrollToTop from "@/components/ScrollToTop";
 // ✅ pages services
 
@@ -27,7 +28,11 @@ const App = () => {
             {/* ✅ pages services */}
             <Route path="/artisan-peintre-cambrai" element={<Navigate to="/artisan-peintre/cambrai-59400" replace />} />
 
-            {/* ✅ SEO city routes */}
+            {SERVICES.map((service) => (
+              <Route key={service.slug} path={service.path} element={<Navigate to={`/${service.slug}/${DEFAULT_CITY.slug}`} replace />} />
+            ))}
+            <Route path={`/${DEFAULT_CITY.slug}`} element={<Navigate to="/" replace />} />
+            {/* SEO city routes */}
             <Route path="/:citySlug" element={<CityPage />} />
             <Route path="/:serviceSlug/:citySlug" element={<CityServicePage />} />
             <Route path="/avis" element={<Avis />} />

@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 
-const API_BASE = import.meta.env.DEV ? "http://localhost:5000" : "";
+import { API_BASE } from "@/lib/api";
 
 interface ImageFile {
   url: string;
