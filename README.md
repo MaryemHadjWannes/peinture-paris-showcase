@@ -1,74 +1,128 @@
+# HN Rénovation — site vitrine et galerie
 
-Site de HN Rénovation, artisan peintre à Cambrai : React + Vite + Tailwind côté
-navigateur, serveur Express (`server.ts`) qui sert le site, l'API de la galerie
-(photos sur Cloudflare R2) et l'espace `/admin`.
+Site en français de **HN Rénovation**, entreprise de peinture et rénovation basée à Cambrai : [hn-renovation.fr](https://hn-renovation.fr).
 
-## Installation
+Le nom historique du dépôt ne correspond pas à la zone commerciale : le site cible Cambrai, Douai, Valenciennes, Arras et Caudry, pas Paris.
 
-Prérequis : Node.js 20 ou plus.
+## Architecture
+
+- **Interface** : React 18, TypeScript, Vite, Tailwind CSS, composants Radix et React Router.
+- **Serveur** : Express dans `server.ts`, qui sert `dist/`, injecte les métadonnées propres à chaque URL et expose les API.
+- **Photos** : Cloudflare R2 ; gestion protégée par authentification JWT dans `/admin`.
+- **Devis** : formulaire envoyé directement à Formspree. Les photos sont transmises ensuite par e-mail, pas par ce formulaire.
+- **Avis affichés** : fichier éditorial `public/data/google-reviews.json`. La route Google Places `/api/reviews` est distincte et n'alimente pas les composants actuels.
+- **Audience** : Google Analytics après accord dans le bandeau cookies.
+
+## Installation et développement
+
+Prérequis : Node.js 20+ et npm. Le verrou de référence est `package-lock.json` ; utiliser npm de manière cohérente.
 
 ```bash
 npm ci
-cp .env.example .env   # puis remplir les valeurs (ne jamais committer .env)
+cp .env.example .env
 ```
 
-## Commandes
-
-| Commande | Rôle |
-| --- | --- |
-| `npm run dev` | Site en développement sur http://localhost:8080 |
-| `npm start` | Serveur Express (API + site compilé) sur le port `PORT` (5000 par défaut) |
-| `npm run build` | Compile le site dans `dist/` |
-| `npm run lint` | Vérification ESLint |
-
-En développement, lancer `npm run dev` et `npm start` en parallèle : le site
-(port 8080) appelle l'API sur http://localhost:5000.
-
-## Variables d'environnement
-
-La liste complète (sans valeurs) est dans `.env.example`. En production, les
-valeurs se saisissent dans le tableau de bord de l'hébergeur, jamais dans le
-dépôt.
-
-| Variable | Obligatoire | Usage |
-| --- | --- | --- |
-| `JWT_SECRET` | oui | Signature des sessions admin (longue chaîne aléatoire) |
-| `ADMIN_EMAIL` | oui | Identifiant admin |
-| `ADMIN_PASSWORD_HASH` ou `ADMIN_PASSWORD` | oui (l'un des deux) | Mot de passe admin ; préférer le hash |
-| `CORS_ORIGIN` | oui | URL publique du site, ex. `https://hn-renovation.fr` |
-| `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`, `R2_PUBLIC_DOMAIN` | oui | Stockage des photos de la galerie |
-| `GOOGLE_API_KEY` | non | Route `/api/reviews` |
-| `VITE_API_BASE` | non | Adresse de l'API pour `/admin` (vide = même domaine) |
-| `CLOUDINARY_*` | non | Uniquement pour le script ponctuel `migrate.ts` |
-
-Générer `ADMIN_PASSWORD_HASH` (remplacer le mot de passe) :
+Renseigner `.env`, puis lancer dans deux terminaux :
 
 ```bash
-node -e "const c=require('crypto');const s=c.randomBytes(16);console.log('scrypt:'+s.toString('hex')+':'+c.scryptSync(process.argv[1],s,64).toString('hex'))" 'NouveauMotDePasse'
+npm start           # Express et API : http://localhost:5000
+npm run dev         # Interface Vite : http://localhost:8080
 ```
+
+Le serveur cherche aussi `dist/index.html` pour les pages publiques : exécuter `npm run build` avant de les visiter sur le port 5000. `npm run dev` et `npm run preview` servent l'interface sans les injections SEO ni les statuts/redirects Express ; ils ne remplacent pas le serveur de production.
+
+| Commande | Usage |
+| --- | --- |
+| `npm run dev` | Interface avec rechargement automatique |
+| `npm run build` | Compilation de l'interface dans `dist/` |
+| `npm start` | Serveur Express et API |
+| `npm run preview` | Aperçu Vite du bundle, sans API |
+| `npm run typecheck` | Vérification TypeScript de l'interface et de la configuration Vite |
+| `npm run lint` | Analyse ESLint |
+| `npm run check:seo` | Couverture du sitemap, métadonnées, images de partage et liens du fil d'Ariane |
+| `npm run check:server` | Après build : tests HTTP locaux des pages, redirections et erreurs ; port 5099 libre requis |
+
+Les tests serveur utilisent des identifiants fictifs, sans appel R2/Google ni envoi du formulaire.
+
+## Configuration
+
+Ne jamais committer `.env` ou exposer un secret dans une variable `VITE_*` : celles-ci sont intégrées au JavaScript public lors du build.
+
+| Variable | Nécessité | Usage |
+| --- | --- | --- |
+| `JWT_SECRET` | Obligatoire | Signature des sessions admin ; valeur longue et aléatoire |
+| `ADMIN_EMAIL` | Obligatoire | Identifiant admin |
+| `ADMIN_PASSWORD_HASH` ou `ADMIN_PASSWORD` | L'un des deux | Préférer le hash scrypt ; il a priorité si les deux sont définis |
+| `CORS_ORIGIN` | Obligatoire | Origine publique autorisée, sans slash final |
+| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Obligatoires | Stockage R2 |
+| `R2_PUBLIC_DOMAIN` | Obligatoire | Origine publique des images, sans slash final |
+| `PORT` | Facultatif | Port Express, 5000 par défaut |
+| `VITE_API_BASE` | Facultatif, au build | API de la galerie et de l'admin ; localhost:5000 en développement, même origine en production par défaut |
+| `GOOGLE_API_KEY` | Facultatif | Route `/api/reviews`, distincte des avis statiques affichés |
+| `CLOUDINARY_*` | Migration uniquement | Script ponctuel `migrate.ts` |
+
+Pour créer `ADMIN_PASSWORD_HASH` sans mettre le mot de passe dans l'historique de commandes, utiliser un terminal Bash :
+
+```bash
+read -rsp 'Mot de passe admin : ' HN_ADMIN_PASSWORD; echo
+printf '%s' "$HN_ADMIN_PASSWORD" | node -e "const c=require('node:crypto');let p='';process.stdin.setEncoding('utf8');process.stdin.on('data',v=>p+=v);process.stdin.on('end',()=>{const s=c.randomBytes(16);console.log('scrypt:'+s.toString('hex')+':'+c.scryptSync(p,s,64).toString('hex'))})"
+unset HN_ADMIN_PASSWORD
+```
+
+Conserver le résultat dans `ADMIN_PASSWORD_HASH`, puis retirer `ADMIN_PASSWORD`.
 
 ## Déploiement
 
-**Render** (`render.yaml`) : build `npm install && npm run build`, démarrage
-`npm run start`. Les variables obligatoires se renseignent dans
-Render › Environment ; s'il en manque une, le serveur refuse de démarrer et
-indique laquelle.
+L'hébergement doit exécuter **Express** pour conserver les métadonnées initiales et les véritables réponses 301/404. Déployer uniquement `dist/` avec un fallback SPA ne reproduit pas ce comportement.
 
-**Docker** : `docker build -t hn-renovation .` puis
-`docker run --env-file .env -p 5000:5000 hn-renovation`.
+**Render** : configurer les variables dans Environment ; build `npm ci && npm run build`, démarrage `npm start`. Le fichier `render.yaml` actuel utilise `npm install` et contient d'anciennes variables e-mail : vérifier sa configuration avant de créer un nouveau service. Les variables requises de `.env.example` restent à renseigner. Le serveur s'arrête au démarrage si elles manquent. Le service existant suit `main` avec déploiement automatique.
 
-Retour arrière : redéployer la version précédente depuis l'historique des
-déploiements Render ; aucune migration de données n'est nécessaire.
+**Docker** :
 
-## Fonctionnement
+```bash
+docker build -t hn-renovation .
+docker run --env-file .env -p 5000:5000 hn-renovation
+```
 
-- **Demandes de devis** : formulaire `src/components/Contact.tsx` → Formspree
-  (e-mail vers l'adresse de l'entreprise).
-- **Galerie** : `/api/public/images/:category` liste les photos ; `/admin`
-  permet d'en ajouter (JPEG, PNG ou WebP, 5 Mo maximum).
-- **SEO** : `src/data/routeMeta.ts` définit le titre, la description, l'URL
-  canonique et l'aperçu de partage de chaque page. Le serveur les place dans le
-  HTML initial et `<SeoHead>` les reprend côté navigateur. Après l'ajout d'une
-  page, mettre à jour `public/sitemap.xml` et `public/llms.txt`.
-- **Mesure d'audience** : Google Analytics n'est chargé qu'après acceptation
-  dans le bandeau cookies (lien « Gestion des cookies » en pied de page).
+Le Dockerfile actuel installe également les outils de développement nécessaires au démarrage via `tsx`. Retour arrière : redéployer une version précédente chez l'hébergeur. Les photos sont conservées sur R2 indépendamment du code.
+
+## Pages et référencement
+
+| Type | URLs |
+| --- | --- |
+| Pages générales | `/`, `/realisations`, `/avis` |
+| Villes | `/douai-59500`, `/valenciennes-59300`, `/arras-62000`, `/caudry-59540` |
+| Services | `/{service}/{ville}` : 5 services × 5 villes = 25 pages |
+| Cambrai | Accueil `/` ; `/cambrai-59400` redirige vers `/` |
+| Administration | `/admin`, exclue de l'indexation |
+
+Services : `enduit`, `peinture-interieure`, `peinture-exterieure`, `platrerie`, `artisan-peintre`.
+
+Les raccourcis `/{service}` redirigent vers le service à Cambrai. Les anciennes URLs `/ville/{ville}/{service}` sont redirigées uniquement si la ville et le service existent.
+
+Sources à maintenir :
+
+1. `src/data/seo.ts` : villes et services.
+2. `src/data/routeMeta.ts` : titres, descriptions, canonicals, aperçus et fils d'Ariane, partagés entre Express et React.
+3. `src/pages/CityServicePage.tsx` et les contenus de `src/pages/services/` : rendu des prestations.
+4. `public/sitemap.xml` : uniquement les 32 URLs canoniques publiques actuelles ; mettre `lastmod` à jour lorsqu'une page change réellement.
+5. `public/llms.txt` : résumé éditorial facultatif, qui ne remplace ni le sitemap ni le contenu du site.
+6. `index.html` : données structurées de l'entreprise, coordonnées et zones desservies.
+
+Après ajout d'une ville, compléter ces sources, les contenus locaux et les liens internes, puis exécuter `npm run check:seo`. Ajouter une ville doit correspondre à une intervention réelle et apporter des informations utiles propres à cette zone. Les communes listées dans `nearby` sont actuellement du texte et ne créent aucune page.
+
+Le serveur injecte les **métadonnées**, pas le rendu React complet : ce projet n'est pas une application SSR. Les sections de texte, services, FAQ et contact se montent sans attendre un scroll ; les médias restent différés.
+
+## Vérification avant livraison
+
+```bash
+npm run check:seo
+npm run typecheck
+npm run build
+npm run check:server
+npm audit
+```
+
+Compléter par une vérification navigateur sur mobile et ordinateur : menu, devis, formulaire, galerie et refus/acceptation des cookies. Les tests automatisés ne confirment pas la réception des e-mails Formspree ou les accès R2 de production.
+
+Voir [l'audit du 10 novembre 2026](docs/AUDIT-2026-11-10.md) pour les améliorations, priorités et limites de vérification.

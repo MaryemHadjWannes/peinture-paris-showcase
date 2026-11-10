@@ -33,31 +33,23 @@ export default function CityPage() {
         <br/>
       <main>
         <Hero city={city} priority />
-        <LazyRender minHeight="320px">
           <Suspense fallback={null}>
             <About city={city} />
           </Suspense>
-        </LazyRender>
-        <LazyRender minHeight="520px">
           <Suspense fallback={null}>
             <Services city={city} />
           </Suspense>
-        </LazyRender>
         <LazyRender minHeight="420px">
           <Suspense fallback={null}>
             <GoogleReviews />
           </Suspense>
         </LazyRender>
-        <LazyRender minHeight="360px">
           <Suspense fallback={null}>
             <Faq city={city} />
           </Suspense>
-        </LazyRender>
-        <LazyRender minHeight="520px">
           <Suspense fallback={null}>
             <Contact city={city} />
           </Suspense>
-        </LazyRender>
 
         <LazyRender minHeight="420px">
           <Suspense fallback={null}>

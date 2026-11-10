@@ -10,7 +10,7 @@ type Category = {
   description: string;
 };
 
-const API_BASE = import.meta.env.DEV ? "http://localhost:5000" : "";
+import { API_BASE } from "@/lib/api";
 
 const categories: Category[] = [
   {

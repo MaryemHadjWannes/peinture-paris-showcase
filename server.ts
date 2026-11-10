@@ -417,31 +417,11 @@ app.use("/api", googleReviewsApi);
 // === SERVE FRONTEND ===
 const frontend = path.join(process.cwd(), "dist");
 
-// Basic allowlist for SPA routes so we can return 404 for unknown URLs (avoid soft-404)
-const staticSpaRoutes = new Set([
-  "/",
-  "/realisations",
-  "/avis",
-]);
-
-const serviceSlugs = new Set<string>(SERVICE_SLUGS);
-
+// Use the same route registry as metadata: unknown routes must return HTTP 404.
 const rootServiceRedirects = new Set<string>(SERVICE_SLUGS);
-
-const defaultCitySlug = "cambrai-59400";
+const defaultCitySlug = CITIES[0].slug;
 const citySlugs = new Set(CITIES.map((city) => city.slug));
-
-const isSpaRoute = (pathname: string) => {
-  const cleanPath = pathname.replace(/\/+$/, "") || "/";
-  if (staticSpaRoutes.has(cleanPath)) return true;
-  if (cleanPath.startsWith("/admin")) return true;
-  // /:serviceSlug/:citySlug
-  const parts = cleanPath.split("/").filter(Boolean);
-  if (parts.length === 2 && serviceSlugs.has(parts[0]) && citySlugs.has(parts[1])) return true;
-  // /:citySlug
-  if (parts.length === 1 && citySlugs.has(parts[0])) return true;
-  return false;
-};
+const isSpaRoute = (pathname: string) => getRouteMeta(pathname) !== null;
 
 // One URL per page for search engines: www → apex domain, and no trailing slash
 // (/realisations/ → /realisations). Leading slashes are collapsed so that
@@ -464,6 +444,13 @@ app.use((req: Request, res: Response, next: express.NextFunction) => {
 // Legacy URL redirect: /ville/:citySlug/:serviceSlug -> /:serviceSlug/:citySlug
 app.use((req: Request, res: Response, next: express.NextFunction) => {
   const cleanPath = req.path.replace(/\/+$/, "");
+  if (cleanPath === `/${defaultCitySlug}`) {
+    return res.redirect(301, "/");
+  }
+  const legacyCityService = cleanPath.match(/^\/ville\/([^/]+)\/([^/]+)$/);
+  if (legacyCityService && citySlugs.has(legacyCityService[1]) && rootServiceRedirects.has(legacyCityService[2])) {
+    return res.redirect(301, `/${legacyCityService[2]}/${legacyCityService[1]}`);
+  }
   if (cleanPath === "/index.html") {
     return res.redirect(301, "/");
   }

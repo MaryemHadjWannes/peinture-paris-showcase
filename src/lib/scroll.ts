@@ -4,7 +4,6 @@
 // target to exist and for the layout above it to settle, then scrolls.
 
 const REVEAL_EVENT = "hn:reveal-sections";
-const NAV_OFFSET = 88; // height of the fixed navigation bar
 const MAX_WAIT_MS = 6000; // lazy chunks can be slow on mobile networks
 
 let revealRequested = false;
@@ -17,7 +16,10 @@ export const onRevealRequest = (callback: () => void) => {
   return () => window.removeEventListener(REVEAL_EVENT, callback);
 };
 
-const elementTop = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+const elementTop = (el: HTMLElement) => {
+  const navHeight = document.querySelector("nav[data-site-navigation]")?.getBoundingClientRect().height ?? 88;
+  return Math.max(0, el.getBoundingClientRect().top + window.scrollY - navHeight - 16);
+};
 
 export function scrollToSection(id: string, options: { updateHash?: boolean } = {}) {
   const { updateHash = true } = options;
